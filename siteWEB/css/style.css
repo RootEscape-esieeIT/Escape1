@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #0a0a0a; /* Noir profond */
+    color: #00ff41;    /* Vert Matrix */
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Gestion des pages */
+.page {
+    display: none;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.page.active {
+    display: flex;
+}
+
+/* Page d'accueil */
+#home-page {
+    background: #000;
+}
+
+.game-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.game-title {
+    font-size: 4rem;
+    text-shadow: 0 0 20px #00ff41;
+    margin-bottom: 3rem;
+    letter-spacing: 0.5rem;
+}
+
+.blink {
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+/* Conteneurs Communs (Auth & Counter) */
+.auth-container, .counter-container {
+    background: #111;
+    padding: 3rem;
+    border: 1px solid #00ff41;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+    min-width: 450px;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Formulaire d'authentification */
+.input-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.8rem;
+    background: #000;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    outline: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: #00ff41;
+    color: #000;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+/* Minuteur et Barre de Progression */
+.counter-display {
+    font-size: 5rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+}
+
+.progress-container {
+    width: 100%;
+    height: 12px;
+    background: #222;
+    border: 1px solid #00ff41;
+    margin: 20px 0;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 100%;
+    background: #00ff41;
+    transition: width 1s linear, background-color 0.5s;
+}
+
+.terminal-log {
+    font-size: 0.8rem;
+    height: 50px;
+    background: #000;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-left: 3px solid #00ff41;
+    text-align: left;
+    color: #00ff41;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 0.8rem;
+    background: transparent;
+    color: #ff3e3e;
+    border: 1px solid #ff3e3e;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+}
+
+.btn-logout:hover {
+    background: #ff3e3e;
+    color: #000;
+}
+
+.crash-screen {
+    background: #000;
+    color: #0f0;
+    padding: 20px;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-family: 'Courier New', monospace;
+    overflow-y: auto;
+    white-space: pre;
+}
+
+.ascii-frame {
+    border: 2px solid #0f0;
+    padding: 10px;
+    margin: 10px 0;
+    display: inline-block;
+}
+
+.wolf-logo {
+    color: #ff3e3e;
+    filter: drop-shadow(0 0 5px #ff3e3e);
+}

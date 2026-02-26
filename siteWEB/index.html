@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Page d'accueil -->
+    <div id="home-page" class="page active">
+        <div class="game-container">
+            <h1 class="game-title">BIENVENUE</h1>
+            <p class="press-start blink">Appuyez sur <kbd>Espace</kbd> pour continuer</p>
+        </div>
+    </div>
+
+    <!-- Page d'authentification -->
+    <div id="auth-page" class="page">
+        <div class="auth-container">
+            <h2>Connexion</h2>
+            <form id="auth-form">
+                <div class="input-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-submit">Se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Page minuteur -->
+    <div id="counter-page" class="page">
+    <div class="counter-container">
+        <h2 id="user-welcome">ACCÈS AUTORISÉ</h2>
+        
+        <div class="hacker-stats">
+            <p>STATUT : <span class="status-alert">DÉTECTÉ</span></p>
+            <p>SURVIE ESTIMÉE :</p>
+        </div>
+
+        <div class="counter-display">
+            <span id="timer-display">00:00</span>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        
+        <div class="terminal-log" id="terminal-log">
+            > Initialisation du pare-feu...
+        </div>
+
+        <button id="btn-logout" class="btn-logout">ABANDONNER LE TERMINAL</button>
+    </div>
+</div>
+
+
+    <script src="js/script.js"></script>
+</body>
+</html>
