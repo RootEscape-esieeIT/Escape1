@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GHOST Protocol — Accès Sécurisé</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================
+GLITCH TRANSITION OVERLAY
+============================================= -->
+<div id="glitch-overlay">
+  <div class="glitch-lines">
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+  </div>
+  <div class="glitch-msg" id="glitch-msg">INTRUSION DÉTECTÉE</div>
+</div>
+
+<!-- ============================================
+SCREEN 1 — LOGIN
+============================================= -->
+<div id="screen-login" class="screen active">
+
+  <div class="top-bar">
+    <span class="top-bar-logo">GHOST</span>
+    <div class="top-bar-meta">
+      <span class="status-dot"></span>SYSTÈME OPÉRATIONNEL<br>
+      PROTOCOLE DE SÉCURITÉ · NIVEAU 5
+    </div>
+  </div>
+
+  <div class="login-body">
+    <div class="login-card">
+
+      <p class="login-eyebrow">Portail d'accès classifié</p>
+      <h1 class="login-title">AUTHENTIFICATION</h1>
+      <p class="login-subtitle">Identifiez-vous pour accéder à vos directives.</p>
+
+      <div class="field">
+        <label class="field-label" for="input-name">Nom de code agent</label>
+        <input class="field-input" type="text" id="input-name"
+               placeholder="EX : FALCON" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="input-code">Code d'identification (4–8 chiffres)</label>
+        <input class="field-input" type="tel" id="input-code"
+               placeholder="· · · ·" maxlength="8"
+               autocomplete="off" inputmode="numeric"
+               oninput="this.value=this.value.replace(/\D/g,'')">
+      </div>
+
+      <button class="btn-primary" onclick="doLogin()">
+        <span>▶ Accéder au portail</span>
+      </button>
+
+      <p class="login-footer-note">
+        GHOST PROTOCOL · VERSION 9.1.4<br>
+        TOUTE CONNEXION EST ENREGISTRÉE ET SURVEILLÉE<br>
+        ACCÈS NON AUTORISÉ PASSIBLE DE POURSUITES
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 2 — MISSION BRIEFING
+============================================= -->
+<div id="screen-brief" class="screen">
+
+  <div class="top-bar">
+    <span class="top-bar-logo">GHOST</span>
+    <div class="top-bar-meta">
+      <span class="status-dot"></span>CONNECTÉ<br>
+      SESSION CHIFFRÉE ACTIVE
+    </div>
+  </div>
+
+  <div class="brief-body">
+
+    <!-- Agent welcome -->
+    <div class="agent-welcome">
+      <div class="agent-avatar">🕵️</div>
+      <div class="agent-welcome-text">
+        <h2 id="brief-agentname">Agent —</h2>
+        <p>AUTORISATION CONFIRMÉE · NIVEAU ALPHA</p>
+      </div>
+    </div>
+
+    <!-- Mission card -->
+    <div class="mission-card">
+      <div class="mission-tag">Mission prioritaire · Dossier XR-7</div>
+      <div class="mission-name">OPÉRATION BLACKOUT</div>
+      <div class="mission-body">
+        Un agent ennemi infiltré au sein de la station SIGMA-9 est sur le point d'exfiltrer
+        <strong>l'intégralité des identités de nos agents de terrain</strong> à travers
+        le monde entier.<br><br>
+        Votre mission : accéder au cœur du réseau SIGMA, localiser la clé de contre-mesure
+        disséminée dans les archives, et <strong>stopper le transfert de données
+        avant la fin du compte à rebours.</strong><br><br>
+        Une fois les données exfiltrées, il n'y a <strong>aucun retour possible.</strong>
+      </div>
+
+      <div class="mission-meta">
+        <div class="meta-cell">
+          <div class="meta-key">Niveau de menace</div>
+          <div class="meta-val red">CRITIQUE</div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-key">Zone d'opération</div>
+          <div class="meta-val">STATION SIGMA-9</div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-key">Extraction</div>
+          <div class="meta-val amber">NON GARANTIE</div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-key">Dossier</div>
+          <div class="meta-val">XR-7 · CLASSIFIÉ</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="brief-actions">
+    <button class="btn-accept" onclick="triggerBreach(false)">
+      ✓ ACCEPTER LA MISSION
+    </button>
+    <button class="btn-refuse" onclick="triggerBreach(true)">
+      ✕ REFUSER
+    </button>
+  </div>
+
+</div>
+
+<!-- ============================================
+     SCREEN 3 — BREACH
+============================================= -->
+<div id="screen-breach" class="screen">
+
+  <div class="top-bar" id="breach-bar">
+    <div class="breach-alert-left">
+      <span class="blink-badge">⚠ ALERTE</span>
+      <span class="breach-label">PORTAIL COMPROMIS</span>
+    </div>
+    <div class="timer-wrap">
+      <span class="timer-label">TEMPS RESTANT</span>
+      <span class="timer-digits" id="timer-digits">00:00</span>
+    </div>
+  </div>
+
+  <div class="breach-body">
+
+    <!-- Exfil progress -->
+    <div>
+      <div class="exfil-label">
+        <span>Exfiltration données agents</span>
+        <span id="exfil-pct">0%</span>
+      </div>
+      <div class="exfil-track">
+        <div class="exfil-fill" id="exfil-fill"></div>
+      </div>
+    </div>
+
+    <!-- Chips -->
+    <div class="chip-row">
+      <span class="chip chip-red">● Portail compromis</span>
+      <span class="chip chip-amber" id="chip-exfil">⟳ Exfiltration en cours</span>
+      <span class="chip chip-green">✓ Kernel isolé</span>
+    </div>
+
+    <!-- Log -->
+    <div class="log-box" id="log-box">
+      Connexion entrante détectée · 217.54.xx.xx<br>
+    </div>
+
+    <!-- Locked modules -->
+    <div>
+      <p class="modules-title">Modules sous séquestre :</p>
+      <div class="modules-grid">
+        <div class="module-tile" onclick="showModal()">
+          <span class="module-icon">📁</span>
+          <span class="module-name">Dossiers</span>
+          <span class="module-lock">🔒</span>
+        </div>
+        <div class="module-tile" onclick="showModal()">
+          <span class="module-icon">🗺️</span>
+          <span class="module-name">Missions</span>
+          <span class="module-lock">🔒</span>
+        </div>
+        <div class="module-tile" onclick="showModal()">
+          <span class="module-icon">📡</span>
+          <span class="module-name">Réseaux</span>
+          <span class="module-lock">🔒</span>
+        </div>
+        <div class="module-tile" onclick="showModal()">
+          <span class="module-icon">🧬</span>
+          <span class="module-name">Identités</span>
+          <span class="module-lock">🔒</span>
+        </div>
+        <div class="module-tile" onclick="showModal()">
+          <span class="module-icon">💰</span>
+          <span class="module-name">Finances</span>
+          <span class="module-lock">🔒</span>
+        </div>
+        <div class="module-tile" onclick="showModal()">
+          <span class="module-icon">🔑</span>
+          <span class="module-name">Clés</span>
+          <span class="module-lock">🔒</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="solution-zone">
+    <p class="solution-caption">Entrer la clé de contre-mesure :</p>
+    <div class="solution-row">
+      <input class="solution-input" type="text" id="solution-input"
+             placeholder="CLÉ DE DÉCRYPTAGE" autocomplete="off"
+             spellcheck="false">
+      <button class="btn-stop" onclick="checkSolution()">STOPPER</button>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">[ Réinitialiser la démo ]</button>
+  </div>
+
+</div>
+
+<!-- ============================================
+     MODAL — ACCÈS REFUSÉ
+============================================= -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <h3>ACCÈS VERROUILLÉ</h3>
+    <p>Ce module est chiffré par l'algorithme ennemi.<br>
+       Trouvez la clé de contre-mesure pour reprendre le contrôle.</p>
+    <button onclick="closeModal()">Fermer</button>
+  </div>
+</div>
+
+
+<!-- ============================================
+     JAVASCRIPT
+============================================= -->
+<script>
+
+/* ============================================================
+   CONFIG — modifier selon votre escape game
+============================================================ */
+const VICTORY_CODE = "BLACKOUT"; // code que le joueur doit trouver
+
+// Temps accordé selon la longueur du code PIN saisi au login
+function getTimeFromCode(code) {
+  const len = code.length;
+  if (len <= 4) return 60;   // code faible → 1 min
+  if (len <= 6) return 480;  // code moyen → 8 min
+  return 900;                // code fort  → 15 min
+}
+
+// Messages log défilants
+const LOG_LINES = [
+  "Port scan : 22, 80, 443, 8080 ouverts",
+  "Token GHOST contourné · accès root acquis",
+  "Initialisation transfert · dossier /agents/identities",
+  "Clé AES-256 brute-forcée en cours...",
+  "Copie shadow de /missions/active · 0.8 GB",
+  "Injection rootkit couche 2 · succès",
+  "Tunnel DNS actif · relay node Moscou",
+  "Exfil paquet #44 · 2.1 GB envoyés",
+  "Contournement pare-feu tier-3",
+  "Déchiffrement identités terrain... 34%",
+  "Backdoor installée · persistance assurée",
+  "Archive XR-7 en transit...",
+  "Chiffrement local désactivé sur /keys",
+  "Connexion miroir établie · serveur secondaire",
+  "Charge utile secondaire déployée",
+];
+
+/* ============================================================
+   STATE
+============================================================ */
+let agentCode    = "";
+let gameEndTime  = null;
+let timerInt     = null;
+let logInt       = null;
+let logIdx       = 0;
+let progressRaf  = null;
+
+/* ============================================================
+   SCREEN 1 — LOGIN
+============================================================ */
+function doLogin() {
+  const name = document.getElementById('input-name').value.trim().toUpperCase();
+  const code = document.getElementById('input-code').value.trim();
+
+  if (!name) {
+    alert("Veuillez entrer votre nom de code agent.");
+    return;
+  }
+  if (code.length < 4) {
+    alert("Code d'identification invalide. Minimum 4 chiffres.");
+    return;
+  }
+
+  agentCode = code;
+
+  // Switch to briefing screen — no drama, clean login
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('brief-agentname').textContent = "Agent " + name;
+  document.getElementById('screen-brief').classList.add('active');
+}
+
+/* ============================================================
+   SCREEN 2 — BREACH TRIGGER (accept OR refuse)
+============================================================ */
+function triggerBreach(refused) {
+  const duration = getTimeFromCode(agentCode);
+  gameEndTime = Date.now() + duration * 1000;
+
+  // Store in session so page refresh doesn't lose state
+  sessionStorage.setItem('gpEndTime', gameEndTime);
+
+  // Show glitch overlay
+  const overlay = document.getElementById('glitch-overlay');
+  document.getElementById('glitch-msg').textContent = refused
+    ? "REFUS IGNORÉ — SYSTÈME COMPROMIS"
+    : "INTRUSION DÉTECTÉE";
+
+  overlay.classList.add('show');
+
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    document.getElementById('screen-brief').classList.remove('active');
+    document.getElementById('screen-breach').classList.add('active');
+    startBreach();
+  }, 900);
+}
+
+/* ============================================================
+   SCREEN 3 — BREACH LOGIC
+============================================================ */
+function startBreach() {
+  startTimer();
+  startLog();
+  animateProgress();
+}
+
+/* Timer */
+function startTimer() {
+  clearInterval(timerInt);
+  const el = document.getElementById('timer-digits');
+
+  timerInt = setInterval(() => {
+    const rem = Math.max(0, gameEndTime - Date.now());
+    const m = String(Math.floor(rem / 60000)).padStart(2, '0');
+    const s = String(Math.floor((rem % 60000) / 1000)).padStart(2, '0');
+    el.textContent = `${m}:${s}`;
+
+    if (rem < 30000) el.classList.add('pulse');
+    else             el.classList.remove('pulse');
+
+    if (rem === 0) {
+      clearInterval(timerInt);
+      clearInterval(logInt);
+      el.textContent = "00:00";
+      gameOver();
+    }
+  }, 500);
+}
+
+/* Progress bar */
+function animateProgress() {
+  const startTime = Date.now();
+  const totalDuration = gameEndTime - startTime;
+  const fill    = document.getElementById('exfil-fill');
+  const pctEl   = document.getElementById('exfil-pct');
+
+  function tick() {
+    const elapsed = Date.now() - startTime;
+    const pct = Math.min(100, Math.round((elapsed / totalDuration) * 100));
+    fill.style.width = pct + '%';
+    pctEl.textContent = pct + '%';
+    if (pct < 100) progressRaf = requestAnimationFrame(tick);
+  }
+  progressRaf = requestAnimationFrame(tick);
+}
+
+/* Scrolling log */
+function startLog() {
+  clearInterval(logInt);
+  const box = document.getElementById('log-box');
+
+  logInt = setInterval(() => {
+    const line = document.createElement('div');
+    line.textContent = '> ' + LOG_LINES[logIdx % LOG_LINES.length];
+    logIdx++;
+    box.appendChild(line);
+    while (box.children.length > 7) box.removeChild(box.firstChild);
+  }, 950);
+}
+
+/* ============================================================
+   SOLUTION CHECK
+============================================================ */
+function checkSolution() {
+  const val = document.getElementById('solution-input').value.trim().toUpperCase();
+  if (val === VICTORY_CODE.toUpperCase()) {
+    clearInterval(timerInt);
+    clearInterval(logInt);
+    cancelAnimationFrame(progressRaf);
+    sessionStorage.removeItem('gpEndTime');
+    alert("✅ CONTRE-MESURE ACTIVÉE — Intrusion stoppée. Mission accomplie, Agent.");
+    resetAll();
+  } else {
+    const inp = document.getElementById('solution-input');
+    inp.classList.remove('shake');
+    void inp.offsetWidth; // reflow
+    inp.classList.add('shake');
+  }
+}
+
+/* ============================================================
+   GAME OVER
+============================================================ */
+function gameOver() {
+  cancelAnimationFrame(progressRaf);
+  sessionStorage.removeItem('gpEndTime');
+  alert("💀 DONNÉES EXFILTRÉES — Compte à rebours écoulé. Les identités de terrain sont compromises.");
+  resetAll();
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+function showModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+/* ============================================================
+   RESET
+============================================================ */
+function resetAll() {
+  clearInterval(timerInt);
+  clearInterval(logInt);
+  cancelAnimationFrame(progressRaf);
+  sessionStorage.removeItem('gpEndTime');
+
+  // Reset inputs
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-code').value = '';
+  document.getElementById('solution-input').value = '';
+  document.getElementById('log-box').innerHTML = 'Connexion entrante détectée · 217.54.xx.xx<br>';
+  document.getElementById('exfil-fill').style.width = '0%';
+  document.getElementById('exfil-pct').textContent = '0%';
+  document.getElementById('timer-digits').textContent = '00:00';
+  document.getElementById('timer-digits').classList.remove('pulse');
+  logIdx = 0; agentCode = ''; gameEndTime = null;
+
+  // Back to login
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-login').classList.add('active');
+}
+
+/* ============================================================
+   RESUME ON RELOAD
+============================================================ */
+window.onload = () => {
+  const stored = sessionStorage.getItem('gpEndTime');
+  if (stored && parseInt(stored) > Date.now()) {
+    gameEndTime = parseInt(stored);
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-breach').classList.add('active');
+    startBreach();
+  }
+};
+
+</script>
+</body>
+</html>
