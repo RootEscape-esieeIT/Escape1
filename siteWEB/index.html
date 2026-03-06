@@ -4,27 +4,246 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GHOST Protocol — Accès Sécurisé</title>
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black:#050607; --surface:#0d1117; --ice:#a8d4e6;
+      --amber:#ffaa00; --red:#ff3333; --green:#00ff88;
+      --mono:'Share Tech Mono',monospace; --display:'Bebas Neue',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--black);color:#fff;font-family:var(--mono);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+    /* ─── GLITCH ─── */
+    #glitch-overlay{
+      display:none;position:fixed;inset:0;background:#000;z-index:999;
+      justify-content:center;align-items:center;
+    }
+    #glitch-overlay.show{display:flex;}
+    .glitch-msg{
+      font-family:var(--display);font-size:4rem;color:var(--red);
+      animation:gtxt 0.12s infinite;
+    }
+    @keyframes gtxt{
+      0%{text-shadow:3px 0 var(--ice),-3px 0 var(--amber);transform:translate(0);}
+      33%{text-shadow:-4px 0 var(--red),4px 0 var(--ice);transform:translate(-4px,1px);}
+      66%{text-shadow:4px 0 var(--amber),-4px 0 var(--red);transform:translate(4px,-1px);}
+      100%{text-shadow:3px 0 var(--ice),-3px 0 var(--amber);transform:translate(0);}
+    }
+
+    /* ─── SCREENS ─── */
+    .screen{display:none;flex-direction:column;height:100vh;}
+    .screen.active{display:flex;}
+
+    /* ─── TOP BAR ─── */
+    .top-bar{
+      background:var(--surface);border-bottom:1px solid #1c2830;
+      padding:10px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+    }
+    .top-bar-logo{font-family:var(--display);font-size:2rem;color:var(--ice);letter-spacing:6px;}
+    .top-bar-meta{font-size:0.7rem;color:#556677;text-align:right;line-height:1.7;}
+    .status-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;margin-right:5px;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.2;}}
+    .timer-wrap{text-align:center;}
+    .timer-label{font-size:0.6rem;color:#556677;display:block;letter-spacing:3px;}
+    .timer-digits{font-family:var(--display);font-size:2rem;color:var(--ice);letter-spacing:4px;}
+    .timer-digits.danger{color:var(--red);animation:pulse 0.5s infinite;}
+    .breach-alert-left{font-size:0.75rem;color:var(--red);animation:pulse 1s infinite;letter-spacing:2px;}
+
+    /* ─── LOGIN ─── */
+    #screen-login .login-body{
+      flex:1;display:flex;justify-content:center;align-items:center;
+      background:radial-gradient(circle at 50% 60%,#0a0e14,var(--black) 70%);
+    }
+    .login-card{
+      background:var(--surface);border:1px solid #1c2830;
+      padding:40px 48px;width:420px;max-width:95vw;
+    }
+    .login-title{
+      font-family:var(--display);font-size:2.2rem;letter-spacing:8px;
+      color:var(--ice);margin-bottom:8px;text-align:center;
+    }
+    .login-sub{font-size:0.65rem;color:#334455;letter-spacing:4px;text-align:center;margin-bottom:32px;}
+    .field{margin-bottom:22px;}
+    .field-label{display:block;font-size:0.65rem;color:#556677;letter-spacing:3px;margin-bottom:8px;}
+    .field-input{
+      width:100%;background:#050607;border:1px solid #1c2830;color:var(--ice);
+      font-family:var(--mono);font-size:1rem;padding:12px 16px;outline:none;transition:border-color 0.2s;
+    }
+    .field-input:focus{border-color:var(--ice);}
+    .btn-primary{
+      width:100%;background:var(--ice);color:#000;border:none;font-family:var(--mono);
+      font-size:0.85rem;letter-spacing:3px;padding:14px;cursor:pointer;transition:all 0.2s;margin-top:8px;
+    }
+    .btn-primary:hover{background:#fff;box-shadow:0 0 20px rgba(168,212,230,0.4);}
+    #login-error{font-size:0.7rem;color:var(--red);text-align:center;margin-top:10px;display:none;letter-spacing:2px;}
+
+    /* ─── BRIEF ─── */
+    #screen-brief .brief-body{
+      flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+      background:radial-gradient(circle at 50% 50%,#0a0e14,var(--black));padding:32px;gap:28px;
+    }
+    .agent-welcome{display:flex;align-items:center;gap:20px;}
+    .agent-avatar{font-size:3rem;}
+    .agent-welcome-text h2{font-family:var(--display);font-size:2rem;color:var(--ice);letter-spacing:4px;}
+    .agent-welcome-text p{font-size:0.65rem;color:var(--green);letter-spacing:4px;margin-top:4px;}
+    .mission-card{
+      background:var(--surface);border:1px solid #1c2830;border-left:3px solid var(--amber);
+      padding:28px 36px;max-width:600px;width:100%;
+    }
+    .mission-name{font-family:var(--display);font-size:1.4rem;color:var(--amber);letter-spacing:6px;margin-bottom:14px;}
+    .mission-body{font-size:0.82rem;color:#aabbcc;line-height:1.9;}
+    .brief-actions{
+      display:flex;gap:16px;padding:24px 32px;background:var(--surface);
+      border-top:1px solid #1c2830;justify-content:center;flex-shrink:0;
+    }
+    .btn-refuse{
+      background:transparent;border:1px solid var(--red);color:var(--red);
+      font-family:var(--mono);padding:12px 32px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;
+    }
+    .btn-refuse:hover{background:var(--red);color:#000;}
+    .btn-accept{
+      background:var(--amber);color:#000;border:none;
+      font-family:var(--mono);padding:12px 32px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;
+    }
+    .btn-accept:hover{background:#fff;box-shadow:0 0 20px rgba(255,170,0,0.4);}
+
+    /* ─── BREACH ─── */
+    #screen-breach .breach-body{
+      flex:1;display:flex;flex-direction:column;padding:18px 22px;gap:14px;overflow:hidden;
+    }
+    .exfil-label{display:flex;justify-content:space-between;font-size:0.65rem;color:#556677;margin-bottom:5px;}
+    .exfil-track{background:#0d1117;border:1px solid #1c2830;height:5px;}
+    .exfil-fill{height:100%;background:var(--red);transition:width 0.5s;width:0%;}
+    .log-box{
+      background:var(--surface);border:1px solid #1c2830;padding:10px 14px;
+      font-size:0.72rem;color:#556677;height:90px;overflow-y:auto;flex-shrink:0;
+    }
+    .log-box .log-line{color:var(--green);margin-bottom:2px;}
+    .log-box .log-warn{color:var(--red);}
+    .log-box .log-ok{color:var(--ice);}
+
+    /* ─── MODULES ─── */
+    .modules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;}
+    .module-tile{
+      background:var(--surface);border:1px solid #1c2830;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all 0.25s;
+      padding:16px;position:relative;
+    }
+    .module-tile:hover:not(.locked){border-color:var(--ice);box-shadow:0 0 24px rgba(168,212,230,0.08);}
+    .module-tile.locked{opacity:0.3;filter:grayscale(1) brightness(0.35);cursor:not-allowed;}
+    .module-tile.solved{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,136,0.12);}
+    .module-tile.active-module{border-color:var(--amber);animation:pulse 2s infinite;}
+    .module-icon{font-size:2rem;}
+    .module-name{font-size:0.7rem;letter-spacing:3px;color:#aabbcc;}
+    .module-status{font-size:0.6rem;color:#334455;letter-spacing:2px;margin-top:2px;}
+    .solved-badge{
+      position:absolute;top:6px;right:6px;background:var(--green);color:#000;
+      font-size:0.55rem;padding:2px 5px;letter-spacing:1px;
+    }
+    .locked-badge{position:absolute;top:6px;right:6px;font-size:0.8rem;}
+
+    /* ─── SOLUTION ZONE ─── */
+    .solution-zone{display:flex;border-top:1px solid #1c2830;flex-shrink:0;}
+    .solution-input{
+      flex:1;background:#050607;border:none;border-right:1px solid #1c2830;color:var(--amber);
+      font-family:var(--mono);font-size:1rem;padding:16px 20px;outline:none;letter-spacing:4px;
+      text-transform:uppercase;
+    }
+    .solution-input::placeholder{color:#1a2530;letter-spacing:2px;}
+    .btn-stop{
+      background:var(--red);color:#000;border:none;font-family:var(--mono);
+      padding:16px 28px;cursor:pointer;letter-spacing:3px;font-size:0.85rem;transition:all 0.2s;
+    }
+    .btn-stop:hover{background:#fff;}
+    .shake{animation:shk 0.4s;}
+    @keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+    /* ─── MODAL ENIGME ─── */
+    #modal-overlay{
+      display:none;position:fixed;inset:0;background:rgba(5,6,7,0.96);
+      z-index:500;justify-content:center;align-items:center;
+    }
+    #modal-overlay.open{display:flex;}
+    .modal-box{
+      background:var(--surface);border:1px solid #1c2830;
+      width:580px;max-width:96vw;max-height:90vh;overflow-y:auto;
+      padding:36px 40px;animation:slideIn 0.3s ease;
+    }
+    @keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+    .modal-tag{font-size:0.6rem;color:#556677;letter-spacing:5px;margin-bottom:6px;}
+    .modal-title{font-family:var(--display);font-size:2rem;color:var(--amber);letter-spacing:5px;margin-bottom:18px;}
+    .modal-section{margin-bottom:20px;}
+    .modal-section-label{font-size:0.6rem;color:#556677;letter-spacing:4px;margin-bottom:8px;border-bottom:1px solid #1c2830;padding-bottom:4px;}
+    .modal-body{font-size:0.82rem;color:#aabbcc;line-height:2;white-space:pre-line;}
+    .modal-body strong{color:var(--ice);}
+    .modal-body .clue-hidden{
+      color:var(--black);background:var(--black);cursor:help;
+      transition:all 0.4s;border-bottom:1px dashed #1c2830;
+    }
+    .modal-body .clue-hidden:hover,.modal-body .clue-hidden.revealed{
+      color:var(--amber);background:transparent;
+    }
+    .modal-hint{
+      background:#050607;border:1px solid #1c2830;border-left:2px solid #334455;
+      padding:10px 14px;font-size:0.75rem;color:#445566;margin-top:14px;line-height:1.8;
+    }
+    .modal-input-row{display:flex;gap:0;margin-top:18px;}
+    .modal-input{
+      flex:1;background:#050607;border:1px solid #1c2830;border-right:none;color:var(--amber);
+      font-family:var(--mono);font-size:1rem;letter-spacing:4px;padding:12px 16px;outline:none;
+      transition:border-color 0.2s;text-transform:uppercase;
+    }
+    .modal-input:focus{border-color:var(--amber);}
+    .modal-btn{
+      background:var(--amber);color:#000;border:none;font-family:var(--mono);
+      padding:12px 24px;cursor:pointer;letter-spacing:2px;font-size:0.8rem;transition:all 0.2s;
+    }
+    .modal-btn:hover{background:#fff;}
+    .modal-close{
+      float:right;background:transparent;border:1px solid #334455;color:#556677;
+      font-family:var(--mono);padding:6px 14px;cursor:pointer;letter-spacing:2px;font-size:0.7rem;
+      margin-bottom:16px;
+    }
+    .modal-close:hover{border-color:var(--red);color:var(--red);}
+    .modal-error{font-size:0.7rem;color:var(--red);letter-spacing:2px;margin-top:8px;display:none;}
+    .modal-blocked{
+      background:rgba(255,51,51,0.08);border:1px solid var(--red);padding:12px 16px;
+      font-size:0.75rem;color:var(--red);letter-spacing:2px;margin-top:12px;display:none;
+    }
+    .lockout-timer{font-family:var(--display);font-size:1.4rem;color:var(--red);}
+
+    /* ─── VICTOIRE ─── */
+    #screen-victory{
+      justify-content:center;align-items:center;gap:24px;
+      background:radial-gradient(circle at 50% 50%,#001a0d,var(--black));
+    }
+    .victory-title{font-family:var(--display);font-size:5rem;color:var(--green);letter-spacing:10px;text-align:center;}
+    .victory-sub{font-size:0.75rem;color:#556677;letter-spacing:5px;text-align:center;}
+    .victory-stats{
+      display:flex;gap:24px;flex-wrap:wrap;justify-content:center;
+    }
+    .victory-stat{
+      background:var(--surface);border:1px solid #1c2830;padding:16px 24px;text-align:center;
+    }
+    .victory-stat-val{font-family:var(--display);font-size:2rem;color:var(--ice);}
+    .victory-stat-lbl{font-size:0.6rem;color:#556677;letter-spacing:3px;margin-top:4px;}
+    .btn-restart{
+      background:transparent;border:1px solid var(--ice);color:var(--ice);
+      font-family:var(--mono);padding:14px 40px;cursor:pointer;letter-spacing:3px;transition:all 0.3s;
+    }
+    .btn-restart:hover{background:var(--ice);color:#000;}
+  </style>
 </head>
 <body>
 
-<!-- ============================================
-GLITCH TRANSITION OVERLAY
-============================================= -->
+<!-- GLITCH -->
 <div id="glitch-overlay">
-  <div class="glitch-lines">
-    <div class="glitch-line"></div>
-    <div class="glitch-line"></div>
-    <div class="glitch-line"></div>
-  </div>
   <div class="glitch-msg" id="glitch-msg">INTRUSION DÉTECTÉE</div>
 </div>
 
-<!-- ============================================
-SCREEN 1 — LOGIN
-============================================= -->
+<!-- ÉCRAN LOGIN -->
 <div id="screen-login" class="screen active">
-
   <div class="top-bar">
     <span class="top-bar-logo">GHOST</span>
     <div class="top-bar-meta">
@@ -32,454 +251,524 @@ SCREEN 1 — LOGIN
       PROTOCOLE DE SÉCURITÉ · NIVEAU 5
     </div>
   </div>
-
   <div class="login-body">
     <div class="login-card">
-
-      <p class="login-eyebrow">Portail d'accès classifié</p>
       <h1 class="login-title">AUTHENTIFICATION</h1>
-      <p class="login-subtitle">Identifiez-vous pour accéder à vos directives.</p>
-
+      <p class="login-sub">ACCÈS RESTREINT — PERSONNEL AUTORISÉ</p>
       <div class="field">
-        <label class="field-label" for="input-name">Nom de code agent</label>
-        <input class="field-input" type="text" id="input-name"
-              placeholder="EX : FALCON" autocomplete="off" spellcheck="false">
+        <label class="field-label">Nom de code agent</label>
+        <input class="field-input" type="text" id="input-name" placeholder="EX : FALCON" autocomplete="off">
       </div>
-
       <div class="field">
-        <label class="field-label" for="input-code">Code d'identification (4–8 chiffres)</label>
-        <input class="field-input" type="tel" id="input-code"
-              placeholder="· · · ·" maxlength="8"
-              autocomplete="off" inputmode="numeric"
-              oninput="this.value=this.value.replace(/\D/g,'')">
+        <label class="field-label">Code d'identification</label>
+        <input class="field-input" type="tel" id="input-code" placeholder="· · · ·" maxlength="8">
       </div>
-
-      <button class="btn-primary" onclick="doLogin()">
-        <span>▶ Accéder au portail</span>
-      </button>
-
-      <p class="login-footer-note">
-        GHOST PROTOCOL · VERSION 9.1.4<br>
-        TOUTE CONNEXION EST ENREGISTRÉE ET SURVEILLÉE<br>
-        ACCÈS NON AUTORISÉ PASSIBLE DE POURSUITES
-      </p>
-
+      <button class="btn-primary" onclick="doLogin()">▶ ACCÉDER AU PORTAIL</button>
+      <div id="login-error">⚠ IDENTIFIANTS INVALIDES</div>
     </div>
   </div>
 </div>
 
-<!-- ============================================
-SCREEN 2 — MISSION BRIEFING
-============================================= -->
+<!-- ÉCRAN BRIEF -->
 <div id="screen-brief" class="screen">
-
   <div class="top-bar">
     <span class="top-bar-logo">GHOST</span>
-    <div class="top-bar-meta">
-      <span class="status-dot"></span>CONNECTÉ<br>
-      SESSION CHIFFRÉE ACTIVE
-    </div>
+    <div class="top-bar-meta">BRIEFING · OPÉRATION BLACKOUT · CLASSIFICATION : SIGMA</div>
   </div>
-
   <div class="brief-body">
-
-    <!-- Agent welcome -->
     <div class="agent-welcome">
       <div class="agent-avatar">🕵️</div>
       <div class="agent-welcome-text">
-        <h2 id="brief-agentname">Agent —</h2>
-        <p>AUTORISATION CONFIRMÉE · NIVEAU ALPHA</p>
+        <h2 id="brief-agentname">Agent</h2>
+        <p>NIVEAU ALPHA CONFIRMÉ · ACCRÉDITATION SIGMA</p>
       </div>
     </div>
-
-    <!-- Mission card -->
     <div class="mission-card">
-      <div class="mission-tag">Mission prioritaire · Dossier XR-7</div>
       <div class="mission-name">OPÉRATION BLACKOUT</div>
       <div class="mission-body">
-        Un agent ennemi infiltré au sein de la station SIGMA-9 est sur le point d'exfiltrer
-        <strong>l'intégralité des identités de nos agents de terrain</strong> à travers
-        le monde entier.<br><br>
-        Votre mission : accéder au cœur du réseau SIGMA, localiser la clé de contre-mesure
-        disséminée dans les archives, et <strong>stopper le transfert de données
-        avant la fin du compte à rebours.</strong><br><br>
-        Une fois les données exfiltrées, il n'y a <strong>aucun retour possible.</strong>
-      </div>
-
-      <div class="mission-meta">
-        <div class="meta-cell">
-          <div class="meta-key">Niveau de menace</div>
-          <div class="meta-val red">CRITIQUE</div>
-        </div>
-        <div class="meta-cell">
-          <div class="meta-key">Zone d'opération</div>
-          <div class="meta-val">STATION SIGMA-9</div>
-        </div>
-        <div class="meta-cell">
-          <div class="meta-key">Extraction</div>
-          <div class="meta-val amber">NON GARANTIE</div>
-        </div>
-        <div class="meta-cell">
-          <div class="meta-key">Dossier</div>
-          <div class="meta-val">XR-7 · CLASSIFIÉ</div>
-        </div>
+        Agent, votre mission est la suivante.<br><br>
+        Vous devez infiltrer les serveurs de l'organisation <strong>NEXUS</strong> et récupérer les fichiers classifiés avant qu'ils ne soient détruits. Trois couches de sécurité protègent les données. Chaque module contient une énigme — la résoudre vous donnera la clé pour accéder au suivant.<br><br>
+        Cette mission est <strong>non officielle</strong>. En cas d'échec, l'agence niera toute implication.<br><br>
+        <span style="color:var(--amber);font-size:0.75rem;letter-spacing:2px;">Ce message s'autodétruira à la confirmation.</span>
       </div>
     </div>
-
   </div>
-
   <div class="brief-actions">
-    <button class="btn-accept" onclick="triggerBreach(false)">
-      ✓ ACCEPTER LA MISSION
-    </button>
-    <button class="btn-refuse" onclick="triggerBreach(true)">
-      ✕ REFUSER
-    </button>
+    <button class="btn-refuse" id="btn-refuse" onclick="briefChoice()">✖ REFUSER</button>
+    <button class="btn-accept" id="btn-accept" onclick="briefChoice()">✓ ACCEPTER LA MISSION</button>
   </div>
-
 </div>
 
-<!-- ============================================
-SCREEN 3 — BREACH
-============================================= -->
+<!-- ÉCRAN BREACH (même interface, qu'on ait accepté ou "refusé") -->
 <div id="screen-breach" class="screen">
-
-  <div class="top-bar" id="breach-bar">
-    <div class="breach-alert-left">
-      <span class="blink-badge">⚠ ALERTE</span>
-      <span class="breach-label">PORTAIL COMPROMIS</span>
-    </div>
+  <div class="top-bar">
+    <div class="breach-alert-left">⚠ INTRUSION EN COURS</div>
     <div class="timer-wrap">
       <span class="timer-label">TEMPS RESTANT</span>
-      <span class="timer-digits" id="timer-digits">00:00</span>
+      <span class="timer-digits" id="timer-digits">05:00</span>
     </div>
   </div>
 
   <div class="breach-body">
-
-    <!-- Exfil progress -->
     <div>
-      <div class="exfil-label">
-        <span>Exfiltration données agents</span>
-        <span id="exfil-pct">0%</span>
-      </div>
-      <div class="exfil-track">
-        <div class="exfil-fill" id="exfil-fill"></div>
-      </div>
+      <div class="exfil-label"><span>Exfiltration données ennemies</span><span id="exfil-pct">0%</span></div>
+      <div class="exfil-track"><div class="exfil-fill" id="exfil-fill"></div></div>
     </div>
 
-    <!-- Chips -->
-    <div class="chip-row">
-      <span class="chip chip-red">● Portail compromis</span>
-      <span class="chip chip-amber" id="chip-exfil">⟳ Exfiltration en cours</span>
-      <span class="chip chip-green">✓ Kernel isolé</span>
-    </div>
-
-    <!-- Log -->
     <div class="log-box" id="log-box">
-      Connexion entrante détectée · 217.54.xx.xx<br>
+      <div class="log-line">> Connexion entrante détectée · 217.54.xx.xx</div>
+      <div class="log-line">> Initialisation du protocole de défense...</div>
     </div>
 
-    <!-- Locked modules -->
-    <div>
-      <p class="modules-title">Modules sous séquestre :</p>
-      <div class="modules-grid">
-        <div class="module-tile" onclick="showModal()">
-          <span class="module-icon">📁</span>
-          <span class="module-name">Dossiers</span>
-          <span class="module-lock">🔒</span>
-        </div>
-        <div class="module-tile" onclick="showModal()">
-          <span class="module-icon">🗺️</span>
-          <span class="module-name">Missions</span>
-          <span class="module-lock">🔒</span>
-        </div>
-        <div class="module-tile" onclick="showModal()">
-          <span class="module-icon">📡</span>
-          <span class="module-name">Réseaux</span>
-          <span class="module-lock">🔒</span>
-        </div>
-        <div class="module-tile" onclick="showModal()">
-          <span class="module-icon">🧬</span>
-          <span class="module-name">Identités</span>
-          <span class="module-lock">🔒</span>
-        </div>
-        <div class="module-tile" onclick="showModal()">
-          <span class="module-icon">💰</span>
-          <span class="module-name">Finances</span>
-          <span class="module-lock">🔒</span>
-        </div>
-        <div class="module-tile" onclick="showModal()">
-          <span class="module-icon">🔑</span>
-          <span class="module-name">Clés</span>
-          <span class="module-lock">🔒</span>
-        </div>
+    <div class="modules-grid">
+      <!-- MODULE 1 : Navigation (labyrinthe) -->
+      <div class="module-tile active-module" id="mod-nav" onclick="openModule('nav')">
+        <span class="module-icon">🗺️</span>
+        <span class="module-name">NAVIGATION</span>
+        <span class="module-status" id="nav-status">EN ATTENTE</span>
+      </div>
+      <!-- MODULE 2 : Dossiers (enigme chiffre) -->
+      <div class="module-tile locked" id="mod-dossiers" onclick="openModule('dossiers')">
+        <span class="module-icon">📁</span>
+        <span class="module-name">DOSSIERS</span>
+        <span class="module-status" id="dos-status">VERROUILLÉ</span>
+        <span class="locked-badge">🔒</span>
+      </div>
+      <!-- MODULE 3 : Réseaux (enigme logique) -->
+      <div class="module-tile locked" id="mod-reseaux" onclick="openModule('reseaux')">
+        <span class="module-icon">📡</span>
+        <span class="module-name">RÉSEAUX</span>
+        <span class="module-status" id="res-status">VERROUILLÉ</span>
+        <span class="locked-badge">🔒</span>
       </div>
     </div>
-
   </div>
 
   <div class="solution-zone">
-    <p class="solution-caption">Entrer la clé de contre-mesure :</p>
-    <div class="solution-row">
-      <input class="solution-input" type="text" id="solution-input"
-            placeholder="CLÉ DE DÉCRYPTAGE" autocomplete="off"
-            spellcheck="false">
-      <button class="btn-stop" onclick="checkSolution()">STOPPER</button>
+    <input class="solution-input" type="text" id="solution-input" placeholder="ENTRER CLÉ DÉCRYPTAGE" autocomplete="off">
+    <button class="btn-stop" onclick="checkSolution()">⬛ STOPPER</button>
+  </div>
+</div>
+
+<!-- ÉCRAN VICTOIRE -->
+<div id="screen-victory" class="screen">
+  <div class="victory-title">VICTOIRE</div>
+  <div class="victory-sub">PROTOCOLE GHOST — SYSTÈME SÉCURISÉ</div>
+  <div class="victory-stats">
+    <div class="victory-stat">
+      <div class="victory-stat-val" id="v-time">—</div>
+      <div class="victory-stat-lbl">TEMPS RESTANT</div>
     </div>
-    <button class="btn-reset" onclick="resetAll()">[ Réinitialiser la démo ]</button>
+    <div class="victory-stat">
+      <div class="victory-stat-val" id="v-agent">—</div>
+      <div class="victory-stat-lbl">AGENT</div>
+    </div>
+    <div class="victory-stat">
+      <div class="victory-stat-val">3/3</div>
+      <div class="victory-stat-lbl">MODULES</div>
+    </div>
   </div>
-
+  <button class="btn-restart" onclick="resetAll()">↺ NOUVELLE PARTIE</button>
 </div>
 
-<!-- ============================================
-MODAL — ACCÈS REFUSÉ 
-============================================= -->
-<div class="modal-bg" id="modal">
-  <div class="modal-box">
-    <h3>ACCÈS VERROUILLÉ</h3>
-    <p>Ce module est chiffré par l'algorithme ennemi.<br>
-      Trouvez la clé de contre-mesure pour reprendre le contrôle.</p>
-    <button onclick="closeModal()">Fermer</button>
+<!-- MODAL ENIGME -->
+<div id="modal-overlay">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕ FERMER</button>
+    <div class="modal-tag" id="modal-tag">MODULE · NAVIGATION</div>
+    <div class="modal-title" id="modal-title">LABYRINTHE</div>
+    <div id="modal-content"></div>
+    <div class="modal-blocked" id="modal-blocked">
+      ⚠ ACCÈS VERROUILLÉ — TENTATIVES ÉPUISÉES<br>
+      Réessayez dans : <span class="lockout-timer" id="lockout-countdown">30</span>s
+    </div>
   </div>
 </div>
 
-
-<!-- ============================================
-JAVASCRIPT 
-============================================= -->
 <script>
+// ════════════════════════════════════════
+//  ÉTAT GLOBAL
+// ════════════════════════════════════════
+let gameEndTime = null;
+let timerInt = null;
+let agentName = '';
+let stepReached = 0; // 0=nav, 1=dossiers, 2=reseaux, 3=victoire
+let moduleSolved = { nav: false, dossiers: false, reseaux: false };
+let fails = { nav: 0, dossiers: 0, reseaux: 0 };
+let lockout = { nav: 0, dossiers: 0, reseaux: 0 };
 
-/* ============================================================
-CONFIG — modifier selon votre escape game
-============================================================ */
-const VICTORY_CODE = "BLACKOUT"; // code que le joueur doit trouver
-
-// Temps accordé selon la longueur du code PIN saisi au login
-function getTimeFromCode(code) {
-  const len = code.length;
-  if (len <= 4) return 60;   // code faible → 1 min
-  if (len <= 6) return 480;  // code moyen → 8 min
-  return 900;                // code fort  → 15 min
-}
-
-// Messages log défilants
-const LOG_LINES = [
-  "Port scan : 22, 80, 443, 8080 ouverts",
-  "Token GHOST contourné · accès root acquis",
-  "Initialisation transfert · dossier /agents/identities",
-  "Clé AES-256 brute-forcée en cours...",
-  "Copie shadow de /missions/active · 0.8 GB",
-  "Injection rootkit couche 2 · succès",
-  "Tunnel DNS actif · relay node Moscou",
-  "Exfil paquet #44 · 2.1 GB envoyés",
-  "Contournement pare-feu tier-3",
-  "Déchiffrement identités terrain... 34%",
-  "Backdoor installée · persistance assurée",
-  "Archive XR-7 en transit...",
-  "Chiffrement local désactivé sur /keys",
-  "Connexion miroir établie · serveur secondaire",
-  "Charge utile secondaire déployée",
-];
-
-/* ============================================================
-  STATE 
-============================================================ */
-let agentCode    = "";
-let gameEndTime  = null;
-let timerInt     = null;
-let logInt       = null;
-let logIdx       = 0;
-let progressRaf  = null;
-
-/* ============================================================
-SCREEN 1 — LOGIN
-============================================================ */
+// ════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════
 function doLogin() {
-  const name = document.getElementById('input-name').value.trim().toUpperCase();
+  const name = document.getElementById('input-name').value.trim();
   const code = document.getElementById('input-code').value.trim();
-
-  if (!name) {
-    alert("Veuillez entrer votre nom de code agent.");
+  if (!name || !code) {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    setTimeout(()=>err.style.display='none', 2000);
     return;
   }
-  if (code.length < 4) {
-    alert("Code d'identification invalide. Minimum 4 chiffres.");
-    return;
-  }
-
-  agentCode = code;
-
-  // Switch to briefing screen — no drama, clean login
-  document.getElementById('screen-login').classList.remove('active');
-  document.getElementById('brief-agentname').textContent = "Agent " + name;
-  document.getElementById('screen-brief').classList.add('active');
+  agentName = name.toUpperCase();
+  document.getElementById('brief-agentname').textContent = 'Agent ' + agentName;
+  showScreen('screen-brief');
 }
 
-/* ============================================================
-SCREEN 2 — BREACH TRIGGER (accept OR refuse)
-============================================================ */
-function triggerBreach(refused) {
-  const duration = getTimeFromCode(agentCode);
-  gameEndTime = Date.now() + duration * 1000;
+document.getElementById('input-code').addEventListener('keydown', e => {
+  if(e.key==='Enter') doLogin();
+});
+document.getElementById('input-name').addEventListener('keydown', e => {
+  if(e.key==='Enter') document.getElementById('input-code').focus();
+});
 
-  // Store in session so page refresh doesn't lose state
-  sessionStorage.setItem('gpEndTime', gameEndTime);
+// ════════════════════════════════════════
+//  BRIEF
+// ════════════════════════════════════════
+function briefChoice() {
+  // Peu importe le choix — l'alarme se déclenche dans 2 secondes
+  document.getElementById('btn-accept').disabled = true;
+  document.getElementById('btn-refuse').disabled = true;
+  document.getElementById('btn-accept').style.opacity = '0.4';
+  document.getElementById('btn-refuse').style.opacity = '0.4';
 
-  // Show glitch overlay
-  const overlay = document.getElementById('glitch-overlay');
-  document.getElementById('glitch-msg').textContent = refused
-    ? "REFUS IGNORÉ — SYSTÈME COMPROMIS"
-    : "INTRUSION DÉTECTÉE";
-
-  overlay.classList.add('show');
-
-  setTimeout(() => {
-    overlay.classList.remove('show');
-    document.getElementById('screen-brief').classList.remove('active');
-    document.getElementById('screen-breach').classList.add('active');
-    startBreach();
-  }, 900);
+  // Petit délai dramatique puis BOOM
+  setTimeout(() => triggerBreach(), 2000);
 }
 
-/* ============================================================
-SCREEN 3 — BREACH LOGIC
-============================================================ */
-function startBreach() {
-  startTimer();
-  startLog();
-  animateProgress();
+function triggerBreach() {
+  document.getElementById('glitch-msg').textContent = '⚠ INTRUSION DÉTECTÉE ⚠';
+  document.getElementById('glitch-overlay').classList.add('show');
+  setTimeout(()=>{
+    document.getElementById('glitch-overlay').classList.remove('show');
+    showScreen('screen-breach');
+    const duration = 300000; // 5 minutes
+    gameEndTime = Date.now() + duration;
+    startTimer(duration);
+    addLog('Connexion ennemie établie — 217.54.xx.xx', 'warn');
+    addLog('Pare-feux en cours de neutralisation...', 'warn');
+    addLog('Module NAVIGATION actif. Lancez le labyrinthe pour récupérer la première clé.', 'line');
+  }, 1200);
 }
 
-/* Timer */
-function startTimer() {
+// ════════════════════════════════════════
+//  TIMER
+// ════════════════════════════════════════
+function startTimer(totalMs) {
   clearInterval(timerInt);
-  const el = document.getElementById('timer-digits');
-
-  timerInt = setInterval(() => {
+  timerInt = setInterval(()=>{
     const rem = Math.max(0, gameEndTime - Date.now());
-    const m = String(Math.floor(rem / 60000)).padStart(2, '0');
-    const s = String(Math.floor((rem % 60000) / 1000)).padStart(2, '0');
+    const m = String(Math.floor(rem/60000)).padStart(2,'0');
+    const s = String(Math.floor((rem%60000)/1000)).padStart(2,'0');
+    const el = document.getElementById('timer-digits');
     el.textContent = `${m}:${s}`;
+    el.className = 'timer-digits' + (rem < 30000 ? ' danger' : '');
 
-    if (rem < 30000) el.classList.add('pulse');
-    else             el.classList.remove('pulse');
+    const pct = Math.min(100, Math.round(((totalMs-rem)/totalMs)*100));
+    document.getElementById('exfil-fill').style.width = pct+'%';
+    document.getElementById('exfil-pct').textContent = pct+'%';
 
-    if (rem === 0) {
-      clearInterval(timerInt);
-      clearInterval(logInt);
-      el.textContent = "00:00";
-      gameOver();
-    }
-  }, 500);
+    if(rem<=0){ clearInterval(timerInt); gameFailed(); }
+  }, 300);
 }
 
-/* Progress bar */
-function animateProgress() {
-  const startTime = Date.now();
-  const totalDuration = gameEndTime - startTime;
-  const fill    = document.getElementById('exfil-fill');
-  const pctEl   = document.getElementById('exfil-pct');
-
-  function tick() {
-    const elapsed = Date.now() - startTime;
-    const pct = Math.min(100, Math.round((elapsed / totalDuration) * 100));
-    fill.style.width = pct + '%';
-    pctEl.textContent = pct + '%';
-    if (pct < 100) progressRaf = requestAnimationFrame(tick);
-  }
-  progressRaf = requestAnimationFrame(tick);
-}
-
-/* Scrolling log */
-function startLog() {
-  clearInterval(logInt);
+// ════════════════════════════════════════
+//  LOG
+// ════════════════════════════════════════
+function addLog(msg, type='line') {
   const box = document.getElementById('log-box');
-
-  logInt = setInterval(() => {
-    const line = document.createElement('div');
-    line.textContent = '> ' + LOG_LINES[logIdx % LOG_LINES.length];
-    logIdx++;
-    box.appendChild(line);
-    while (box.children.length > 7) box.removeChild(box.firstChild);
-  }, 950);
+  const div = document.createElement('div');
+  div.className = type==='warn' ? 'log-warn' : type==='ok' ? 'log-ok' : 'log-line';
+  div.textContent = '> ' + msg;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
 }
 
-/* ============================================================
-SOLUTION CHECK
-============================================================ */
+// ════════════════════════════════════════
+//  MODULES
+// ════════════════════════════════════════
+function openModule(type) {
+  const now = Date.now();
+
+  // Vérif lockout
+  if (lockout[type] > now) {
+    const remaining = Math.ceil((lockout[type]-now)/1000);
+    showModalBlocked(remaining);
+    return;
+  }
+
+  // Vérif accès
+  if (type==='dossiers' && !moduleSolved.nav) {
+    addLog('ACCÈS REFUSÉ : clé de navigation requise.', 'warn');
+    shakeEl(document.getElementById('mod-dossiers'));
+    return;
+  }
+  if (type==='reseaux' && !moduleSolved.dossiers) {
+    addLog('ACCÈS REFUSÉ : clé de dossiers requise.', 'warn');
+    shakeEl(document.getElementById('mod-reseaux'));
+    return;
+  }
+
+  if (type==='nav') openModuleNav();
+  else if (type==='dossiers') openModalDossiers();
+  else if (type==='reseaux') openModalReseaux();
+}
+
+// ─── MODULE NAV : ouvre le labyrinthe ───
+function openModuleNav() {
+  if (moduleSolved.nav) {
+    addLog('Module Navigation déjà résolu.', 'ok');
+    return;
+  }
+  addLog('Lancement du module NAVIGATION...', 'line');
+  window.open('labyrinthe.html', '_blank', 'width=1100,height=720,menubar=no,toolbar=no');
+}
+
+// ─── MODULE DOSSIERS : énigme chiffrée ───
+function openModalDossiers() {
+  showModal(
+    'MODULE · DOSSIERS CLASSIFIÉS',
+    'DÉCHIFFREMENT',
+    `<div class="modal-section">
+      <div class="modal-section-label">DOSSIER CRYPTÉ — ANALYSE REQUISE</div>
+      <div class="modal-body">
+Nos agents ont intercepté une séquence encodée dans les logs du serveur ennemi. Le protocole CAESAR a été utilisé avec un décalage inconnu.
+
+Message intercepté :
+<strong>  JHLZHY LZ[ TVYA</strong>
+
+Indices récupérés :
+· Le décalage correspond au rang de la <strong>7ème lettre</strong> de l'alphabet
+· La réponse est le <strong>dernier mot décodé</strong> uniquement
+      </div>
+      <div class="modal-hint">
+💡 Chiffre de César : chaque lettre est décalée de N positions.<br>
+A→D si N=3 | Z→C si N=3<br>
+Rang de la 7ème lettre de l'alphabet = G = 7
+      </div>
+    </div>`,
+    'dossiers',
+    'MORT',
+    'Entrez le dernier mot décodé'
+  );
+}
+
+// ─── MODULE RÉSEAUX : énigme logique ───
+function openModalReseaux() {
+  showModal(
+    'MODULE · RÉSEAUX ENNEMIS',
+    'INFILTRATION',
+    `<div class="modal-section">
+      <div class="modal-section-label">SÉQUENCE D'ACCÈS — LOGIQUE BINAIRE</div>
+      <div class="modal-body">
+Le pare-feu final utilise une clé construite à partir d'une suite logique.
+Trouvez le mot-clé de désactivation.
+
+Suite numérique extraite :
+<strong>  1 · 1 · 2 · 3 · 5 · 8 · 13 · ?</strong>
+
+Le chiffre manquant correspond à une position dans le tableau de codes :
+
+<strong>  01:ALPHA  02:BRAVO  03:DELTA  04:ECHO
+  05:FOXTROT  06:GOLF  07:HOTEL  08:INDIA
+  09:JULIET  10:KILO  11:LIMA  12:MIKE
+  13:NOVEMBER  14:OSCAR  15:PAPA  16:QUEBEC
+  17:ROMEO  18:SIERRA  19:TANGO  20:UNIFORM
+  21:BLACKOUT</strong>
+
+Le mot-clé final est le code correspondant à ce numéro.
+      </div>
+      <div class="modal-hint">
+💡 Suite de Fibonacci : chaque nombre = somme des deux précédents.<br>
+Le ? complète la suite. Ce nombre pointe vers un code dans le tableau.
+      </div>
+    </div>`,
+    'reseaux',
+    'BLACKOUT',
+    'Entrez le mot-clé final'
+  );
+}
+
+// ════════════════════════════════════════
+//  MODAL GÉNÉRIQUE
+// ════════════════════════════════════════
+function showModal(tag, title, contentHTML, moduleKey, answer, placeholder) {
+  document.getElementById('modal-tag').textContent = tag;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-blocked').style.display = 'none';
+
+  document.getElementById('modal-content').innerHTML = contentHTML + `
+    <div class="modal-input-row">
+      <input class="modal-input" id="modal-ans" type="text" placeholder="${placeholder}" autocomplete="off">
+      <button class="modal-btn" onclick="checkModalAnswer('${moduleKey}','${answer}')">VALIDER</button>
+    </div>
+    <div class="modal-error" id="modal-error">⚠ CLÉ INCORRECTE — ${3-(fails[moduleKey])} tentative(s) restante(s)</div>
+  `;
+
+  const input = document.getElementById('modal-ans');
+  input.addEventListener('keydown', e => {
+    if(e.key==='Enter') checkModalAnswer(moduleKey, answer);
+  });
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function showModalBlocked(seconds) {
+  document.getElementById('modal-tag').textContent = 'ACCÈS VERROUILLÉ';
+  document.getElementById('modal-title').textContent = 'BLOQUÉ';
+  document.getElementById('modal-content').innerHTML = '';
+  const blockedEl = document.getElementById('modal-blocked');
+  blockedEl.style.display = 'block';
+  let cd = seconds;
+  document.getElementById('lockout-countdown').textContent = cd;
+  const iv = setInterval(()=>{
+    cd--;
+    document.getElementById('lockout-countdown').textContent = cd;
+    if(cd<=0){ clearInterval(iv); closeModal(); }
+  },1000);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
+});
+
+// ════════════════════════════════════════
+//  VÉRIF RÉPONSE MODAL
+// ════════════════════════════════════════
+function checkModalAnswer(moduleKey, correctAnswer) {
+  const val = (document.getElementById('modal-ans').value||'').trim().toUpperCase();
+  const errEl = document.getElementById('modal-error');
+
+  if (val === correctAnswer.toUpperCase()) {
+    // BONNE RÉPONSE
+    fails[moduleKey] = 0;
+    moduleSolved[moduleKey] = true;
+    closeModal();
+
+    if (moduleKey==='dossiers') {
+      stepReached = Math.max(stepReached, 1);
+      unlockModule('reseaux');
+      addLog('MODULE DOSSIERS : Clé validée. Module Réseaux déverrouillé.', 'ok');
+      markSolved('mod-dossiers', 'dos-status', 'RÉSOLU');
+    } else if (moduleKey==='reseaux') {
+      stepReached = Math.max(stepReached, 2);
+      addLog('MODULE RÉSEAUX : Clé validée. Entrez BLACKOUT dans la zone de saisie.', 'ok');
+      markSolved('mod-reseaux', 'res-status', 'RÉSOLU');
+    }
+  } else {
+    // MAUVAISE RÉPONSE
+    fails[moduleKey]++;
+    shakeEl(document.getElementById('modal-ans'));
+    const remaining = 3 - fails[moduleKey];
+
+    if (fails[moduleKey] >= 3) {
+      // LOCKOUT 30 secondes
+      lockout[moduleKey] = Date.now() + 30000;
+      fails[moduleKey] = 0;
+      closeModal();
+      addLog(`MODULE ${moduleKey.toUpperCase()} : Trop de tentatives. Verrouillage 30s.`, 'warn');
+      return;
+    }
+
+    errEl.textContent = `⚠ CLÉ INCORRECTE — ${remaining} tentative(s) restante(s)`;
+    errEl.style.display = 'block';
+    addLog(`Tentative incorrecte sur module ${moduleKey}. ${remaining} essai(s) restant(s).`, 'warn');
+  }
+}
+
+// ════════════════════════════════════════
+//  SOLUTION GLOBALE (zone du bas)
+// ════════════════════════════════════════
 function checkSolution() {
   const val = document.getElementById('solution-input').value.trim().toUpperCase();
-  if (val === VICTORY_CODE.toUpperCase()) {
+  const inputEl = document.getElementById('solution-input');
+
+  // Clé 1 : SPECTRE → vient du labyrinthe, débloque Dossiers
+  if (val === 'SPECTRE' && !moduleSolved.nav) {
+    moduleSolved.nav = true;
+    stepReached = Math.max(stepReached, 1);
+    unlockModule('dossiers');
+    markSolved('mod-nav', 'nav-status', 'RÉSOLU');
+    addLog('CLÉ "SPECTRE" VALIDÉE. Module Dossiers déverrouillé.', 'ok');
+    inputEl.value='';
+  }
+  // Clé 2 : MORT → solution enigme Dossiers (César), débloque Réseaux
+  else if (val === 'MORT' && moduleSolved.nav && !moduleSolved.dossiers) {
+    moduleSolved.dossiers = true;
+    stepReached = Math.max(stepReached, 2);
+    unlockModule('reseaux');
+    markSolved('mod-dossiers', 'dos-status', 'RÉSOLU');
+    addLog('CLÉ "MORT" VALIDÉE. Module Réseaux déverrouillé.', 'ok');
+    inputEl.value='';
+  }
+  // Clé finale : BLACKOUT → victoire
+  else if (val === 'BLACKOUT' && moduleSolved.dossiers) {
     clearInterval(timerInt);
-    clearInterval(logInt);
-    cancelAnimationFrame(progressRaf);
-    sessionStorage.removeItem('gpEndTime');
-    alert("✅ CONTRE-MESURE ACTIVÉE — Intrusion stoppée. Mission accomplie, Agent.");
-    resetAll();
-  } else {
-    const inp = document.getElementById('solution-input');
-    inp.classList.remove('shake');
-    void inp.offsetWidth; // reflow
-    inp.classList.add('shake');
+    const rem = Math.max(0, gameEndTime - Date.now());
+    const m = String(Math.floor(rem/60000)).padStart(2,'0');
+    const s = String(Math.floor((rem%60000)/1000)).padStart(2,'0');
+    addLog('INTRUSION STOPPÉE. SYSTÈME SÉCURISÉ.', 'ok');
+    document.getElementById('v-time').textContent = `${m}:${s}`;
+    document.getElementById('v-agent').textContent = agentName||'AGENT';
+    showScreen('screen-victory');
+  }
+  else {
+    shakeEl(inputEl);
+    addLog('Clé incorrecte ou ordre de déverrouillage invalide.', 'warn');
   }
 }
 
-/* ============================================================
-GAME OVER
-============================================================ */
-function gameOver() {
-  cancelAnimationFrame(progressRaf);
-  sessionStorage.removeItem('gpEndTime');
-  alert("💀 DONNÉES EXFILTRÉES — Compte à rebours écoulé. Les identités de terrain sont compromises.");
-  resetAll();
+document.getElementById('solution-input').addEventListener('keydown', e => {
+  if(e.key==='Enter') checkSolution();
+});
+
+// ════════════════════════════════════════
+//  HELPERS UI
+// ════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-/* ============================================================
-MODAL
-============================================================ */
-function showModal() { document.getElementById('modal').classList.add('open'); }
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
-/* ============================================================
-RESET
-============================================================ */
-function resetAll() {
-  clearInterval(timerInt);
-  clearInterval(logInt);
-  cancelAnimationFrame(progressRaf);
-  sessionStorage.removeItem('gpEndTime');
-
-  // Reset inputs
-  document.getElementById('input-name').value = '';
-  document.getElementById('input-code').value = '';
-  document.getElementById('solution-input').value = '';
-  document.getElementById('log-box').innerHTML = 'Connexion entrante détectée · 217.54.xx.xx<br>';
-  document.getElementById('exfil-fill').style.width = '0%';
-  document.getElementById('exfil-pct').textContent = '0%';
-  document.getElementById('timer-digits').textContent = '00:00';
-  document.getElementById('timer-digits').classList.remove('pulse');
-  logIdx = 0; agentCode = ''; gameEndTime = null;
-
-
-  // Back to login
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-login').classList.add('active');
+function unlockModule(id) {
+  const tile = document.getElementById('mod-'+id);
+  tile.classList.remove('locked');
+  tile.classList.add('active-module');
+  const badge = tile.querySelector('.locked-badge');
+  if(badge) badge.textContent='🔓';
 }
 
-/* ============================================================
-RESUME ON RELOAD
-============================================================ */
-window.onload = () => {
-  const stored = sessionStorage.getItem('gpEndTime');
-  if (stored && parseInt(stored) > Date.now()) {
-    gameEndTime = parseInt(stored);
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-breach').classList.add('active');
-    startBreach();
-  }
-};
+function markSolved(tileId, statusId, label) {
+  const tile = document.getElementById(tileId);
+  tile.classList.remove('active-module','locked');
+  tile.classList.add('solved');
+  document.getElementById(statusId).textContent = label;
+  // Ajouter badge
+  let badge = tile.querySelector('.solved-badge');
+  if(!badge){ badge=document.createElement('span'); badge.className='solved-badge'; tile.appendChild(badge); }
+  badge.textContent='✓ OK';
+  const lb = tile.querySelector('.locked-badge');
+  if(lb) lb.remove();
+}
 
+function shakeEl(el) {
+  el.classList.add('shake');
+  setTimeout(()=>el.classList.remove('shake'),400);
+}
+
+function gameFailed() {
+  addLog('DÉLAI DÉPASSÉ. SYSTÈME COMPROMIS.','warn');
+  const glitch = document.getElementById('glitch-overlay');
+  document.getElementById('glitch-msg').textContent='SYSTÈME COMPROMIS';
+  glitch.classList.add('show');
+  setTimeout(()=>{ glitch.classList.remove('show'); resetAll(); },1500);
+}
+
+function resetAll() { location.reload(); }
 </script>
 </body>
 </html>
