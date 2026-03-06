@@ -43,15 +43,15 @@ SCREEN 1 — LOGIN
       <div class="field">
         <label class="field-label" for="input-name">Nom de code agent</label>
         <input class="field-input" type="text" id="input-name"
-               placeholder="EX : FALCON" autocomplete="off" spellcheck="false">
+              placeholder="EX : FALCON" autocomplete="off" spellcheck="false">
       </div>
 
       <div class="field">
         <label class="field-label" for="input-code">Code d'identification (4–8 chiffres)</label>
         <input class="field-input" type="tel" id="input-code"
-               placeholder="· · · ·" maxlength="8"
-               autocomplete="off" inputmode="numeric"
-               oninput="this.value=this.value.replace(/\D/g,'')">
+              placeholder="· · · ·" maxlength="8"
+              autocomplete="off" inputmode="numeric"
+              oninput="this.value=this.value.replace(/\D/g,'')">
       </div>
 
       <button class="btn-primary" onclick="doLogin()">
@@ -69,7 +69,7 @@ SCREEN 1 — LOGIN
 </div>
 
 <!-- ============================================
-     SCREEN 2 — MISSION BRIEFING
+SCREEN 2 — MISSION BRIEFING
 ============================================= -->
 <div id="screen-brief" class="screen">
 
@@ -140,7 +140,7 @@ SCREEN 1 — LOGIN
 </div>
 
 <!-- ============================================
-     SCREEN 3 — BREACH
+SCREEN 3 — BREACH
 ============================================= -->
 <div id="screen-breach" class="screen">
 
@@ -223,8 +223,8 @@ SCREEN 1 — LOGIN
     <p class="solution-caption">Entrer la clé de contre-mesure :</p>
     <div class="solution-row">
       <input class="solution-input" type="text" id="solution-input"
-             placeholder="CLÉ DE DÉCRYPTAGE" autocomplete="off"
-             spellcheck="false">
+            placeholder="CLÉ DE DÉCRYPTAGE" autocomplete="off"
+            spellcheck="false">
       <button class="btn-stop" onclick="checkSolution()">STOPPER</button>
     </div>
     <button class="btn-reset" onclick="resetAll()">[ Réinitialiser la démo ]</button>
@@ -233,25 +233,25 @@ SCREEN 1 — LOGIN
 </div>
 
 <!-- ============================================
-     MODAL — ACCÈS REFUSÉ
+MODAL — ACCÈS REFUSÉ 
 ============================================= -->
 <div class="modal-bg" id="modal">
   <div class="modal-box">
     <h3>ACCÈS VERROUILLÉ</h3>
     <p>Ce module est chiffré par l'algorithme ennemi.<br>
-       Trouvez la clé de contre-mesure pour reprendre le contrôle.</p>
+      Trouvez la clé de contre-mesure pour reprendre le contrôle.</p>
     <button onclick="closeModal()">Fermer</button>
   </div>
 </div>
 
 
 <!-- ============================================
-     JAVASCRIPT
+JAVASCRIPT 
 ============================================= -->
 <script>
 
 /* ============================================================
-   CONFIG — modifier selon votre escape game
+CONFIG — modifier selon votre escape game
 ============================================================ */
 const VICTORY_CODE = "BLACKOUT"; // code que le joueur doit trouver
 
@@ -283,7 +283,7 @@ const LOG_LINES = [
 ];
 
 /* ============================================================
-   STATE
+  STATE 
 ============================================================ */
 let agentCode    = "";
 let gameEndTime  = null;
@@ -293,7 +293,7 @@ let logIdx       = 0;
 let progressRaf  = null;
 
 /* ============================================================
-   SCREEN 1 — LOGIN
+SCREEN 1 — LOGIN
 ============================================================ */
 function doLogin() {
   const name = document.getElementById('input-name').value.trim().toUpperCase();
@@ -317,7 +317,7 @@ function doLogin() {
 }
 
 /* ============================================================
-   SCREEN 2 — BREACH TRIGGER (accept OR refuse)
+SCREEN 2 — BREACH TRIGGER (accept OR refuse)
 ============================================================ */
 function triggerBreach(refused) {
   const duration = getTimeFromCode(agentCode);
@@ -343,7 +343,7 @@ function triggerBreach(refused) {
 }
 
 /* ============================================================
-   SCREEN 3 — BREACH LOGIC
+SCREEN 3 — BREACH LOGIC
 ============================================================ */
 function startBreach() {
   startTimer();
@@ -406,7 +406,7 @@ function startLog() {
 }
 
 /* ============================================================
-   SOLUTION CHECK
+SOLUTION CHECK
 ============================================================ */
 function checkSolution() {
   const val = document.getElementById('solution-input').value.trim().toUpperCase();
@@ -426,7 +426,7 @@ function checkSolution() {
 }
 
 /* ============================================================
-   GAME OVER
+GAME OVER
 ============================================================ */
 function gameOver() {
   cancelAnimationFrame(progressRaf);
@@ -436,13 +436,13 @@ function gameOver() {
 }
 
 /* ============================================================
-   MODAL
+MODAL
 ============================================================ */
 function showModal() { document.getElementById('modal').classList.add('open'); }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
 /* ============================================================
-   RESET
+RESET
 ============================================================ */
 function resetAll() {
   clearInterval(timerInt);
@@ -461,13 +461,14 @@ function resetAll() {
   document.getElementById('timer-digits').classList.remove('pulse');
   logIdx = 0; agentCode = ''; gameEndTime = null;
 
+
   // Back to login
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-login').classList.add('active');
 }
 
 /* ============================================================
-   RESUME ON RELOAD
+RESUME ON RELOAD
 ============================================================ */
 window.onload = () => {
   const stored = sessionStorage.getItem('gpEndTime');

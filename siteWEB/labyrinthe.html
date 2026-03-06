@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>LABYRINTH//EXPLORATION-PROTOCOL</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
+
+    :root {
+      --black:    #050607;
+      --surface:  #0d1117;
+      --ice:      #a8d4e6;
+      --amber:    #ffaa00;
+      --red:      #ff3333;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    body {
+      background: var(--black);
+      color: #fff;
+      font-family: var(--font-mono);
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      padding: 10px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid #1c2830;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #timer {
+      color: var(--ice);
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      padding: 5px 15px;
+      border: 1px solid rgba(168, 212, 230, 0.3);
+      background: rgba(0,0,0,0.3);
+    }
+
+    .maze-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #0a0e14 0%, #050607 100%);
+    }
+
+    canvas {
+      border: 1px solid #1c2830;
+      box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 6, 7, 0.98);
+      z-index: 100;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .msg-main { font-family: 'Bebas Neue'; font-size: 6rem; color: var(--amber); margin: 0; line-height: 1; }
+    .msg-sub { color: #556677; letter-spacing: 5px; margin-bottom: 30px; margin-top: 10px; }
+    
+    button {
+      background: transparent;
+      border: 1px solid var(--ice);
+      color: var(--ice);
+      padding: 15px 45px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      transition: all 0.3s;
+    }
+    button:hover { background: var(--ice); color: #000; box-shadow: 0 0 20px rgba(168, 212, 230, 0.4); }
+
+    .status-text { font-size: 0.8rem; color: #445566; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="status-text">SYSTEM_STATUS</div>
+    <div style="color: var(--amber)">SCANNING_MAZE...</div>
+  </div>
+  <div id="timer">02:00</div>
+</div>
+
+<div class="maze-container">
+  <canvas id="maze"></canvas>
+</div>
+
+<div id="overlay">
+  <div id="overlay-pre" style="color: #445566; letter-spacing: 2px;">DÉCRYPTAGE RÉUSSI</div>
+  <div class="msg-main" id="overlay-title">MAMAN</div>
+  <div class="msg-sub" id="overlay-msg">ACCÈS AU PROCHAIN INDICE AUTORISÉ</div>
+  <button onclick="startGame()">RÉINITIALISER</button>
+</div>
+
+<script>
+  const canvas = document.getElementById('maze');
+  const ctx = canvas.getContext('2d');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+
+  const COLS = 60; 
+  const ROWS = 30;
+  const CELL = 16;
+  const START_TIME = 120; // 2 minutes
+
+  canvas.width = COLS * CELL;
+  canvas.height = ROWS * CELL;
+
+  let grid, player, timeLeft, timerInterval, gameOver;
+
+  function initGrid() {
+    grid = [];
+    for(let r=0; r<ROWS; r++) {
+      grid[r] = [];
+      for(let c=0; c<COLS; c++) {
+        grid[r][c] = { r, c, walls: [true, true, true, true], visited: false, discovered: false };
+      }
+    }
+  }
+
+  function generateMaze(r, c) {
+    grid[r][c].visited = true;
+    const neighbors = [[-1,0,0,2],[1,0,2,0],[0,1,1,3],[0,-1,3,1]]
+      .map(n => ({ nr: r+n[0], nc: c+n[1], w: n[2], ow: n[3] }))
+      .filter(n => n.nr>=0 && n.nr<ROWS && n.nc>=0 && n.nc<COLS && !grid[n.nr][n.nc].visited)
+      .sort(() => Math.random() - 0.5);
+
+    for(let n of neighbors) {
+      if(!grid[n.nr][n.nc].visited) {
+        grid[r][c].walls[n.w] = false;
+        grid[n.nr][n.nc].walls[n.ow] = false;
+        generateMaze(n.nr, n.nc);
+      }
+    }
+  }
+
+  // Ajoute des chemins secondaires pour ne pas avoir un chemin unique
+  function injectEntropy() {
+    for(let i=0; i<180; i++) {
+      let r = Math.floor(Math.random()*(ROWS-2))+1;
+      let c = Math.floor(Math.random()*(COLS-2))+1;
+      let w = Math.floor(Math.random()*4);
+      grid[r][c].walls[w] = false;
+      if(w===0) grid[r-1][c].walls[2] = false;
+      if(w===1) grid[r][c+1].walls[3] = false;
+      if(w===2) grid[r+1][c].walls[0] = false;
+      if(w===3) grid[r][c-1].walls[1] = false;
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#050607';
+    ctx.fillRect(0,0, canvas.width, canvas.height);
+
+    for(let r=0; r<ROWS; r++) {
+      for(let c=0; c<COLS; c++) {
+        let x = c*CELL, y = r*CELL;
+        
+        // Brouillard de guerre (ce qu'on a déjà visité)
+        if(grid[r][c].discovered) {
+          ctx.fillStyle = 'rgba(168, 212, 230, 0.08)';
+          ctx.fillRect(x, y, CELL, CELL);
+        }
+        
+        ctx.strokeStyle = '#1c2830';
+        ctx.lineWidth = 1;
+        if(grid[r][c].walls[0]) { ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+CELL,y); ctx.stroke(); }
+        if(grid[r][c].walls[1]) { ctx.beginPath(); ctx.moveTo(x+CELL,y); ctx.lineTo(x+CELL,y+CELL); ctx.stroke(); }
+        if(grid[r][c].walls[2]) { ctx.beginPath(); ctx.moveTo(x,y+CELL); ctx.lineTo(x+CELL,y+CELL); ctx.stroke(); }
+        if(grid[r][c].walls[3]) { ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+CELL); ctx.stroke(); }
+      }
+    }
+
+    // Sortie (Objectif)
+    ctx.fillStyle = '#ff3333';
+    ctx.shadowBlur = 10; ctx.shadowColor = '#ff3333';
+    ctx.fillRect((COLS-1)*CELL+4, (ROWS-1)*CELL+4, CELL-8, CELL-8);
+
+    // Joueur
+    ctx.fillStyle = '#a8d4e6';
+    ctx.shadowBlur = 15; ctx.shadowColor = '#a8d4e6';
+    ctx.beginPath();
+    ctx.arc(player.c*CELL + CELL/2, player.r*CELL + CELL/2, CELL/3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function formatTime(seconds) {
+    let m = Math.floor(seconds / 60);
+    let s = seconds % 60;
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  function startGame() {
+    initGrid();
+    generateMaze(0, 0);
+    injectEntropy();
+    player = { r:0, c:0 };
+    grid[0][0].discovered = true;
+    timeLeft = START_TIME;
+    gameOver = false;
+    overlay.style.display = 'none';
+    timerEl.style.color = 'var(--ice)';
+    clearInterval(timerInterval);
+    
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.innerText = formatTime(timeLeft);
+      if(timeLeft <= 10) timerEl.style.color = 'var(--red)';
+      if(timeLeft <= 0) end(false);
+    }, 1000);
+    draw();
+  }
+
+  function end(win) {
+    clearInterval(timerInterval);
+    gameOver = true;
+    overlay.style.display = 'flex';
+    const title = document.getElementById('overlay-title');
+    const msg = document.getElementById('overlay-msg');
+    const pre = document.getElementById('overlay-pre');
+
+    if(win) {
+      pre.innerText = "DÉCRYPTAGE RÉUSSI";
+      title.innerText = "Indice";
+      title.style.color = "var(--amber)";
+      msg.innerText = "ACCÈS AU PROCHAIN INDICE AUTORISÉ";
+    } else {
+      pre.innerText = "ÉCHEC DU SYSTÈME";
+      title.innerText = "VERROUILLÉ";
+      title.style.color = "var(--red)";
+      msg.innerText = "DÉLAI DÉPASSÉ - RECONNEXION REQUISE";
+    }
+  }
+
+  window.addEventListener('keydown', e => {
+    if(gameOver) return;
+    let {r, c} = player;
+    if(e.key === 'ArrowUp' && !grid[r][c].walls[0]) r--;
+    if(e.key === 'ArrowDown' && !grid[r][c].walls[2]) r++;
+    if(e.key === 'ArrowRight' && !grid[r][c].walls[1]) c++;
+    if(e.key === 'ArrowLeft' && !grid[r][c].walls[3]) c--;
+
+    if(r !== player.r || c !== player.c) {
+      player = {r, c};
+      grid[r][c].discovered = true;
+      draw();
+      if(r === ROWS-1 && c === COLS-1) end(true);
+    }
+  });
+
+  startGame();
+</script>
+</body>
+</html>
