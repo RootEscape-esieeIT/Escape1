@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>LABYRINTH//EXPLORATION-PROTOCOL</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
+    :root {
+      --black:#050607; --surface:#0d1117; --ice:#a8d4e6;
+      --amber:#ffaa00; --red:#ff3333; --green:#00ff88;
+      --mono:'Share Tech Mono',monospace; --display:'Bebas Neue',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--black);color:#fff;font-family:var(--mono);margin:0;overflow:hidden;display:flex;flex-direction:column;height:100vh;}
+    .header{padding:8px 20px;background:var(--surface);border-bottom:1px solid #1c2830;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+    .header-left{display:flex;flex-direction:column;gap:2px;}
+    .sys-label{font-size:0.65rem;color:#556677;letter-spacing:3px;}
+    .sys-val{color:var(--amber);font-size:0.8rem;letter-spacing:2px;}
+    #timer{color:var(--ice);font-family:var(--display);font-size:2.2rem;letter-spacing:4px;padding:4px 16px;border:1px solid rgba(168,212,230,0.25);background:rgba(0,0,0,0.3);}
+    #timer.danger{color:var(--red);animation:blink 0.4s infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+    .status-bar{background:#050607;border-bottom:1px solid #0d1117;padding:4px 20px;display:flex;gap:24px;flex-shrink:0;}
+    .stat{font-size:0.65rem;color:#334455;letter-spacing:2px;}
+    .stat span{color:var(--ice);}
+
+    .maze-container{flex:1;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at center,#0a0e14 0%,#050607 100%);position:relative;overflow:hidden;}
+    canvas{border:1px solid #1c2830;box-shadow:0 0 60px rgba(0,0,0,0.9),inset 0 0 30px rgba(0,0,0,0.5);}
+
+    /* Message flottant piège */
+    #trap-msg{
+      position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+      background:var(--red);color:#000;font-family:var(--display);
+      font-size:2rem;letter-spacing:6px;padding:20px 40px;
+      display:none;z-index:200;pointer-events:none;
+    }
+
+    /* Écran de fin */
+    #overlay{
+      display:none;position:fixed;inset:0;background:rgba(5,6,7,0.97);
+      z-index:100;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:16px;
+    }
+    .msg-pre{font-size:0.7rem;letter-spacing:6px;color:#556677;}
+    .msg-main{font-family:var(--display);font-size:5rem;margin:0;line-height:1;}
+    .msg-key{
+      background:var(--surface);border:1px solid #1c2830;border-left:3px solid var(--amber);
+      padding:16px 32px;margin:8px 0;
+    }
+    .msg-key-label{font-size:0.65rem;color:#556677;letter-spacing:4px;margin-bottom:6px;}
+    .msg-key-val{font-family:var(--display);font-size:3rem;color:var(--amber);letter-spacing:8px;}
+    .msg-sub{font-size:0.75rem;letter-spacing:4px;color:#556677;}
+    .btn-reset{
+      background:transparent;border:1px solid var(--ice);color:var(--ice);
+      padding:12px 36px;cursor:pointer;font-family:var(--mono);
+      text-transform:uppercase;letter-spacing:3px;transition:all 0.3s;margin-top:8px;
+    }
+    .btn-reset:hover{background:var(--ice);color:#000;box-shadow:0 0 20px rgba(168,212,230,0.3);}
+
+    /* Minimap */
+    #minimap{position:absolute;bottom:12px;right:12px;opacity:0.4;}
+    #minimap canvas{border:1px solid #1c2830;}
+
+    /* Scan lines effet */
+    .maze-container::after{
+      content:'';position:absolute;inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);
+      pointer-events:none;
+    }
+
+    /* Mobile controls */
+    #dpad{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;}
+    @media(max-width:700px){#dpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px);gap:4px;}}
+    .dpad-btn{background:rgba(13,17,23,0.9);border:1px solid #1c2830;color:var(--ice);font-size:1.2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;}
+    .dpad-btn:active{background:var(--ice);color:#000;}
+    .dpad-center{background:transparent;border:none;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="sys-label">SYSTEM_STATUS</div>
+    <div class="sys-val" id="sys-msg">SCANNING_MAZE...</div>
+  </div>
+  <div id="timer">05:00</div>
+</div>
+
+<div class="status-bar">
+  <div class="stat">PIÈGES ACTIFS: <span id="stat-traps">0</span></div>
+  <div class="stat">TÉLÉPORTATIONS: <span id="stat-tele">0</span></div>
+  <div class="stat">FAUSSES SORTIES: <span id="stat-fake">0</span></div>
+  <div class="stat">ZONE: <span id="stat-zone">SECTEUR-A</span></div>
+</div>
+
+<div class="maze-container">
+  <canvas id="maze"></canvas>
+  <div id="minimap"><canvas id="mini-canvas" width="100" height="50"></canvas></div>
+</div>
+
+<div id="trap-msg">PIÈGE !</div>
+
+<div id="overlay">
+  <div id="ol-pre" class="msg-pre">DÉCRYPTAGE RÉUSSI</div>
+  <div class="msg-main" id="ol-title" style="color:var(--amber)">VICTOIRE</div>
+  <div class="msg-key" id="ol-key-block">
+    <div class="msg-key-label">CLÉ RÉCUPÉRÉE — ENTREZ CE MOT DANS LE PORTAIL</div>
+    <div class="msg-key-val" id="ol-key">SPECTRE</div>
+  </div>
+  <div class="msg-sub" id="ol-sub">MODULE SUIVANT DÉVERROUILLÉ</div>
+  <button class="btn-reset" onclick="startGame()">↺ RÉINITIALISER</button>
+</div>
+
+<div id="dpad">
+  <div></div>
+  <div class="dpad-btn" ontouchstart="move('up')">▲</div>
+  <div></div>
+  <div class="dpad-btn" ontouchstart="move('left')">◄</div>
+  <div class="dpad-center"></div>
+  <div class="dpad-btn" ontouchstart="move('right')">►</div>
+  <div></div>
+  <div class="dpad-btn" ontouchstart="move('down')">▼</div>
+  <div></div>
+</div>
+
+<script>
+const canvas = document.getElementById('maze');
+const ctx = canvas.getContext('2d');
+const miniCanvas = document.getElementById('mini-canvas');
+const miniCtx = miniCanvas.getContext('2d');
+const timerEl = document.getElementById('timer');
+const overlay = document.getElementById('overlay');
+const trapMsg = document.getElementById('trap-msg');
+
+// ─── CONFIG ───
+const COLS = 55;
+const ROWS = 28;
+let CELL;
+const START_TIME = 300; // 5:00
+
+// ─── ÉTAT ───
+let grid, player, timeLeft, timerInterval, gameOver;
+let trapCount = 0, teleCount = 0, fakeCount = 0;
+let trapCells = [], teleportPairs = [], fakeSorties = [];
+let invertedZone = { active: false, cells: [] };
+let darkZone = { active: false, cells: [] };
+let revealInterval;
+
+// ─── TAILLE CANVAS ───
+function setCanvasSize() {
+  const maxW = window.innerWidth - 4;
+  const maxH = window.innerHeight - 110;
+  CELL = Math.floor(Math.min(maxW / COLS, maxH / ROWS));
+  if (CELL < 8) CELL = 8;
+  canvas.width = COLS * CELL;
+  canvas.height = ROWS * CELL;
+}
+
+// ─── INIT GRILLE ───
+function initGrid() {
+  grid = [];
+  for (let r = 0; r < ROWS; r++) {
+    grid[r] = [];
+    for (let c = 0; c < COLS; c++) {
+      grid[r][c] = {
+        r, c,
+        walls: [true, true, true, true], // N E S W
+        visited: false,
+        discovered: false,
+        trap: false,
+        teleport: null,
+        fakeSortie: false,
+        inverted: false,
+        dark: false,
+        checkpoint: false,
+      };
+    }
+  }
+}
+
+// ─── GÉNÉRATION LABYRINTHE (DFS) ───
+function generateMaze(r, c) {
+  grid[r][c].visited = true;
+  const dirs = [[-1,0,0,2],[1,0,2,0],[0,1,1,3],[0,-1,3,1]].sort(() => Math.random()-0.5);
+  for (let [dr, dc, w, ow] of dirs) {
+    const nr = r+dr, nc = c+dc;
+    if (nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!grid[nr][nc].visited) {
+      grid[r][c].walls[w] = false;
+      grid[nr][nc].walls[ow] = false;
+      generateMaze(nr, nc);
+    }
+  }
+}
+
+// ─── ENTROPIE (faux chemins supplémentaires) ───
+function injectEntropy() {
+  for (let i = 0; i < 200; i++) {
+    let r = Math.floor(Math.random()*(ROWS-2))+1;
+    let c = Math.floor(Math.random()*(COLS-2))+1;
+    let w = Math.floor(Math.random()*4);
+    grid[r][c].walls[w] = false;
+    if(w===0&&r>0)       grid[r-1][c].walls[2] = false;
+    if(w===1&&c<COLS-1)  grid[r][c+1].walls[3] = false;
+    if(w===2&&r<ROWS-1)  grid[r+1][c].walls[0] = false;
+    if(w===3&&c>0)       grid[r][c-1].walls[1] = false;
+  }
+}
+
+// ─── PIÈGES ───
+function placePieces() {
+  trapCells = [];
+  teleportPairs = [];
+  fakeSorties = [];
+
+  // 1. PIÈGES (retour au début)
+  const numTraps = 18;
+  let placed = 0;
+  while (placed < numTraps) {
+    let r = Math.floor(Math.random()*(ROWS-4))+2;
+    let c = Math.floor(Math.random()*(COLS-4))+2;
+    if (!grid[r][c].trap && !(r===0&&c===0) && !(r===ROWS-1&&c===COLS-1)) {
+      grid[r][c].trap = true;
+      trapCells.push({r,c});
+      placed++;
+    }
+  }
+
+  // 2. TÉLÉPORTEURS (paires aléatoires)
+  const numTele = 6;
+  let telePlaced = 0;
+  while (telePlaced < numTele) {
+    let r1=Math.floor(Math.random()*(ROWS-2))+1, c1=Math.floor(Math.random()*(COLS-2))+1;
+    let r2=Math.floor(Math.random()*(ROWS-2))+1, c2=Math.floor(Math.random()*(COLS-2))+1;
+    if (!grid[r1][c1].teleport && !grid[r2][c2].teleport && 
+        !grid[r1][c1].trap && !grid[r2][c2].trap &&
+        Math.abs(r1-r2)+Math.abs(c1-c2) > 8) {
+      grid[r1][c1].teleport = {r:r2,c:c2};
+      grid[r2][c2].teleport = {r:r1,c:c1};
+      teleportPairs.push({r1,c1,r2,c2});
+      telePlaced++;
+    }
+  }
+
+  // 3. FAUSSES SORTIES (ressemblent à la sortie mais téléportent au début)
+  const fakeSortiePositions = [
+    {r:0,c:COLS-1}, {r:ROWS-1,c:0}, {r:Math.floor(ROWS/2),c:COLS-1},
+    {r:0,c:Math.floor(COLS/2)}
+  ];
+  for (let pos of fakeSortiePositions) {
+    grid[pos.r][pos.c].fakeSortie = true;
+    fakeSorties.push(pos);
+  }
+
+  // 4. ZONE INVERSÉE (les commandes haut/bas sont inversées)
+  const iz_r = Math.floor(ROWS/3), iz_c = Math.floor(COLS/3);
+  for (let r=iz_r; r<iz_r+6; r++) for (let c=iz_c; c<iz_c+10; c++) {
+    if (r<ROWS&&c<COLS) { grid[r][c].inverted=true; invertedZone.cells.push({r,c}); }
+  }
+
+  // 5. ZONE SOMBRE (fog of war total autour du joueur)
+  const dz_r = Math.floor(ROWS*0.6), dz_c = Math.floor(COLS*0.4);
+  for (let r=dz_r; r<dz_r+7; r++) for (let c=dz_c; c<dz_c+12; c++) {
+    if (r<ROWS&&c<COLS) { grid[r][c].dark=true; darkZone.cells.push({r,c}); }
+  }
+
+  // 6. CHECKPOINTS (sauvegardent la position)
+  grid[Math.floor(ROWS/2)][Math.floor(COLS/4)].checkpoint = true;
+  grid[Math.floor(ROWS/4)][Math.floor(COLS*3/4)].checkpoint = true;
+  grid[Math.floor(ROWS*3/4)][Math.floor(COLS/2)].checkpoint = true;
+}
+
+// ─── DESSIN ───
+function draw() {
+  ctx.fillStyle = '#050607';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const x = c*CELL, y = r*CELL;
+      const cell = grid[r][c];
+
+      // Fog of war - zone sombre (vision réduite)
+      if (cell.dark && !cell.discovered) {
+        ctx.fillStyle = '#020304';
+        ctx.fillRect(x, y, CELL, CELL);
+        // On ne dessine pas les murs dans la zone sombre non découverte
+        if (Math.abs(r-player.r)>2 || Math.abs(c-player.c)>2) continue;
+      }
+
+      // Sol découvert
+      if (cell.discovered) {
+        if (cell.inverted) {
+          ctx.fillStyle = 'rgba(255,170,0,0.06)';
+        } else if (cell.dark) {
+          ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        } else {
+          ctx.fillStyle = 'rgba(168,212,230,0.05)';
+        }
+        ctx.fillRect(x, y, CELL, CELL);
+      }
+
+      // Checkpoint
+      if (cell.checkpoint && cell.discovered) {
+        ctx.fillStyle = 'rgba(0,255,136,0.12)';
+        ctx.fillRect(x+1,y+1,CELL-2,CELL-2);
+      }
+
+      // Piège (visible seulement si découvert ET dans une case déjà visitée)
+      if (cell.trap && cell.discovered) {
+        ctx.fillStyle = 'rgba(255,51,51,0.2)';
+        ctx.fillRect(x+1,y+1,CELL-2,CELL-2);
+        if (CELL >= 12) {
+          ctx.fillStyle = 'rgba(255,51,51,0.5)';
+          ctx.font = `${Math.floor(CELL*0.6)}px monospace`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('✕', x+CELL/2, y+CELL/2);
+        }
+      }
+
+      // Téléporteur
+      if (cell.teleport && cell.discovered) {
+        ctx.fillStyle = 'rgba(168,212,230,0.15)';
+        ctx.fillRect(x+1,y+1,CELL-2,CELL-2);
+        if (CELL >= 12) {
+          ctx.fillStyle = 'rgba(168,212,230,0.6)';
+          ctx.font = `${Math.floor(CELL*0.55)}px monospace`;
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText('⟳', x+CELL/2, y+CELL/2);
+        }
+      }
+
+      // Fausse sortie
+      if (cell.fakeSortie) {
+        ctx.fillStyle = 'rgba(255,51,51,0.7)';
+        ctx.shadowBlur=8; ctx.shadowColor='#ff3333';
+        ctx.fillRect(x+3,y+3,CELL-6,CELL-6);
+        ctx.shadowBlur=0;
+      }
+
+      // Zone inversée - indicateur
+      if (cell.inverted && cell.discovered) {
+        // Hachures subtiles
+        ctx.strokeStyle = 'rgba(255,170,0,0.08)';
+        ctx.lineWidth=0.5;
+        for(let i=0;i<CELL;i+=4){
+          ctx.beginPath();ctx.moveTo(x+i,y);ctx.lineTo(x,y+i);ctx.stroke();
+        }
+      }
+
+      // Murs
+      const wallColor = cell.inverted ? '#2a1800' : '#1c2830';
+      ctx.strokeStyle = wallColor;
+      ctx.lineWidth = 1;
+      if (cell.walls[0]) { ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+CELL,y); ctx.stroke(); }
+      if (cell.walls[1]) { ctx.beginPath(); ctx.moveTo(x+CELL,y); ctx.lineTo(x+CELL,y+CELL); ctx.stroke(); }
+      if (cell.walls[2]) { ctx.beginPath(); ctx.moveTo(x,y+CELL); ctx.lineTo(x+CELL,y+CELL); ctx.stroke(); }
+      if (cell.walls[3]) { ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+CELL); ctx.stroke(); }
+    }
+  }
+
+  // Vraie sortie (coin bas-droite)
+  const ex = (COLS-1)*CELL, ey = (ROWS-1)*CELL;
+  ctx.fillStyle = '#ff3333';
+  ctx.shadowBlur = 15; ctx.shadowColor = '#ff3333';
+  ctx.fillRect(ex+2, ey+2, CELL-4, CELL-4);
+  ctx.shadowBlur = 0;
+  if (CELL >= 10) {
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${Math.floor(CELL*0.55)}px monospace`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('◉', ex+CELL/2, ey+CELL/2);
+  }
+
+  // Joueur
+  const px = player.c*CELL + CELL/2, py = player.r*CELL + CELL/2;
+  const inInverted = grid[player.r][player.c].inverted;
+  const playerColor = inInverted ? '#ffaa00' : '#a8d4e6';
+  ctx.fillStyle = playerColor;
+  ctx.shadowBlur = 18; ctx.shadowColor = playerColor;
+  ctx.beginPath();
+  ctx.arc(px, py, CELL/2.8, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  drawMinimap();
+}
+
+// ─── MINIMAP ───
+function drawMinimap() {
+  const mw = miniCanvas.width, mh = miniCanvas.height;
+  miniCtx.fillStyle = '#050607';
+  miniCtx.fillRect(0,0,mw,mh);
+  const cw = mw/COLS, ch = mh/ROWS;
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) {
+    if(grid[r][c].discovered) {
+      miniCtx.fillStyle = 'rgba(168,212,230,0.3)';
+      miniCtx.fillRect(c*cw, r*ch, cw, ch);
+    }
+  }
+  // Joueur sur minimap
+  miniCtx.fillStyle = '#a8d4e6';
+  miniCtx.fillRect(player.c*cw, player.r*ch, cw+1, ch+1);
+  // Sortie
+  miniCtx.fillStyle = '#ff3333';
+  miniCtx.fillRect((COLS-1)*cw, (ROWS-1)*ch, cw+1, ch+1);
+}
+
+// ─── DÉCOUVERTE FOG ───
+function discoverAround(r, c) {
+  const vision = grid[r][c].dark ? 1 : 2;
+  for(let dr=-vision; dr<=vision; dr++) for(let dc=-vision; dc<=vision; dc++) {
+    const nr=r+dr, nc=c+dc;
+    if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS) grid[nr][nc].discovered=true;
+  }
+}
+
+// ─── TIMER FORMAT ───
+function formatTime(s) {
+  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ─── CHECKPOINT SAUVEGARDE ───
+let lastCheckpoint = {r:0,c:0};
+function checkCheckpoint(r,c) {
+  if(grid[r][c].checkpoint) {
+    lastCheckpoint = {r,c};
+    flashMsg('✓ CHECKPOINT', '#00ff88');
+  }
+}
+
+// ─── MESSAGE FLASH ───
+function flashMsg(msg, color='#ff3333') {
+  trapMsg.textContent = msg;
+  trapMsg.style.background = color;
+  trapMsg.style.display = 'block';
+  setTimeout(()=>trapMsg.style.display='none', 700);
+}
+
+// ─── TIMER CLIGNOTANT ───
+function updateTimerDisplay() {
+  timerEl.textContent = formatTime(timeLeft);
+  if(timeLeft<=20) timerEl.className='danger';
+  else timerEl.className='';
+}
+
+// ─── DÉMARRAGE ───
+function startGame() {
+  setCanvasSize();
+  initGrid();
+  generateMaze(0,0);
+  injectEntropy();
+  placePieces();
+
+  player = {r:0,c:0};
+  lastCheckpoint = {r:0,c:0};
+  grid[0][0].discovered = true;
+  discoverAround(0,0);
+
+  timeLeft = START_TIME;
+  gameOver = false;
+  trapCount=0; teleCount=0; fakeCount=0;
+  document.getElementById('stat-traps').textContent=trapCount;
+  document.getElementById('stat-tele').textContent=teleCount;
+  document.getElementById('stat-fake').textContent=fakeCount;
+  document.getElementById('stat-zone').textContent='SECTEUR-A';
+  document.getElementById('sys-msg').textContent='SCANNING_MAZE...';
+  document.getElementById('sys-msg').style.color='var(--amber)';
+
+  overlay.style.display='none';
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    updateTimerDisplay();
+    if(timeLeft<=0) end(false);
+  },1000);
+
+  draw();
+}
+
+// ─── MOUVEMENT ───
+let lastMoveTime = 0;
+function move(dir) {
+  if(gameOver) return;
+  const now = Date.now();
+  if(now - lastMoveTime < 80) return; // throttle
+  lastMoveTime = now;
+
+  let {r,c} = player;
+  const cell = grid[r][c];
+
+  // Zone inversée : inverser haut/bas
+  let up='ArrowUp',down='ArrowDown';
+  if(cell.inverted){ up='ArrowDown'; down='ArrowUp'; }
+
+  let nr=r, nc=c;
+  if((dir==='up'||dir===up)    && !grid[r][c].walls[0]) nr=r-1;
+  if((dir==='down'||dir===down) && !grid[r][c].walls[2]) nr=r+1;
+  if((dir==='right'||dir==='ArrowRight') && !grid[r][c].walls[1]) nc=c+1;
+  if((dir==='left'||dir==='ArrowLeft')   && !grid[r][c].walls[3]) nc=c-1;
+
+  if(nr===r && nc===c) return;
+
+  player = {r:nr,c:nc};
+  discoverAround(nr,nc);
+
+  const newCell = grid[nr][nc];
+
+  // Zone
+  let zone = 'SECTEUR-A';
+  if(nr>ROWS*0.6) zone='SECTEUR-C';
+  else if(nr>ROWS*0.3) zone='SECTEUR-B';
+  if(newCell.inverted) zone='ZONE-ΔX (INVERSÉ)';
+  if(newCell.dark) zone='ZONE-NOIRE';
+  document.getElementById('stat-zone').textContent=zone;
+
+  // Checkpoint
+  checkCheckpoint(nr,nc);
+
+  // Piège → retour checkpoint
+  if(newCell.trap && !newCell.discovered) {
+    // piège caché, seulement déclenché
+  }
+  if(newCell.trap) {
+    trapCount++;
+    document.getElementById('stat-traps').textContent=trapCount;
+    flashMsg('⚠ PIÈGE !', '#ff3333');
+    setTimeout(()=>{
+      player = {...lastCheckpoint};
+      discoverAround(player.r, player.c);
+      draw();
+    },400);
+    draw();
+    return;
+  }
+
+  // Téléporteur
+  if(newCell.teleport) {
+    teleCount++;
+    document.getElementById('stat-tele').textContent=teleCount;
+    const dest = newCell.teleport;
+    flashMsg('⟳ TÉLÉPORTATION', '#a8d4e6');
+    setTimeout(()=>{
+      player = {r:dest.r, c:dest.c};
+      discoverAround(dest.r,dest.c);
+      draw();
+    },300);
+    draw();
+    return;
+  }
+
+  // Fausse sortie
+  if(newCell.fakeSortie) {
+    fakeCount++;
+    document.getElementById('stat-fake').textContent=fakeCount;
+    flashMsg('✗ FAUSSE SORTIE !', '#ff6600');
+    setTimeout(()=>{
+      player={r:0,c:0};
+      discoverAround(0,0);
+      draw();
+    },500);
+    draw();
+    return;
+  }
+
+  // Vraie sortie
+  if(nr===ROWS-1 && nc===COLS-1) {
+    end(true);
+    return;
+  }
+
+  draw();
+}
+
+// ─── FIN ───
+function end(win) {
+  clearInterval(timerInterval);
+  gameOver=true;
+  overlay.style.display='flex';
+  const keyBlock = document.getElementById('ol-key-block');
+
+  if(win){
+    document.getElementById('ol-pre').textContent='DÉCRYPTAGE RÉUSSI';
+    document.getElementById('ol-title').textContent='SORTIE';
+    document.getElementById('ol-title').style.color='var(--amber)';
+    document.getElementById('ol-key').textContent='SPECTRE';
+    document.getElementById('ol-sub').textContent='RETOURNEZ AU PORTAIL — ENTREZ CE MOT-CLÉ';
+    keyBlock.style.display='block';
+  } else {
+    document.getElementById('ol-pre').textContent='DÉLAI DÉPASSÉ';
+    document.getElementById('ol-title').textContent='VERROUILLÉ';
+    document.getElementById('ol-title').style.color='var(--red)';
+    document.getElementById('ol-sub').textContent='RECONNEXION REQUISE — RELANCEZ LE MODULE';
+    keyBlock.style.display='none';
+  }
+}
+
+// ─── CLAVIER ───
+window.addEventListener('keydown', e => {
+  const dirs = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+  if(dirs.includes(e.key)){
+    e.preventDefault();
+    move(e.key);
+  }
+});
+
+// ─── RESIZE ───
+window.addEventListener('resize', ()=>{
+  if(!gameOver){ setCanvasSize(); draw(); }
+});
+
+startGame();
+</script>
+</body>
+</html>
