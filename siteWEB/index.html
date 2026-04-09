@@ -2,773 +2,437 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>GHOST Protocol — Accès Sécurisé</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --black:#050607; --surface:#0d1117; --ice:#a8d4e6;
-      --amber:#ffaa00; --red:#ff3333; --green:#00ff88;
-      --mono:'Share Tech Mono',monospace; --display:'Bebas Neue',sans-serif;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:var(--black);color:#fff;font-family:var(--mono);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
-
-    /* ─── GLITCH ─── */
-    #glitch-overlay{
-      display:none;position:fixed;inset:0;background:#000;z-index:999;
-      justify-content:center;align-items:center;
-    }
-    #glitch-overlay.show{display:flex;}
-    .glitch-msg{
-      font-family:var(--display);font-size:4rem;color:var(--red);
-      animation:gtxt 0.12s infinite;
-    }
-    @keyframes gtxt{
-      0%{text-shadow:3px 0 var(--ice),-3px 0 var(--amber);transform:translate(0);}
-      33%{text-shadow:-4px 0 var(--red),4px 0 var(--ice);transform:translate(-4px,1px);}
-      66%{text-shadow:4px 0 var(--amber),-4px 0 var(--red);transform:translate(4px,-1px);}
-      100%{text-shadow:3px 0 var(--ice),-3px 0 var(--amber);transform:translate(0);}
-    }
-
-    /* ─── SCREENS ─── */
-    .screen{display:none;flex-direction:column;height:100vh;}
-    .screen.active{display:flex;}
-
-    /* ─── TOP BAR ─── */
-    .top-bar{
-      background:var(--surface);border-bottom:1px solid #1c2830;
-      padding:10px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
-    }
-    .top-bar-logo{font-family:var(--display);font-size:2rem;color:var(--ice);letter-spacing:6px;}
-    .top-bar-meta{font-size:0.7rem;color:#556677;text-align:right;line-height:1.7;}
-    .status-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;margin-right:5px;}
-    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.2;}}
-    .timer-wrap{text-align:center;}
-    .timer-label{font-size:0.6rem;color:#556677;display:block;letter-spacing:3px;}
-    .timer-digits{font-family:var(--display);font-size:2rem;color:var(--ice);letter-spacing:4px;}
-    .timer-digits.danger{color:var(--red);animation:pulse 0.5s infinite;}
-    .breach-alert-left{font-size:0.75rem;color:var(--red);animation:pulse 1s infinite;letter-spacing:2px;}
-
-    /* ─── LOGIN ─── */
-    #screen-login .login-body{
-      flex:1;display:flex;justify-content:center;align-items:center;
-      background:radial-gradient(circle at 50% 60%,#0a0e14,var(--black) 70%);
-    }
-    .login-card{
-      background:var(--surface);border:1px solid #1c2830;
-      padding:40px 48px;width:420px;max-width:95vw;
-    }
-    .login-title{
-      font-family:var(--display);font-size:2.2rem;letter-spacing:8px;
-      color:var(--ice);margin-bottom:8px;text-align:center;
-    }
-    .login-sub{font-size:0.65rem;color:#334455;letter-spacing:4px;text-align:center;margin-bottom:32px;}
-    .field{margin-bottom:22px;}
-    .field-label{display:block;font-size:0.65rem;color:#556677;letter-spacing:3px;margin-bottom:8px;}
-    .field-input{
-      width:100%;background:#050607;border:1px solid #1c2830;color:var(--ice);
-      font-family:var(--mono);font-size:1rem;padding:12px 16px;outline:none;transition:border-color 0.2s;
-    }
-    .field-input:focus{border-color:var(--ice);}
-    .btn-primary{
-      width:100%;background:var(--ice);color:#000;border:none;font-family:var(--mono);
-      font-size:0.85rem;letter-spacing:3px;padding:14px;cursor:pointer;transition:all 0.2s;margin-top:8px;
-    }
-    .btn-primary:hover{background:#fff;box-shadow:0 0 20px rgba(168,212,230,0.4);}
-    #login-error{font-size:0.7rem;color:var(--red);text-align:center;margin-top:10px;display:none;letter-spacing:2px;}
-
-    /* ─── BRIEF ─── */
-    #screen-brief .brief-body{
-      flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
-      background:radial-gradient(circle at 50% 50%,#0a0e14,var(--black));padding:32px;gap:28px;
-    }
-    .agent-welcome{display:flex;align-items:center;gap:20px;}
-    .agent-avatar{font-size:3rem;}
-    .agent-welcome-text h2{font-family:var(--display);font-size:2rem;color:var(--ice);letter-spacing:4px;}
-    .agent-welcome-text p{font-size:0.65rem;color:var(--green);letter-spacing:4px;margin-top:4px;}
-    .mission-card{
-      background:var(--surface);border:1px solid #1c2830;border-left:3px solid var(--amber);
-      padding:28px 36px;max-width:600px;width:100%;
-    }
-    .mission-name{font-family:var(--display);font-size:1.4rem;color:var(--amber);letter-spacing:6px;margin-bottom:14px;}
-    .mission-body{font-size:0.82rem;color:#aabbcc;line-height:1.9;}
-    .brief-actions{
-      display:flex;gap:16px;padding:24px 32px;background:var(--surface);
-      border-top:1px solid #1c2830;justify-content:center;flex-shrink:0;
-    }
-    .btn-refuse{
-      background:transparent;border:1px solid var(--red);color:var(--red);
-      font-family:var(--mono);padding:12px 32px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;
-    }
-    .btn-refuse:hover{background:var(--red);color:#000;}
-    .btn-accept{
-      background:var(--amber);color:#000;border:none;
-      font-family:var(--mono);padding:12px 32px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;
-    }
-    .btn-accept:hover{background:#fff;box-shadow:0 0 20px rgba(255,170,0,0.4);}
-
-    /* ─── BREACH ─── */
-    #screen-breach .breach-body{
-      flex:1;display:flex;flex-direction:column;padding:18px 22px;gap:14px;overflow:hidden;
-    }
-    .exfil-label{display:flex;justify-content:space-between;font-size:0.65rem;color:#556677;margin-bottom:5px;}
-    .exfil-track{background:#0d1117;border:1px solid #1c2830;height:5px;}
-    .exfil-fill{height:100%;background:var(--red);transition:width 0.5s;width:0%;}
-    .log-box{
-      background:var(--surface);border:1px solid #1c2830;padding:10px 14px;
-      font-size:0.72rem;color:#556677;height:90px;overflow-y:auto;flex-shrink:0;
-    }
-    .log-box .log-line{color:var(--green);margin-bottom:2px;}
-    .log-box .log-warn{color:var(--red);}
-    .log-box .log-ok{color:var(--ice);}
-
-    /* ─── MODULES ─── */
-    .modules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;}
-    .module-tile{
-      background:var(--surface);border:1px solid #1c2830;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all 0.25s;
-      padding:16px;position:relative;
-    }
-    .module-tile:hover:not(.locked){border-color:var(--ice);box-shadow:0 0 24px rgba(168,212,230,0.08);}
-    .module-tile.locked{opacity:0.3;filter:grayscale(1) brightness(0.35);cursor:not-allowed;}
-    .module-tile.solved{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,136,0.12);}
-    .module-tile.active-module{border-color:var(--amber);animation:pulse 2s infinite;}
-    .module-icon{font-size:2rem;}
-    .module-name{font-size:0.7rem;letter-spacing:3px;color:#aabbcc;}
-    .module-status{font-size:0.6rem;color:#334455;letter-spacing:2px;margin-top:2px;}
-    .solved-badge{
-      position:absolute;top:6px;right:6px;background:var(--green);color:#000;
-      font-size:0.55rem;padding:2px 5px;letter-spacing:1px;
-    }
-    .locked-badge{position:absolute;top:6px;right:6px;font-size:0.8rem;}
-
-    /* ─── SOLUTION ZONE ─── */
-    .solution-zone{display:flex;border-top:1px solid #1c2830;flex-shrink:0;}
-    .solution-input{
-      flex:1;background:#050607;border:none;border-right:1px solid #1c2830;color:var(--amber);
-      font-family:var(--mono);font-size:1rem;padding:16px 20px;outline:none;letter-spacing:4px;
-      text-transform:uppercase;
-    }
-    .solution-input::placeholder{color:#1a2530;letter-spacing:2px;}
-    .btn-stop{
-      background:var(--red);color:#000;border:none;font-family:var(--mono);
-      padding:16px 28px;cursor:pointer;letter-spacing:3px;font-size:0.85rem;transition:all 0.2s;
-    }
-    .btn-stop:hover{background:#fff;}
-    .shake{animation:shk 0.4s;}
-    @keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
-
-    /* ─── MODAL ENIGME ─── */
-    #modal-overlay{
-      display:none;position:fixed;inset:0;background:rgba(5,6,7,0.96);
-      z-index:500;justify-content:center;align-items:center;
-    }
-    #modal-overlay.open{display:flex;}
-    .modal-box{
-      background:var(--surface);border:1px solid #1c2830;
-      width:580px;max-width:96vw;max-height:90vh;overflow-y:auto;
-      padding:36px 40px;animation:slideIn 0.3s ease;
-    }
-    @keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-    .modal-tag{font-size:0.6rem;color:#556677;letter-spacing:5px;margin-bottom:6px;}
-    .modal-title{font-family:var(--display);font-size:2rem;color:var(--amber);letter-spacing:5px;margin-bottom:18px;}
-    .modal-section{margin-bottom:20px;}
-    .modal-section-label{font-size:0.6rem;color:#556677;letter-spacing:4px;margin-bottom:8px;border-bottom:1px solid #1c2830;padding-bottom:4px;}
-    .modal-body{font-size:0.82rem;color:#aabbcc;line-height:2;white-space:pre-line;}
-    .modal-body strong{color:var(--ice);}
-    .modal-body .clue-hidden{
-      color:var(--black);background:var(--black);cursor:help;
-      transition:all 0.4s;border-bottom:1px dashed #1c2830;
-    }
-    .modal-body .clue-hidden:hover,.modal-body .clue-hidden.revealed{
-      color:var(--amber);background:transparent;
-    }
-    .modal-hint{
-      background:#050607;border:1px solid #1c2830;border-left:2px solid #334455;
-      padding:10px 14px;font-size:0.75rem;color:#445566;margin-top:14px;line-height:1.8;
-    }
-    .modal-input-row{display:flex;gap:0;margin-top:18px;}
-    .modal-input{
-      flex:1;background:#050607;border:1px solid #1c2830;border-right:none;color:var(--amber);
-      font-family:var(--mono);font-size:1rem;letter-spacing:4px;padding:12px 16px;outline:none;
-      transition:border-color 0.2s;text-transform:uppercase;
-    }
-    .modal-input:focus{border-color:var(--amber);}
-    .modal-btn{
-      background:var(--amber);color:#000;border:none;font-family:var(--mono);
-      padding:12px 24px;cursor:pointer;letter-spacing:2px;font-size:0.8rem;transition:all 0.2s;
-    }
-    .modal-btn:hover{background:#fff;}
-    .modal-close{
-      float:right;background:transparent;border:1px solid #334455;color:#556677;
-      font-family:var(--mono);padding:6px 14px;cursor:pointer;letter-spacing:2px;font-size:0.7rem;
-      margin-bottom:16px;
-    }
-    .modal-close:hover{border-color:var(--red);color:var(--red);}
-    .modal-error{font-size:0.7rem;color:var(--red);letter-spacing:2px;margin-top:8px;display:none;}
-    .modal-blocked{
-      background:rgba(255,51,51,0.08);border:1px solid var(--red);padding:12px 16px;
-      font-size:0.75rem;color:var(--red);letter-spacing:2px;margin-top:12px;display:none;
-    }
-    .lockout-timer{font-family:var(--display);font-size:1.4rem;color:var(--red);}
-
-    /* ─── VICTOIRE ─── */
-    #screen-victory{
-      justify-content:center;align-items:center;gap:24px;
-      background:radial-gradient(circle at 50% 50%,#001a0d,var(--black));
-    }
-    .victory-title{font-family:var(--display);font-size:5rem;color:var(--green);letter-spacing:10px;text-align:center;}
-    .victory-sub{font-size:0.75rem;color:#556677;letter-spacing:5px;text-align:center;}
-    .victory-stats{
-      display:flex;gap:24px;flex-wrap:wrap;justify-content:center;
-    }
-    .victory-stat{
-      background:var(--surface);border:1px solid #1c2830;padding:16px 24px;text-align:center;
-    }
-    .victory-stat-val{font-family:var(--display);font-size:2rem;color:var(--ice);}
-    .victory-stat-lbl{font-size:0.6rem;color:#556677;letter-spacing:3px;margin-top:4px;}
-    .btn-restart{
-      background:transparent;border:1px solid var(--ice);color:var(--ice);
-      font-family:var(--mono);padding:14px 40px;cursor:pointer;letter-spacing:3px;transition:all 0.3s;
-    }
-    .btn-restart:hover{background:var(--ice);color:#000;}
-  </style>
+  <title>GITHYRULE · Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>/* Tout le CSS est dans style.css */</style>
 </head>
 <body>
 
-<!-- GLITCH -->
+<!-- GLITCH OVERLAY -->
 <div id="glitch-overlay">
-  <div class="glitch-msg" id="glitch-msg">INTRUSION DÉTECTÉE</div>
+  <div class="glitch-lines">
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+  </div>
+  <div class="glitch-msg">ERR_SYSTEM_FAILURE — unauthorized access detected</div>
 </div>
 
-<!-- ÉCRAN LOGIN -->
+<!-- ===== SCREEN 1: LOGIN ===== -->
 <div id="screen-login" class="screen active">
-  <div class="top-bar">
-    <span class="top-bar-logo">GHOST</span>
-    <div class="top-bar-meta">
-      <span class="status-dot"></span>SYSTÈME OPÉRATIONNEL<br>
-      PROTOCOLE DE SÉCURITÉ · NIVEAU 5
-    </div>
+
+  <!-- SVG watermark discret qui clignote en fond -->
+  <div class="login-svg-watermark">
+    <img src="logov1.svg" alt="">
   </div>
-  <div class="login-body">
+
+  <div class="login-main">
+    <!-- Big logo -->
+    <div class="login-logo-wrap">
+      <img src="logo.png" class="login-logo-img" alt="Githyrule">
+      <div class="login-brand">GITHYRULE</div>
+    </div>
+
+    <!-- Sign-in card -->
     <div class="login-card">
-      <h1 class="login-title">AUTHENTIFICATION</h1>
-      <p class="login-sub">ACCÈS RESTREINT — PERSONNEL AUTORISÉ</p>
+      <h2>Sign in</h2>
       <div class="field">
-        <label class="field-label">Nom de code agent</label>
-        <input class="field-input" type="text" id="input-name" placeholder="EX : FALCON" autocomplete="off">
+        <label class="field-label">Username or email address</label>
+        <input type="text" id="input-user" class="field-input" placeholder="username" autocomplete="off">
       </div>
       <div class="field">
-        <label class="field-label">Code d'identification</label>
-        <input class="field-input" type="tel" id="input-code" placeholder="· · · ·" maxlength="8">
+        <label class="field-label" style="display:flex;justify-content:space-between;">
+          Password
+          <a href="#" style="font-weight:400;color:var(--gh-accent);font-size:.8rem;">Forgot password?</a>
+        </label>
+        <input type="password" class="field-input" placeholder="Password">
       </div>
-      <button class="btn-primary" onclick="doLogin()">▶ ACCÉDER AU PORTAIL</button>
-      <div id="login-error">⚠ IDENTIFIANTS INVALIDES</div>
+      <button class="btn-signin" onclick="doLogin()">Sign in</button>
+      <div class="login-card-footer">
+        By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </div>
+    </div>
+
+    <!-- Sign-up box -->
+    <div class="login-signup-box">
+      New to GITHYRULE? <a href="#">Create an account</a>
+    </div>
+  </div>
+
+  <!-- Footer anchored at bottom -->
+  <footer class="login-footer">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="#">Security</a>
+    <a href="#">Status</a>
+    <a href="#">Docs</a>
+    <a href="#">Contact</a>
+    <a href="#">Manage cookies</a>
+    <br>
+    © 2026 RootEscape  · All rights reserved
+  </footer>
+</div>
+
+<!-- ===== SCREEN 2: GITHUB PREVIEW (3s flash) ===== -->
+<div id="screen-preview" class="screen">
+  <div class="gh-header">
+    <a href="#" class="gh-logo">
+      <svg height="20" viewBox="0 0 16 16" width="20" style="fill:var(--gh-fg);">
+        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+      </svg>
+      GITHYRULE
+    </a>
+    <div class="gh-search">🔍 &nbsp;Type / to search</div>
+    <div class="gh-nav-right">
+      <span>Pull requests</span><span>Issues</span><span>Marketplace</span>
+    </div>
+  </div>
+  <div class="dashboard-body">
+    <div class="gh-col-left">
+      <div class="gh-box">
+        <div class="gh-box-title">Top Repositories</div>
+        <ul class="gh-repo-list">
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/core_system</li>
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/user_database</li>
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/security_audit</li>
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/nav_module_v2</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gh-col-main">
+      <div class="gh-box">
+        <div class="gh-box-title">Home</div>
+        <div style="color:var(--gh-muted);font-size:.85rem;">Welcome back. Loading your repositories…</div>
+      </div>
+      <h2 style="font-size:.85rem;font-weight:400;color:var(--gh-muted);margin:16px 0 8px;">Recent activity</h2>
+      <div class="gh-news-item">
+        <div class="gh-news-meta">githyrule_bot pushed to main · 2 minutes ago</div>
+        <div>Merge pull request #104 from security/patch-critical</div>
+      </div>
+      <div class="gh-news-item">
+        <div class="gh-news-meta">admin opened issue #312 · 1 hour ago</div>
+        <div>Navigation module integrity check failed on sector 7</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ÉCRAN BRIEF -->
-<div id="screen-brief" class="screen">
-  <div class="top-bar">
-    <span class="top-bar-logo">GHOST</span>
-    <div class="top-bar-meta">BRIEFING · OPÉRATION BLACKOUT · CLASSIFICATION : SIGMA</div>
-  </div>
-  <div class="brief-body">
-    <div class="agent-welcome">
-      <div class="agent-avatar">🕵️</div>
-      <div class="agent-welcome-text">
-        <h2 id="brief-agentname">Agent</h2>
-        <p>NIVEAU ALPHA CONFIRMÉ · ACCRÉDITATION SIGMA</p>
+<!-- ===== SCREEN 3: NARRATION ===== -->
+<div id="screen-narration" class="screen">
+  <div class="narration-container">
+
+    <!-- SLIDE 1 -->
+    <div class="narration-slide active" id="slide-1">
+      <div class="narration-icon">⚠️</div>
+      <div class="narration-chapter">Alerte sécurité · Incident #4782</div>
+      <div class="narration-title">Votre compte <span class="red">a été compromis</span></div>
+      <div class="narration-text">
+        Un <strong>accès non autorisé</strong> a été détecté sur votre session GITHYRULE.<br><br>
+        Vos dépôts, fichiers et données sont en cours <span class="danger">d'exfiltration</span>. L'attaquant a pris le contrôle de votre espace de travail.
       </div>
     </div>
-    <div class="mission-card">
-      <div class="mission-name">OPÉRATION BLACKOUT</div>
-      <div class="mission-body">
-        Agent, votre mission est la suivante.<br><br>
-        Vous devez infiltrer les serveurs de l'organisation <strong>NEXUS</strong> et récupérer les fichiers classifiés avant qu'ils ne soient détruits. Trois couches de sécurité protègent les données. Chaque module contient une énigme — la résoudre vous donnera la clé pour accéder au suivant.<br><br>
-        Cette mission est <strong>non officielle</strong>. En cas d'échec, l'agence niera toute implication.<br><br>
-        <span style="color:var(--amber);font-size:0.75rem;letter-spacing:2px;">Ce message s'autodétruira à la confirmation.</span>
+
+    <!-- SLIDE 2 -->
+    <div class="narration-slide" id="slide-2">
+      <div class="narration-icon">🔒</div>
+      <div class="narration-chapter">Alerte sécurité · Accès verrouillé</div>
+      <div class="narration-title">Vos projets sont <span class="red">verrouillés</span></div>
+      <div class="narration-text">
+        Pour protéger vos données, le système a activé un <strong>protocole de verrouillage d'urgence</strong>.<br><br>
+        Tous vos dépôts sont désormais <span class="danger">inaccessibles</span> — sauf un fichier corrompu qui contient la clé de récupération.
       </div>
     </div>
-  </div>
-  <div class="brief-actions">
-    <button class="btn-refuse" id="btn-refuse" onclick="briefChoice()">✖ REFUSER</button>
-    <button class="btn-accept" id="btn-accept" onclick="briefChoice()">✓ ACCEPTER LA MISSION</button>
+
+    <!-- SLIDE 3 -->
+    <div class="narration-slide" id="slide-3">
+      <div class="narration-icon">🔑</div>
+      <div class="narration-chapter">Procédure de récupération</div>
+      <div class="narration-title">Comment récupérer <strong>vos données</strong></div>
+      <div class="narration-text">
+        Un <strong>code de récupération</strong> est fragmenté dans le fichier <code style="background:var(--gh-bg);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);color:var(--gh-accent);">livre.html</code>.<br><br>
+        Analysez-le, résolvez les énigmes cachées et entrez le bon code pour <strong>restaurer l'accès à vos projets</strong>.
+      </div>
+    </div>
+
+    <!-- SLIDE 4 — CTA -->
+    <div class="narration-slide" id="slide-4">
+      <div class="narration-icon">⏱️</div>
+      <div class="narration-chapter">Récupération · Temps limité</div>
+      <div class="narration-title">Agissez vite — <span class="red">5 minutes</span></div>
+      <div class="narration-text">
+        Après <span class="danger">5 minutes</span>, le système initiera une <strong>suppression définitive</strong> de tous vos dépôts et données.<br><br>
+        Trouvez le code. Restaurez l'accès. <strong>C'est votre seule chance.</strong>
+      </div>
+      <button class="narration-cta" onclick="startGame()"><span>Lancer la récupération</span></button>
+    </div>
+
+    <!-- Progress dots -->
+    <div class="narration-progress">
+      <div class="narration-dot active" id="dot-1"></div>
+      <div class="narration-dot" id="dot-2"></div>
+      <div class="narration-dot" id="dot-3"></div>
+      <div class="narration-dot" id="dot-4"></div>
+    </div>
+
+    <button class="narration-skip" onclick="skipToSlide(4)">Passer l'intro ›</button>
   </div>
 </div>
 
-<!-- ÉCRAN BREACH (même interface, qu'on ait accepté ou "refusé") -->
-<div id="screen-breach" class="screen">
-  <div class="top-bar">
-    <div class="breach-alert-left">⚠ INTRUSION EN COURS</div>
-    <div class="timer-wrap">
-      <span class="timer-label">TEMPS RESTANT</span>
-      <span class="timer-digits" id="timer-digits">05:00</span>
+<!-- ===== SCREEN 4: GAME ===== -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <div class="game-logo">
+      <svg height="20" viewBox="0 0 16 16" width="20" style="fill:var(--gh-muted);">
+        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+      </svg>
+      GITHYRULE
+    </div>
+    <div id="gh-timer">⚠ 05:00</div>
+    <div class="game-status">
+      <span class="blink-badge">COMPROMIS</span>
+      Accès restreint
     </div>
   </div>
 
-  <div class="breach-body">
-    <div>
-      <div class="exfil-label"><span>Exfiltration données ennemies</span><span id="exfil-pct">0%</span></div>
-      <div class="exfil-track"><div class="exfil-fill" id="exfil-fill"></div></div>
+  <div class="game-body">
+
+    <!-- Alert banner -->
+    <div class="gh-alert">
+      <div class="gh-alert-icon">🚨</div>
+      <div>
+        <strong>Incident de sécurité actif</strong> — Un accès non autorisé a été détecté sur ce compte.
+        Vos dépôts sont verrouillés. Résolvez toutes les énigmes pour obtenir le code de récupération.
+      </div>
     </div>
 
-    <div class="log-box" id="log-box">
-      <div class="log-line">> Connexion entrante détectée · 217.54.xx.xx</div>
-      <div class="log-line">> Initialisation du protocole de défense...</div>
+    <div class="repo-header">
+      <div class="repo-breadcrumb">
+        <span>githyrule</span> <span>/</span>
+        <span class="repo-name">system_integrity_check</span>
+      </div>
+      <div class="repo-sub">
+        <span class="repo-badge">Public</span>
+        <span class="repo-badge">Read-only</span>
+        <span class="repo-badge err">⚠ Integrity Error</span>
+      </div>
     </div>
 
-    <div class="modules-grid">
-      <!-- MODULE 1 : Navigation (labyrinthe) -->
-      <div class="module-tile active-module" id="mod-nav" onclick="openModule('nav')">
-        <span class="module-icon">🗺️</span>
-        <span class="module-name">NAVIGATION</span>
-        <span class="module-status" id="nav-status">EN ATTENTE</span>
+    <div id="logs" class="gh-console"></div>
+
+    <div class="gh-file-browser">
+      <div class="gh-file-browser-header">
+        <span>githyrule-bot committed · <span style="color:var(--gh-red);">system compromised — access restricted</span></span>
+        <span style="font-family:var(--font-mono);font-size:.75rem;">198db0f</span>
       </div>
-      <!-- MODULE 2 : Dossiers (enigme chiffre) -->
-      <div class="module-tile locked" id="mod-dossiers" onclick="openModule('dossiers')">
-        <span class="module-icon">📁</span>
-        <span class="module-name">DOSSIERS</span>
-        <span class="module-status" id="dos-status">VERROUILLÉ</span>
-        <span class="locked-badge">🔒</span>
-      </div>
-      <!-- MODULE 3 : Réseaux (enigme logique) -->
-      <div class="module-tile locked" id="mod-reseaux" onclick="openModule('reseaux')">
-        <span class="module-icon">📡</span>
-        <span class="module-name">RÉSEAUX</span>
-        <span class="module-status" id="res-status">VERROUILLÉ</span>
-        <span class="locked-badge">🔒</span>
-      </div>
+      <ul class="gh-file-list">
+        <li class="gh-file-item" onclick="openModule('livre')">
+          <span class="gh-file-icon">📄</span>
+          <span class="gh-file-name">livre.html</span>
+          <span class="gh-file-meta err">Integrity Error · Cliquez pour inspecter</span>
+        </li>
+        <li class="gh-file-item" onclick="openModule('locked')">
+          <span class="gh-file-icon">📝</span>
+          <span class="gh-file-name">README.md</span>
+          <span class="gh-file-meta">Initial commit</span>
+        </li>
+        <li class="gh-file-item" onclick="openModule('locked')">
+          <span class="gh-file-icon">🔒</span>
+          <span class="gh-file-name">security.cfg</span>
+          <span class="gh-file-meta err">Verrouillé · Processus système</span>
+        </li>
+        <li class="gh-file-item" onclick="openModule('locked')">
+          <span class="gh-file-icon">🔒</span>
+          <span class="gh-file-name">nav_module.bin</span>
+          <span class="gh-file-meta err">Verrouillé · Corrompu</span>
+        </li>
+      </ul>
+    </div>
+  </div><!-- end game-body -->
+
+  <!-- Zone de saisie du code final — visible uniquement après avoir complété toutes les énigmes -->
+  <div id="solution-zone" style="display:none; padding:14px 24px 24px; border-top:1px solid var(--gh-border); background:var(--gh-surface); flex-shrink:0;">
+    <div style="font-family:var(--font-mono);font-size:.6rem;color:var(--gh-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">
+      ✅ Toutes les énigmes résolues — Entrez le code de récupération
+    </div>
+    <div style="display:flex;gap:8px;">
+      <input id="solution-input" type="text" placeholder="CODE DE RÉCUPÉRATION"
+        style="flex:1;background:var(--gh-bg);border:1px solid var(--gh-border);border-bottom:2px solid var(--gh-red);color:var(--gh-fg);font-family:var(--font-mono);font-size:.85rem;letter-spacing:.15em;padding:10px 14px;outline:none;border-radius:4px;transition:border-bottom-color .2s;"
+        onfocus="this.style.borderBottomColor='var(--gh-accent)'" onblur="this.style.borderBottomColor='var(--gh-red)'"
+      >
+      <button onclick="checkFinalCode()"
+        style="background:var(--gh-red);color:white;border:none;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;padding:0 18px;cursor:pointer;border-radius:4px;transition:background .2s;"
+        onmouseover="this.style.background='#ff4466'" onmouseout="this.style.background='var(--gh-red)'">
+        VALIDER
+      </button>
     </div>
   </div>
-
-  <div class="solution-zone">
-    <input class="solution-input" type="text" id="solution-input" placeholder="ENTRER CLÉ DÉCRYPTAGE" autocomplete="off">
-    <button class="btn-stop" onclick="checkSolution()">⬛ STOPPER</button>
-  </div>
-</div>
-
-<!-- ÉCRAN VICTOIRE -->
+</div><!-- end screen-game -->
 <div id="screen-victory" class="screen">
-  <div class="victory-title">VICTOIRE</div>
-  <div class="victory-sub">PROTOCOLE GHOST — SYSTÈME SÉCURISÉ</div>
-  <div class="victory-stats">
-    <div class="victory-stat">
-      <div class="victory-stat-val" id="v-time">—</div>
-      <div class="victory-stat-lbl">TEMPS RESTANT</div>
-    </div>
-    <div class="victory-stat">
-      <div class="victory-stat-val" id="v-agent">—</div>
-      <div class="victory-stat-lbl">AGENT</div>
-    </div>
-    <div class="victory-stat">
-      <div class="victory-stat-val">3/3</div>
-      <div class="victory-stat-lbl">MODULES</div>
-    </div>
-  </div>
-  <button class="btn-restart" onclick="resetAll()">↺ NOUVELLE PARTIE</button>
-</div>
-
-<!-- MODAL ENIGME -->
-<div id="modal-overlay">
-  <div class="modal-box" id="modal-box">
-    <button class="modal-close" onclick="closeModal()">✕ FERMER</button>
-    <div class="modal-tag" id="modal-tag">MODULE · NAVIGATION</div>
-    <div class="modal-title" id="modal-title">LABYRINTHE</div>
-    <div id="modal-content"></div>
-    <div class="modal-blocked" id="modal-blocked">
-      ⚠ ACCÈS VERROUILLÉ — TENTATIVES ÉPUISÉES<br>
-      Réessayez dans : <span class="lockout-timer" id="lockout-countdown">30</span>s
-    </div>
-  </div>
+  <div class="victory-icon">✅</div>
+  <div class="victory-title">Accès restauré</div>
+  <div class="victory-sub">Intégrité du système vérifiée. Tous vos dépôts sont de nouveau accessibles. Bien joué !</div>
+  <button class="btn-restart" onclick="location.reload()">Retour au Dashboard</button>
 </div>
 
 <script>
-// ════════════════════════════════════════
-//  ÉTAT GLOBAL
-// ════════════════════════════════════════
-let gameEndTime = null;
-let timerInt = null;
-let agentName = '';
-let stepReached = 0; // 0=nav, 1=dossiers, 2=reseaux, 3=victoire
-let moduleSolved = { nav: false, dossiers: false, reseaux: false };
-let fails = { nav: 0, dossiers: 0, reseaux: 0 };
-let lockout = { nav: 0, dossiers: 0, reseaux: 0 };
+  /* ===================== AUTH ===================== */
+  function doLogin() {
+    const user = document.getElementById('input-user').value.trim();
+    if (user === '') { alert('Veuillez entrer votre identifiant.'); return; }
 
-// ════════════════════════════════════════
-//  LOGIN
-// ════════════════════════════════════════
-function doLogin() {
-  const name = document.getElementById('input-name').value.trim();
-  const code = document.getElementById('input-code').value.trim();
-  if (!name || !code) {
-    const err = document.getElementById('login-error');
-    err.style.display = 'block';
-    setTimeout(()=>err.style.display='none', 2000);
-    return;
-  }
-  agentName = name.toUpperCase();
-  document.getElementById('brief-agentname').textContent = 'Agent ' + agentName;
-  showScreen('screen-brief');
-}
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('screen-preview').classList.add('active');
+    document.title = 'GITHYRULE · Dashboard';
 
-document.getElementById('input-code').addEventListener('keydown', e => {
-  if(e.key==='Enter') doLogin();
-});
-document.getElementById('input-name').addEventListener('keydown', e => {
-  if(e.key==='Enter') document.getElementById('input-code').focus();
-});
-
-// ════════════════════════════════════════
-//  BRIEF
-// ════════════════════════════════════════
-function briefChoice() {
-  // Peu importe le choix — l'alarme se déclenche dans 2 secondes
-  document.getElementById('btn-accept').disabled = true;
-  document.getElementById('btn-refuse').disabled = true;
-  document.getElementById('btn-accept').style.opacity = '0.4';
-  document.getElementById('btn-refuse').style.opacity = '0.4';
-
-  // Petit délai dramatique puis BOOM
-  setTimeout(() => triggerBreach(), 2000);
-}
-
-function triggerBreach() {
-  document.getElementById('glitch-msg').textContent = '⚠ INTRUSION DÉTECTÉE ⚠';
-  document.getElementById('glitch-overlay').classList.add('show');
-  setTimeout(()=>{
-    document.getElementById('glitch-overlay').classList.remove('show');
-    showScreen('screen-breach');
-    const duration = 300000; // 5 minutes
-    gameEndTime = Date.now() + duration;
-    startTimer(duration);
-    addLog('Connexion ennemie établie — 217.54.xx.xx', 'warn');
-    addLog('Pare-feux en cours de neutralisation...', 'warn');
-    addLog('Module NAVIGATION actif. Lancez le labyrinthe pour récupérer la première clé.', 'line');
-  }, 1200);
-}
-
-// ════════════════════════════════════════
-//  TIMER
-// ════════════════════════════════════════
-function startTimer(totalMs) {
-  clearInterval(timerInt);
-  timerInt = setInterval(()=>{
-    const rem = Math.max(0, gameEndTime - Date.now());
-    const m = String(Math.floor(rem/60000)).padStart(2,'0');
-    const s = String(Math.floor((rem%60000)/1000)).padStart(2,'0');
-    const el = document.getElementById('timer-digits');
-    el.textContent = `${m}:${s}`;
-    el.className = 'timer-digits' + (rem < 30000 ? ' danger' : '');
-
-    const pct = Math.min(100, Math.round(((totalMs-rem)/totalMs)*100));
-    document.getElementById('exfil-fill').style.width = pct+'%';
-    document.getElementById('exfil-pct').textContent = pct+'%';
-
-    if(rem<=0){ clearInterval(timerInt); gameFailed(); }
-  }, 300);
-}
-
-// ════════════════════════════════════════
-//  LOG
-// ════════════════════════════════════════
-function addLog(msg, type='line') {
-  const box = document.getElementById('log-box');
-  const div = document.createElement('div');
-  div.className = type==='warn' ? 'log-warn' : type==='ok' ? 'log-ok' : 'log-line';
-  div.textContent = '> ' + msg;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-// ════════════════════════════════════════
-//  MODULES
-// ════════════════════════════════════════
-function openModule(type) {
-  const now = Date.now();
-
-  // Vérif lockout
-  if (lockout[type] > now) {
-    const remaining = Math.ceil((lockout[type]-now)/1000);
-    showModalBlocked(remaining);
-    return;
+    setTimeout(triggerGlitch, 3000);
   }
 
-  // Vérif accès
-  if (type==='dossiers' && !moduleSolved.nav) {
-    addLog('ACCÈS REFUSÉ : clé de navigation requise.', 'warn');
-    shakeEl(document.getElementById('mod-dossiers'));
-    return;
+  function triggerGlitch() {
+    const overlay = document.getElementById('glitch-overlay');
+    overlay.classList.add('show');
+    setTimeout(() => {
+      overlay.classList.remove('show');
+      document.getElementById('screen-preview').classList.remove('active');
+      document.getElementById('screen-narration').classList.add('active');
+      document.title = 'GITHYRULE · Alerte sécurité';
+      startNarration();
+    }, 1500);
   }
-  if (type==='reseaux' && !moduleSolved.dossiers) {
-    addLog('ACCÈS REFUSÉ : clé de dossiers requise.', 'warn');
-    shakeEl(document.getElementById('mod-reseaux'));
-    return;
-  }
 
-  if (type==='nav') openModuleNav();
-  else if (type==='dossiers') openModalDossiers();
-  else if (type==='reseaux') openModalReseaux();
-}
+  /* ===================== NARRATION ===================== */
+  let currentSlide = 1;
+  const TOTAL_SLIDES = 4;
+  let narrationTimer = null;
 
-// ─── MODULE NAV : ouvre le labyrinthe ───
-function openModuleNav() {
-  if (moduleSolved.nav) {
-    addLog('Module Navigation déjà résolu.', 'ok');
-    return;
-  }
-  addLog('Lancement du module NAVIGATION...', 'line');
-  window.open('labyrinthe.html', '_blank', 'width=1100,height=720,menubar=no,toolbar=no');
-}
+  function startNarration() { showSlide(1); scheduleNext(); }
 
-// ─── MODULE DOSSIERS : énigme chiffrée ───
-function openModalDossiers() {
-  showModal(
-    'MODULE · DOSSIERS CLASSIFIÉS',
-    'DÉCHIFFREMENT',
-    `<div class="modal-section">
-      <div class="modal-section-label">DOSSIER CRYPTÉ — ANALYSE REQUISE</div>
-      <div class="modal-body">
-Nos agents ont intercepté une séquence encodée dans les logs du serveur ennemi. Le protocole CAESAR a été utilisé avec un décalage inconnu.
-
-Message intercepté :
-<strong>  JHLZHY LZ[ TVYA</strong>
-
-Indices récupérés :
-· Le décalage correspond au rang de la <strong>7ème lettre</strong> de l'alphabet
-· La réponse est le <strong>dernier mot décodé</strong> uniquement
-      </div>
-      <div class="modal-hint">
-💡 Chiffre de César : chaque lettre est décalée de N positions.<br>
-A→D si N=3 | Z→C si N=3<br>
-Rang de la 7ème lettre de l'alphabet = G = 7
-      </div>
-    </div>`,
-    'dossiers',
-    'MORT',
-    'Entrez le dernier mot décodé'
-  );
-}
-
-// ─── MODULE RÉSEAUX : énigme logique ───
-function openModalReseaux() {
-  showModal(
-    'MODULE · RÉSEAUX ENNEMIS',
-    'INFILTRATION',
-    `<div class="modal-section">
-      <div class="modal-section-label">SÉQUENCE D'ACCÈS — LOGIQUE BINAIRE</div>
-      <div class="modal-body">
-Le pare-feu final utilise une clé construite à partir d'une suite logique.
-Trouvez le mot-clé de désactivation.
-
-Suite numérique extraite :
-<strong>  1 · 1 · 2 · 3 · 5 · 8 · 13 · ?</strong>
-
-Le chiffre manquant correspond à une position dans le tableau de codes :
-
-<strong>  01:ALPHA  02:BRAVO  03:DELTA  04:ECHO
-  05:FOXTROT  06:GOLF  07:HOTEL  08:INDIA
-  09:JULIET  10:KILO  11:LIMA  12:MIKE
-  13:NOVEMBER  14:OSCAR  15:PAPA  16:QUEBEC
-  17:ROMEO  18:SIERRA  19:TANGO  20:UNIFORM
-  21:BLACKOUT</strong>
-
-Le mot-clé final est le code correspondant à ce numéro.
-      </div>
-      <div class="modal-hint">
-💡 Suite de Fibonacci : chaque nombre = somme des deux précédents.<br>
-Le ? complète la suite. Ce nombre pointe vers un code dans le tableau.
-      </div>
-    </div>`,
-    'reseaux',
-    'BLACKOUT',
-    'Entrez le mot-clé final'
-  );
-}
-
-// ════════════════════════════════════════
-//  MODAL GÉNÉRIQUE
-// ════════════════════════════════════════
-function showModal(tag, title, contentHTML, moduleKey, answer, placeholder) {
-  document.getElementById('modal-tag').textContent = tag;
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-blocked').style.display = 'none';
-
-  document.getElementById('modal-content').innerHTML = contentHTML + `
-    <div class="modal-input-row">
-      <input class="modal-input" id="modal-ans" type="text" placeholder="${placeholder}" autocomplete="off">
-      <button class="modal-btn" onclick="checkModalAnswer('${moduleKey}','${answer}')">VALIDER</button>
-    </div>
-    <div class="modal-error" id="modal-error">⚠ CLÉ INCORRECTE — ${3-(fails[moduleKey])} tentative(s) restante(s)</div>
-  `;
-
-  const input = document.getElementById('modal-ans');
-  input.addEventListener('keydown', e => {
-    if(e.key==='Enter') checkModalAnswer(moduleKey, answer);
-  });
-
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function showModalBlocked(seconds) {
-  document.getElementById('modal-tag').textContent = 'ACCÈS VERROUILLÉ';
-  document.getElementById('modal-title').textContent = 'BLOQUÉ';
-  document.getElementById('modal-content').innerHTML = '';
-  const blockedEl = document.getElementById('modal-blocked');
-  blockedEl.style.display = 'block';
-  let cd = seconds;
-  document.getElementById('lockout-countdown').textContent = cd;
-  const iv = setInterval(()=>{
-    cd--;
-    document.getElementById('lockout-countdown').textContent = cd;
-    if(cd<=0){ clearInterval(iv); closeModal(); }
-  },1000);
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-
-document.getElementById('modal-overlay').addEventListener('click', e => {
-  if(e.target===document.getElementById('modal-overlay')) closeModal();
-});
-
-// ════════════════════════════════════════
-//  VÉRIF RÉPONSE MODAL
-// ════════════════════════════════════════
-function checkModalAnswer(moduleKey, correctAnswer) {
-  const val = (document.getElementById('modal-ans').value||'').trim().toUpperCase();
-  const errEl = document.getElementById('modal-error');
-
-  if (val === correctAnswer.toUpperCase()) {
-    // BONNE RÉPONSE
-    fails[moduleKey] = 0;
-    moduleSolved[moduleKey] = true;
-    closeModal();
-
-    if (moduleKey==='dossiers') {
-      stepReached = Math.max(stepReached, 1);
-      unlockModule('reseaux');
-      addLog('MODULE DOSSIERS : Clé validée. Module Réseaux déverrouillé.', 'ok');
-      markSolved('mod-dossiers', 'dos-status', 'RÉSOLU');
-    } else if (moduleKey==='reseaux') {
-      stepReached = Math.max(stepReached, 2);
-      addLog('MODULE RÉSEAUX : Clé validée. Entrez BLACKOUT dans la zone de saisie.', 'ok');
-      markSolved('mod-reseaux', 'res-status', 'RÉSOLU');
+  function scheduleNext() {
+    if (currentSlide < TOTAL_SLIDES) {
+      narrationTimer = setTimeout(() => {
+        currentSlide++;
+        showSlide(currentSlide);
+        if (currentSlide < TOTAL_SLIDES) scheduleNext();
+      }, 4000);
     }
-  } else {
-    // MAUVAISE RÉPONSE
-    fails[moduleKey]++;
-    shakeEl(document.getElementById('modal-ans'));
-    const remaining = 3 - fails[moduleKey];
+  }
 
-    if (fails[moduleKey] >= 3) {
-      // LOCKOUT 30 secondes
-      lockout[moduleKey] = Date.now() + 30000;
-      fails[moduleKey] = 0;
-      closeModal();
-      addLog(`MODULE ${moduleKey.toUpperCase()} : Trop de tentatives. Verrouillage 30s.`, 'warn');
-      return;
+  function showSlide(n) {
+    for (let i = 1; i <= TOTAL_SLIDES; i++) {
+      const slide = document.getElementById('slide-' + i);
+      const dot   = document.getElementById('dot-'   + i);
+      if (slide) slide.classList.toggle('active', i === n);
+      if (dot) {
+        dot.classList.toggle('active', i === n);
+        dot.classList.toggle('done',   i < n);
+      }
     }
-
-    errEl.textContent = `⚠ CLÉ INCORRECTE — ${remaining} tentative(s) restante(s)`;
-    errEl.style.display = 'block';
-    addLog(`Tentative incorrecte sur module ${moduleKey}. ${remaining} essai(s) restant(s).`, 'warn');
+    currentSlide = n;
   }
-}
 
-// ════════════════════════════════════════
-//  SOLUTION GLOBALE (zone du bas)
-// ════════════════════════════════════════
-function checkSolution() {
-  const val = document.getElementById('solution-input').value.trim().toUpperCase();
-  const inputEl = document.getElementById('solution-input');
+  function skipToSlide(n) { clearTimeout(narrationTimer); showSlide(n); }
 
-  // Clé 1 : SPECTRE → vient du labyrinthe, débloque Dossiers
-  if (val === 'SPECTRE' && !moduleSolved.nav) {
-    moduleSolved.nav = true;
-    stepReached = Math.max(stepReached, 1);
-    unlockModule('dossiers');
-    markSolved('mod-nav', 'nav-status', 'RÉSOLU');
-    addLog('CLÉ "SPECTRE" VALIDÉE. Module Dossiers déverrouillé.', 'ok');
-    inputEl.value='';
+  function startGame() {
+    clearTimeout(narrationTimer);
+    document.getElementById('screen-narration').classList.remove('active');
+    document.getElementById('screen-game').classList.add('active');
+    document.title = 'GITHYRULE · Incident de sécurité';
+    initGame();
   }
-  // Clé 2 : MORT → solution enigme Dossiers (César), débloque Réseaux
-  else if (val === 'MORT' && moduleSolved.nav && !moduleSolved.dossiers) {
-    moduleSolved.dossiers = true;
-    stepReached = Math.max(stepReached, 2);
-    unlockModule('reseaux');
-    markSolved('mod-dossiers', 'dos-status', 'RÉSOLU');
-    addLog('CLÉ "MORT" VALIDÉE. Module Réseaux déverrouillé.', 'ok');
-    inputEl.value='';
+
+  /* ===================== GAME ===================== */
+  let timeLeft = 300;
+  let countdownInterval = null;
+
+  // Suivi des énigmes complétées — à ajuster selon tes énigmes réelles
+  const ENIGMAS = {
+    livre: false,
+    // Ajoute ici les autres énigmes : ex: enigme2: false, enigme3: false
+  };
+  const FINAL_CODE = "GITHYRULE 2026"; // Le code que les joueurs doivent trouver après toutes les énigmes
+
+  function initGame() {
+    addLog('Integrity check failed on core system.');
+    addLog('Navigation module data corrupted — read access only.');
+    addLog('Résolvez les énigmes pour reconstituer le code de récupération.');
+
+    // Timer silencieux — le joueur ne voit pas le compte à rebours
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      // Alerte subtile quand il reste peu de temps (sans montrer le chiffre)
+      if (timeLeft === 60) addLog('⚠ Système instable. Agissez rapidement.');
+      if (timeLeft === 30) addLog('⚠⚠ Corruption critique. Dernière chance.');
+      if (timeLeft <= 0) { clearInterval(countdownInterval); systemLockdown(); }
+    }, 1000);
   }
-  // Clé finale : BLACKOUT → victoire
-  else if (val === 'BLACKOUT' && moduleSolved.dossiers) {
-    clearInterval(timerInt);
-    const rem = Math.max(0, gameEndTime - Date.now());
-    const m = String(Math.floor(rem/60000)).padStart(2,'0');
-    const s = String(Math.floor((rem%60000)/1000)).padStart(2,'0');
-    addLog('INTRUSION STOPPÉE. SYSTÈME SÉCURISÉ.', 'ok');
-    document.getElementById('v-time').textContent = `${m}:${s}`;
-    document.getElementById('v-agent').textContent = agentName||'AGENT';
-    showScreen('screen-victory');
+
+  /**
+   * Marque une énigme comme résolue et vérifie si toutes sont complètes
+   */
+  function markEnigmaDone(enigmaKey) {
+    if (ENIGMAS.hasOwnProperty(enigmaKey)) {
+      ENIGMAS[enigmaKey] = true;
+      addLog(`Énigme "${enigmaKey}" résolue. Fragment de code extrait.`);
+    }
+    checkAllEnigmasDone();
   }
-  else {
-    shakeEl(inputEl);
-    addLog('Clé incorrecte ou ordre de déverrouillage invalide.', 'warn');
+
+  function checkAllEnigmasDone() {
+    const allDone = Object.values(ENIGMAS).every(v => v === true);
+    if (allDone) {
+      addLog('✅ Toutes les énigmes résolues. Code de récupération disponible.');
+      document.getElementById('solution-zone').style.display = 'block';
+    }
   }
-}
 
-document.getElementById('solution-input').addEventListener('keydown', e => {
-  if(e.key==='Enter') checkSolution();
-});
+  function checkFinalCode() {
+    const input = document.getElementById('solution-input').value.trim().toUpperCase();
+    if (input === FINAL_CODE) {
+      triggerWin();
+    } else {
+      addLog('Code incorrect. Vérifiez vos réponses.');
+      const inp = document.getElementById('solution-input');
+      inp.style.animation = 'none';
+      inp.offsetHeight; // reflow
+      inp.style.animation = 'input-shake .35s ease';
+    }
+  }
 
-// ════════════════════════════════════════
-//  HELPERS UI
-// ════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+  function addLog(text) {
+    const logBox = document.getElementById('logs');
+    const entry  = document.createElement('div');
+    const now    = new Date();
+    const ts     = now.toISOString().substring(11, 19);
+    entry.textContent = `[${ts}] ${text}`;
+    logBox.appendChild(entry);
+    logBox.scrollTop = logBox.scrollHeight;
+  }
 
-function unlockModule(id) {
-  const tile = document.getElementById('mod-'+id);
-  tile.classList.remove('locked');
-  tile.classList.add('active-module');
-  const badge = tile.querySelector('.locked-badge');
-  if(badge) badge.textContent='🔓';
-}
+  function openModule(fileName) {
+    if (fileName === 'livre') {
+      addLog("Ouverture de livre.html dans un environnement sandbox...");
+      window.open('livre.html', '_blank');
+      // Simule la complétion de l'énigme livre après ouverture
+      // En prod : appeler markEnigmaDone('livre') depuis livre.html via window.opener ou localStorage
+      // Pour l'instant on marque après ouverture (à adapter selon ta logique)
+      setTimeout(() => markEnigmaDone('livre'), 2000);
+    } else {
+      addLog(`Accès refusé : fichier verrouillé par le processus système.`);
+    }
+  }
 
-function markSolved(tileId, statusId, label) {
-  const tile = document.getElementById(tileId);
-  tile.classList.remove('active-module','locked');
-  tile.classList.add('solved');
-  document.getElementById(statusId).textContent = label;
-  // Ajouter badge
-  let badge = tile.querySelector('.solved-badge');
-  if(!badge){ badge=document.createElement('span'); badge.className='solved-badge'; tile.appendChild(badge); }
-  badge.textContent='✓ OK';
-  const lb = tile.querySelector('.locked-badge');
-  if(lb) lb.remove();
-}
+  function systemLockdown() {
+    addLog('FATAL: Suppression des données initiée. Délai expiré.');
+    alert('Délai expiré. Accès révoqué. Tous vos dépôts ont été supprimés.');
+    location.reload();
+  }
 
-function shakeEl(el) {
-  el.classList.add('shake');
-  setTimeout(()=>el.classList.remove('shake'),400);
-}
-
-function gameFailed() {
-  addLog('DÉLAI DÉPASSÉ. SYSTÈME COMPROMIS.','warn');
-  const glitch = document.getElementById('glitch-overlay');
-  document.getElementById('glitch-msg').textContent='SYSTÈME COMPROMIS';
-  glitch.classList.add('show');
-  setTimeout(()=>{ glitch.classList.remove('show'); resetAll(); },1500);
-}
-
-function resetAll() { location.reload(); }
+  function triggerWin() {
+    clearInterval(countdownInterval);
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-victory').classList.add('active');
+    document.title = 'GITHYRULE · Accès restauré';
+  }
 </script>
 </body>
 </html>
