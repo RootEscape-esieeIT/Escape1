@@ -1,65 +1,438 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Portal</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>GITHYRULE · Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>/* Tout le CSS est dans style.css */</style>
 </head>
 <body>
-    <!-- Page d'accueil -->
-    <div id="home-page" class="page active">
-        <div class="game-container">
-            <h1 class="game-title">BIENVENUE</h1>
-            <p class="press-start blink">Appuyez sur <kbd>Espace</kbd> pour continuer</p>
-        </div>
-    </div>
 
-    <!-- Page d'authentification -->
-    <div id="auth-page" class="page">
-        <div class="auth-container">
-            <h2>Connexion</h2>
-            <form id="auth-form">
-                <div class="input-group">
-                    <label for="username">Nom d'utilisateur</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div class="input-group">
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="btn-submit">Se connecter</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Page minuteur -->
-    <div id="counter-page" class="page">
-    <div class="counter-container">
-        <h2 id="user-welcome">ACCÈS AUTORISÉ</h2>
-        
-        <div class="hacker-stats">
-            <p>STATUT : <span class="status-alert">DÉTECTÉ</span></p>
-            <p>SURVIE ESTIMÉE :</p>
-        </div>
-
-        <div class="counter-display">
-            <span id="timer-display">00:00</span>
-        </div>
-
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        
-        <div class="terminal-log" id="terminal-log">
-            > Initialisation du pare-feu...
-        </div>
-
-        <button id="btn-logout" class="btn-logout">ABANDONNER LE TERMINAL</button>
-    </div>
+<!-- GLITCH OVERLAY -->
+<div id="glitch-overlay">
+  <div class="glitch-lines">
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+  </div>
+  <div class="glitch-msg">ERR_SYSTEM_FAILURE — unauthorized access detected</div>
 </div>
 
+<!-- ===== SCREEN 1: LOGIN ===== -->
+<div id="screen-login" class="screen active">
 
-    <script src="js/script.js"></script>
+  <!-- SVG watermark discret qui clignote en fond -->
+  <div class="login-svg-watermark">
+    <img src="logov1.svg" alt="">
+  </div>
+
+  <div class="login-main">
+    <!-- Big logo -->
+    <div class="login-logo-wrap">
+      <img src="logo.png" class="login-logo-img" alt="Githyrule">
+      <div class="login-brand">GITHYRULE</div>
+    </div>
+
+    <!-- Sign-in card -->
+    <div class="login-card">
+      <h2>Sign in</h2>
+      <div class="field">
+        <label class="field-label">Username or email address</label>
+        <input type="text" id="input-user" class="field-input" placeholder="username" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="field-label" style="display:flex;justify-content:space-between;">
+          Password
+          <a href="#" style="font-weight:400;color:var(--gh-accent);font-size:.8rem;">Forgot password?</a>
+        </label>
+        <input type="password" class="field-input" placeholder="Password">
+      </div>
+      <button class="btn-signin" onclick="doLogin()">Sign in</button>
+      <div class="login-card-footer">
+        By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </div>
+    </div>
+
+    <!-- Sign-up box -->
+    <div class="login-signup-box">
+      New to GITHYRULE? <a href="#">Create an account</a>
+    </div>
+  </div>
+
+  <!-- Footer anchored at bottom -->
+  <footer class="login-footer">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="#">Security</a>
+    <a href="#">Status</a>
+    <a href="#">Docs</a>
+    <a href="#">Contact</a>
+    <a href="#">Manage cookies</a>
+    <br>
+    © 2026 RootEscape  · All rights reserved
+  </footer>
+</div>
+
+<!-- ===== SCREEN 2: GITHUB PREVIEW (3s flash) ===== -->
+<div id="screen-preview" class="screen">
+  <div class="gh-header">
+    <a href="#" class="gh-logo">
+      <svg height="20" viewBox="0 0 16 16" width="20" style="fill:var(--gh-fg);">
+        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+      </svg>
+      GITHYRULE
+    </a>
+    <div class="gh-search">🔍 &nbsp;Type / to search</div>
+    <div class="gh-nav-right">
+      <span>Pull requests</span><span>Issues</span><span>Marketplace</span>
+    </div>
+  </div>
+  <div class="dashboard-body">
+    <div class="gh-col-left">
+      <div class="gh-box">
+        <div class="gh-box-title">Top Repositories</div>
+        <ul class="gh-repo-list">
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/core_system</li>
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/user_database</li>
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/security_audit</li>
+          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/nav_module_v2</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gh-col-main">
+      <div class="gh-box">
+        <div class="gh-box-title">Home</div>
+        <div style="color:var(--gh-muted);font-size:.85rem;">Welcome back. Loading your repositories…</div>
+      </div>
+      <h2 style="font-size:.85rem;font-weight:400;color:var(--gh-muted);margin:16px 0 8px;">Recent activity</h2>
+      <div class="gh-news-item">
+        <div class="gh-news-meta">githyrule_bot pushed to main · 2 minutes ago</div>
+        <div>Merge pull request #104 from security/patch-critical</div>
+      </div>
+      <div class="gh-news-item">
+        <div class="gh-news-meta">admin opened issue #312 · 1 hour ago</div>
+        <div>Navigation module integrity check failed on sector 7</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3: NARRATION ===== -->
+<div id="screen-narration" class="screen">
+  <div class="narration-container">
+
+    <!-- SLIDE 1 -->
+    <div class="narration-slide active" id="slide-1">
+      <div class="narration-icon">⚠️</div>
+      <div class="narration-chapter">Alerte sécurité · Incident #4782</div>
+      <div class="narration-title">Votre compte <span class="red">a été compromis</span></div>
+      <div class="narration-text">
+        Un <strong>accès non autorisé</strong> a été détecté sur votre session GITHYRULE.<br><br>
+        Vos dépôts, fichiers et données sont en cours <span class="danger">d'exfiltration</span>. L'attaquant a pris le contrôle de votre espace de travail.
+      </div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="narration-slide" id="slide-2">
+      <div class="narration-icon">🔒</div>
+      <div class="narration-chapter">Alerte sécurité · Accès verrouillé</div>
+      <div class="narration-title">Vos projets sont <span class="red">verrouillés</span></div>
+      <div class="narration-text">
+        Pour protéger vos données, le système a activé un <strong>protocole de verrouillage d'urgence</strong>.<br><br>
+        Tous vos dépôts sont désormais <span class="danger">inaccessibles</span> — sauf un fichier corrompu qui contient la clé de récupération.
+      </div>
+    </div>
+
+    <!-- SLIDE 3 -->
+    <div class="narration-slide" id="slide-3">
+      <div class="narration-icon">🔑</div>
+      <div class="narration-chapter">Procédure de récupération</div>
+      <div class="narration-title">Comment récupérer <strong>vos données</strong></div>
+      <div class="narration-text">
+        Un <strong>code de récupération</strong> est fragmenté dans le fichier <code style="background:var(--gh-bg);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);color:var(--gh-accent);">livre.html</code>.<br><br>
+        Analysez-le, résolvez les énigmes cachées et entrez le bon code pour <strong>restaurer l'accès à vos projets</strong>.
+      </div>
+    </div>
+
+    <!-- SLIDE 4 — CTA -->
+    <div class="narration-slide" id="slide-4">
+      <div class="narration-icon">⏱️</div>
+      <div class="narration-chapter">Récupération · Temps limité</div>
+      <div class="narration-title">Agissez vite — <span class="red">5 minutes</span></div>
+      <div class="narration-text">
+        Après <span class="danger">5 minutes</span>, le système initiera une <strong>suppression définitive</strong> de tous vos dépôts et données.<br><br>
+        Trouvez le code. Restaurez l'accès. <strong>C'est votre seule chance.</strong>
+      </div>
+      <button class="narration-cta" onclick="startGame()"><span>Lancer la récupération</span></button>
+    </div>
+
+    <!-- Progress dots -->
+    <div class="narration-progress">
+      <div class="narration-dot active" id="dot-1"></div>
+      <div class="narration-dot" id="dot-2"></div>
+      <div class="narration-dot" id="dot-3"></div>
+      <div class="narration-dot" id="dot-4"></div>
+    </div>
+
+    <button class="narration-skip" onclick="skipToSlide(4)">Passer l'intro ›</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 4: GAME ===== -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <div class="game-logo">
+      <svg height="20" viewBox="0 0 16 16" width="20" style="fill:var(--gh-muted);">
+        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+      </svg>
+      GITHYRULE
+    </div>
+    <div id="gh-timer">⚠ 05:00</div>
+    <div class="game-status">
+      <span class="blink-badge">COMPROMIS</span>
+      Accès restreint
+    </div>
+  </div>
+
+  <div class="game-body">
+
+    <!-- Alert banner -->
+    <div class="gh-alert">
+      <div class="gh-alert-icon">🚨</div>
+      <div>
+        <strong>Incident de sécurité actif</strong> — Un accès non autorisé a été détecté sur ce compte.
+        Vos dépôts sont verrouillés. Résolvez toutes les énigmes pour obtenir le code de récupération.
+      </div>
+    </div>
+
+    <div class="repo-header">
+      <div class="repo-breadcrumb">
+        <span>githyrule</span> <span>/</span>
+        <span class="repo-name">system_integrity_check</span>
+      </div>
+      <div class="repo-sub">
+        <span class="repo-badge">Public</span>
+        <span class="repo-badge">Read-only</span>
+        <span class="repo-badge err">⚠ Integrity Error</span>
+      </div>
+    </div>
+
+    <div id="logs" class="gh-console"></div>
+
+    <div class="gh-file-browser">
+      <div class="gh-file-browser-header">
+        <span>githyrule-bot committed · <span style="color:var(--gh-red);">system compromised — access restricted</span></span>
+        <span style="font-family:var(--font-mono);font-size:.75rem;">198db0f</span>
+      </div>
+      <ul class="gh-file-list">
+        <li class="gh-file-item" onclick="openModule('livre')">
+          <span class="gh-file-icon">📄</span>
+          <span class="gh-file-name">livre.html</span>
+          <span class="gh-file-meta err">Integrity Error · Cliquez pour inspecter</span>
+        </li>
+        <li class="gh-file-item" onclick="openModule('locked')">
+          <span class="gh-file-icon">📝</span>
+          <span class="gh-file-name">README.md</span>
+          <span class="gh-file-meta">Initial commit</span>
+        </li>
+        <li class="gh-file-item" onclick="openModule('locked')">
+          <span class="gh-file-icon">🔒</span>
+          <span class="gh-file-name">security.cfg</span>
+          <span class="gh-file-meta err">Verrouillé · Processus système</span>
+        </li>
+        <li class="gh-file-item" onclick="openModule('locked')">
+          <span class="gh-file-icon">🔒</span>
+          <span class="gh-file-name">nav_module.bin</span>
+          <span class="gh-file-meta err">Verrouillé · Corrompu</span>
+        </li>
+      </ul>
+    </div>
+  </div><!-- end game-body -->
+
+  <!-- Zone de saisie du code final — visible uniquement après avoir complété toutes les énigmes -->
+  <div id="solution-zone" style="display:none; padding:14px 24px 24px; border-top:1px solid var(--gh-border); background:var(--gh-surface); flex-shrink:0;">
+    <div style="font-family:var(--font-mono);font-size:.6rem;color:var(--gh-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">
+      ✅ Toutes les énigmes résolues — Entrez le code de récupération
+    </div>
+    <div style="display:flex;gap:8px;">
+      <input id="solution-input" type="text" placeholder="CODE DE RÉCUPÉRATION"
+        style="flex:1;background:var(--gh-bg);border:1px solid var(--gh-border);border-bottom:2px solid var(--gh-red);color:var(--gh-fg);font-family:var(--font-mono);font-size:.85rem;letter-spacing:.15em;padding:10px 14px;outline:none;border-radius:4px;transition:border-bottom-color .2s;"
+        onfocus="this.style.borderBottomColor='var(--gh-accent)'" onblur="this.style.borderBottomColor='var(--gh-red)'"
+      >
+      <button onclick="checkFinalCode()"
+        style="background:var(--gh-red);color:white;border:none;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;padding:0 18px;cursor:pointer;border-radius:4px;transition:background .2s;"
+        onmouseover="this.style.background='#ff4466'" onmouseout="this.style.background='var(--gh-red)'">
+        VALIDER
+      </button>
+    </div>
+  </div>
+</div><!-- end screen-game -->
+<div id="screen-victory" class="screen">
+  <div class="victory-icon">✅</div>
+  <div class="victory-title">Accès restauré</div>
+  <div class="victory-sub">Intégrité du système vérifiée. Tous vos dépôts sont de nouveau accessibles. Bien joué !</div>
+  <button class="btn-restart" onclick="location.reload()">Retour au Dashboard</button>
+</div>
+
+<script>
+  /* ===================== AUTH ===================== */
+  function doLogin() {
+    const user = document.getElementById('input-user').value.trim();
+    if (user === '') { alert('Veuillez entrer votre identifiant.'); return; }
+
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('screen-preview').classList.add('active');
+    document.title = 'GITHYRULE · Dashboard';
+
+    setTimeout(triggerGlitch, 3000);
+  }
+
+  function triggerGlitch() {
+    const overlay = document.getElementById('glitch-overlay');
+    overlay.classList.add('show');
+    setTimeout(() => {
+      overlay.classList.remove('show');
+      document.getElementById('screen-preview').classList.remove('active');
+      document.getElementById('screen-narration').classList.add('active');
+      document.title = 'GITHYRULE · Alerte sécurité';
+      startNarration();
+    }, 1500);
+  }
+
+  /* ===================== NARRATION ===================== */
+  let currentSlide = 1;
+  const TOTAL_SLIDES = 4;
+  let narrationTimer = null;
+
+  function startNarration() { showSlide(1); scheduleNext(); }
+
+  function scheduleNext() {
+    if (currentSlide < TOTAL_SLIDES) {
+      narrationTimer = setTimeout(() => {
+        currentSlide++;
+        showSlide(currentSlide);
+        if (currentSlide < TOTAL_SLIDES) scheduleNext();
+      }, 4000);
+    }
+  }
+
+  function showSlide(n) {
+    for (let i = 1; i <= TOTAL_SLIDES; i++) {
+      const slide = document.getElementById('slide-' + i);
+      const dot   = document.getElementById('dot-'   + i);
+      if (slide) slide.classList.toggle('active', i === n);
+      if (dot) {
+        dot.classList.toggle('active', i === n);
+        dot.classList.toggle('done',   i < n);
+      }
+    }
+    currentSlide = n;
+  }
+
+  function skipToSlide(n) { clearTimeout(narrationTimer); showSlide(n); }
+
+  function startGame() {
+    clearTimeout(narrationTimer);
+    document.getElementById('screen-narration').classList.remove('active');
+    document.getElementById('screen-game').classList.add('active');
+    document.title = 'GITHYRULE · Incident de sécurité';
+    initGame();
+  }
+
+  /* ===================== GAME ===================== */
+  let timeLeft = 300;
+  let countdownInterval = null;
+
+  // Suivi des énigmes complétées — à ajuster selon tes énigmes réelles
+  const ENIGMAS = {
+    livre: false,
+    // Ajoute ici les autres énigmes : ex: enigme2: false, enigme3: false
+  };
+  const FINAL_CODE = "GITHYRULE 2026"; // Le code que les joueurs doivent trouver après toutes les énigmes
+
+  function initGame() {
+    addLog('Integrity check failed on core system.');
+    addLog('Navigation module data corrupted — read access only.');
+    addLog('Résolvez les énigmes pour reconstituer le code de récupération.');
+
+    // Timer silencieux — le joueur ne voit pas le compte à rebours
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      // Alerte subtile quand il reste peu de temps (sans montrer le chiffre)
+      if (timeLeft === 60) addLog('⚠ Système instable. Agissez rapidement.');
+      if (timeLeft === 30) addLog('⚠⚠ Corruption critique. Dernière chance.');
+      if (timeLeft <= 0) { clearInterval(countdownInterval); systemLockdown(); }
+    }, 1000);
+  }
+
+  /**
+   * Marque une énigme comme résolue et vérifie si toutes sont complètes
+   */
+  function markEnigmaDone(enigmaKey) {
+    if (ENIGMAS.hasOwnProperty(enigmaKey)) {
+      ENIGMAS[enigmaKey] = true;
+      addLog(`Énigme "${enigmaKey}" résolue. Fragment de code extrait.`);
+    }
+    checkAllEnigmasDone();
+  }
+
+  function checkAllEnigmasDone() {
+    const allDone = Object.values(ENIGMAS).every(v => v === true);
+    if (allDone) {
+      addLog('✅ Toutes les énigmes résolues. Code de récupération disponible.');
+      document.getElementById('solution-zone').style.display = 'block';
+    }
+  }
+
+  function checkFinalCode() {
+    const input = document.getElementById('solution-input').value.trim().toUpperCase();
+    if (input === FINAL_CODE) {
+      triggerWin();
+    } else {
+      addLog('Code incorrect. Vérifiez vos réponses.');
+      const inp = document.getElementById('solution-input');
+      inp.style.animation = 'none';
+      inp.offsetHeight; // reflow
+      inp.style.animation = 'input-shake .35s ease';
+    }
+  }
+
+  function addLog(text) {
+    const logBox = document.getElementById('logs');
+    const entry  = document.createElement('div');
+    const now    = new Date();
+    const ts     = now.toISOString().substring(11, 19);
+    entry.textContent = `[${ts}] ${text}`;
+    logBox.appendChild(entry);
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  function openModule(fileName) {
+    if (fileName === 'livre') {
+      addLog("Ouverture de livre.html dans un environnement sandbox...");
+      window.open('livre.html', '_blank');
+      // Simule la complétion de l'énigme livre après ouverture
+      // En prod : appeler markEnigmaDone('livre') depuis livre.html via window.opener ou localStorage
+      // Pour l'instant on marque après ouverture (à adapter selon ta logique)
+      setTimeout(() => markEnigmaDone('livre'), 2000);
+    } else {
+      addLog(`Accès refusé : fichier verrouillé par le processus système.`);
+    }
+  }
+
+  function systemLockdown() {
+    addLog('FATAL: Suppression des données initiée. Délai expiré.');
+    alert('Délai expiré. Accès révoqué. Tous vos dépôts ont été supprimés.');
+    location.reload();
+  }
+
+  function triggerWin() {
+    clearInterval(countdownInterval);
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-victory').classList.add('active');
+    document.title = 'GITHYRULE · Accès restauré';
+  }
+</script>
 </body>
 </html>

@@ -1,0 +1,500 @@
+/* =============================================
+   DESIGN SYSTEM — GitHub-like, clean & classic
+============================================= */
+:root {
+  /* GitHub dark palette */
+  --gh-bg:        #0d1117;
+  --gh-surface:   #161b22;
+  --gh-border:    #30363d;
+  --gh-border2:   #21262d;
+  --gh-fg:        #e6edf3;
+  --gh-fg2:       #c9d1d9;
+  --gh-muted:     #8b949e;
+  --gh-accent:    #58a6ff;
+  --gh-accent-bg: rgba(88,166,255,.1);
+  --gh-green:     #3fb950;
+  --gh-green-bg:  rgba(63,185,80,.15);
+  --gh-red:       #f85149;
+  --gh-red-bg:    rgba(248,81,73,.15);
+  --gh-orange:    #d29922;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--gh-bg);
+  color: var(--gh-fg);
+  font-family: var(--font);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* SCREENS */
+.screen { display: none; position: fixed; inset: 0; flex-direction: column; overflow: hidden; }
+.screen.active { display: flex; }
+
+/* =============================================
+   GLITCH OVERLAY (kept, it's the transition)
+============================================= */
+#glitch-overlay {
+  display: none; position: fixed; inset: 0; z-index: 8000;
+  background: #000; flex-direction: column; align-items: center; justify-content: center;
+}
+#glitch-overlay.show { display: flex; }
+.glitch-lines { position: absolute; inset: 0; }
+.glitch-line {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: var(--gh-red); opacity: .7;
+  animation: line-flash .08s steps(1) infinite;
+}
+.glitch-line:nth-child(1) { top: 20%; animation-delay: .01s; }
+.glitch-line:nth-child(2) { top: 45%; animation-delay: .03s; background: var(--gh-accent); }
+.glitch-line:nth-child(3) { top: 70%; animation-delay: .05s; }
+@keyframes line-flash { 0%,100%{opacity:.7;transform:scaleX(1)} 50%{opacity:0;transform:scaleX(.3)} }
+.glitch-msg {
+  font-family: var(--font-mono); font-size: 1rem; letter-spacing: .1em;
+  color: var(--gh-red); z-index: 1; animation: gmove .07s steps(1) infinite;
+}
+@keyframes gmove {
+  0%{transform:translate(0,0);color:var(--gh-red)} 25%{transform:translate(-3px,1px);color:var(--gh-orange)}
+  50%{transform:translate(3px,-1px);color:var(--gh-accent)} 75%{transform:translate(-2px,2px);color:var(--gh-red)} 100%{transform:translate(0,0)}
+}
+
+/* =============================================
+   SCREEN 1 — LOGIN  (GitHub sign-in style)
+============================================= */
+#screen-login {
+  background: var(--gh-bg);
+  align-items: center;
+  justify-content: space-between; /* push footer to bottom */
+  flex-direction: column;
+  padding: 0;
+}
+
+.login-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 40px 20px 20px;
+}
+
+/* Big logo at top */
+.login-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.login-logo-img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  animation: logo-glow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(88,166,255,0.25));
+}
+@keyframes logo-glow {
+  0%, 100% { filter: drop-shadow(0 0 14px rgba(88,166,255,.15)); }
+  50% { filter: drop-shadow(0 0 32px rgba(88,166,255,.45)); }
+}
+
+/* SVG watermark — se fond dans le fond, clignote doucement */
+.login-svg-watermark {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.login-svg-watermark img {
+  width: min(70vw, 70vh);
+  height: min(70vw, 70vh);
+  object-fit: contain;
+  opacity: 0;
+  animation: wm-blink 6s ease-in-out infinite;
+  mix-blend-mode: screen;
+  filter: hue-rotate(180deg) saturate(0.3) brightness(0.18);
+}
+@keyframes wm-blink {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.09; }
+  30%  { opacity: 0; }
+  55%  { opacity: 0.06; }
+  70%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+/* Tout ce qui est dans login-main doit passer au-dessus du watermark */
+.login-main { position: relative; z-index: 1; }
+
+.login-brand {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gh-fg);
+  letter-spacing: .02em;
+  margin-top: 12px;
+}
+
+/* Sign-in card */
+.login-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  border-radius: 6px;
+  padding: 24px;
+}
+
+.login-card h2 {
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-align: center;
+  color: var(--gh-fg);
+  margin-bottom: 20px;
+}
+
+.field { margin-bottom: 16px; }
+.field-label {
+  display: block;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--gh-fg2);
+  margin-bottom: 6px;
+}
+.field-input {
+  width: 100%;
+  background: var(--gh-bg);
+  border: 1px solid var(--gh-border);
+  border-radius: 6px;
+  color: var(--gh-fg);
+  padding: 8px 12px;
+  font-family: var(--font);
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field-input::placeholder { color: var(--gh-muted); }
+.field-input:focus {
+  border-color: var(--gh-accent);
+  box-shadow: 0 0 0 3px rgba(88,166,255,.1);
+}
+
+.btn-signin {
+  width: 100%;
+  background: #238636;
+  border: 1px solid rgba(240,246,252,.1);
+  border-radius: 6px;
+  color: white;
+  font-family: var(--font);
+  font-size: .9rem;
+  font-weight: 500;
+  padding: 9px 20px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background .15s;
+}
+.btn-signin:hover { background: #2ea043; }
+
+.login-card-footer {
+  text-align: center;
+  margin-top: 14px;
+  font-size: .8rem;
+  color: var(--gh-muted);
+}
+.login-card-footer a { color: var(--gh-accent); text-decoration: none; }
+.login-card-footer a:hover { text-decoration: underline; }
+
+/* New to Githyrule box */
+.login-signup-box {
+  width: 100%;
+  max-width: 340px;
+  margin-top: 16px;
+  border: 1px solid var(--gh-border);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  font-size: .9rem;
+  color: var(--gh-fg2);
+}
+.login-signup-box a { color: var(--gh-accent); text-decoration: none; }
+.login-signup-box a:hover { text-decoration: underline; }
+
+/* Footer */
+.login-footer {
+  width: 100%;
+  padding: 16px 24px;
+  border-top: 1px solid var(--gh-border2);
+  text-align: center;
+  font-size: .75rem;
+  color: var(--gh-muted);
+  line-height: 2;
+  flex-shrink: 0;
+}
+.login-footer a { color: var(--gh-muted); text-decoration: none; margin: 0 6px; }
+.login-footer a:hover { color: var(--gh-accent); text-decoration: underline; }
+
+/* =============================================
+   SCREEN 2 — GITHUB PREVIEW (3s flash)
+============================================= */
+#screen-preview {
+  background: var(--gh-bg);
+  color: var(--gh-fg2);
+  font-family: var(--font);
+}
+.gh-header {
+  background: var(--gh-surface);
+  border-bottom: 1px solid var(--gh-border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.gh-logo {
+  font-size: 1rem; font-weight: 600; color: var(--gh-fg);
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.gh-search {
+  background: var(--gh-bg); border: 1px solid var(--gh-border);
+  border-radius: 6px; padding: 5px 12px; width: 240px;
+  color: var(--gh-muted); font-size: .8rem; font-family: var(--font);
+}
+.gh-nav-right { display: flex; gap: 16px; align-items: center; color: var(--gh-fg2); font-size: .875rem; }
+.dashboard-body { flex: 1; display: flex; padding: 24px; gap: 24px; overflow-y: auto; }
+.gh-col-left { width: 280px; flex-shrink: 0; }
+.gh-col-main { flex: 1; }
+.gh-box {
+  background: var(--gh-surface); border: 1px solid var(--gh-border);
+  border-radius: 6px; padding: 16px; margin-bottom: 16px;
+}
+.gh-box-title { font-size: .9rem; font-weight: 600; color: var(--gh-fg); margin-bottom: 12px; }
+.gh-repo-list { list-style: none; }
+.gh-repo-item { font-size: .85rem; margin-bottom: 8px; color: var(--gh-accent); }
+.gh-repo-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gh-green); margin-right: 8px; }
+.gh-news-item { padding: 12px 0; border-bottom: 1px solid var(--gh-border); font-size: .85rem; }
+.gh-news-item:last-child { border-bottom: none; }
+.gh-news-meta { color: var(--gh-muted); font-size: .75rem; margin-bottom: 3px; }
+
+/* =============================================
+   SCREEN 3 — NARRATION (simple, pas agent secret)
+============================================= */
+#screen-narration {
+  background: var(--gh-bg);
+  align-items: center; justify-content: center;
+}
+
+.narration-container {
+  position: relative; width: 100%; max-width: 600px;
+  padding: 0 32px; text-align: center;
+}
+
+.narration-slide {
+  display: none; flex-direction: column; align-items: center; gap: 20px;
+  animation: slide-in .5s ease forwards;
+}
+.narration-slide.active { display: flex; }
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.narration-icon {
+  font-size: 2.5rem; line-height: 1;
+}
+
+.narration-chapter {
+  font-family: var(--font-mono); font-size: .72rem;
+  color: var(--gh-muted); letter-spacing: .15em; text-transform: uppercase;
+  background: var(--gh-surface); border: 1px solid var(--gh-border);
+  border-radius: 20px; padding: 4px 14px;
+}
+
+.narration-title {
+  font-size: 1.5rem; font-weight: 600;
+  color: var(--gh-fg); line-height: 1.2;
+}
+.narration-title .red { color: var(--gh-red); }
+
+.narration-text {
+  font-size: .9rem;
+  color: var(--gh-muted); line-height: 1.8;
+  max-width: 500px;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  border-radius: 6px;
+  padding: 16px 20px;
+  text-align: left;
+}
+.narration-text strong { color: var(--gh-fg2); }
+.narration-text .danger { color: var(--gh-red); font-weight: 500; }
+
+.narration-progress {
+  display: flex; gap: 8px; justify-content: center; margin-top: 8px;
+}
+.narration-dot {
+  width: 24px; height: 3px; background: var(--gh-border);
+  border-radius: 2px; transition: background .3s;
+}
+.narration-dot.done { background: var(--gh-muted); }
+.narration-dot.active { background: var(--gh-accent); }
+
+.narration-skip {
+  position: absolute; bottom: -52px; right: 0;
+  font-family: var(--font); font-size: .78rem;
+  color: var(--gh-muted); letter-spacing: .05em; background: none;
+  border: none; cursor: pointer; padding: 8px;
+  transition: color .2s;
+}
+.narration-skip:hover { color: var(--gh-accent); }
+
+.narration-cta {
+  margin-top: 8px;
+  background: #238636;
+  border: 1px solid rgba(240,246,252,.1);
+  border-radius: 6px;
+  color: white;
+  font-family: var(--font);
+  font-size: .9rem; font-weight: 500;
+  padding: 10px 32px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.narration-cta:hover { background: #2ea043; }
+.narration-cta span { position: relative; z-index: 1; }
+
+/* =============================================
+   SCREEN 4 — GAME (GitHub + compromised)
+============================================= */
+#screen-game {
+  background: var(--gh-bg);
+  color: var(--gh-fg2);
+  font-family: var(--font);
+}
+
+.game-header {
+  background: var(--gh-surface);
+  border-bottom: 1px solid var(--gh-red);
+  padding: 10px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.game-logo {
+  font-size: .95rem; font-weight: 600; color: var(--gh-fg);
+  display: flex; align-items: center; gap: 8px;
+}
+.game-logo img { width: 24px; height: 24px; object-fit: contain; opacity: .7; }
+
+#gh-timer {
+  font-family: var(--font-mono); font-size: .85rem; font-weight: 600;
+  color: var(--gh-red); letter-spacing: .05em;
+  background: var(--gh-red-bg); padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--gh-red);
+  /* Timer caché — le joueur ne sait pas combien de temps il lui reste */
+  display: none;
+}
+#gh-timer.pulse { animation: t-pulse .8s ease-in-out infinite; }
+@keyframes t-pulse { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes input-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+
+.game-status {
+  font-size: .78rem; color: var(--gh-red);
+  display: flex; align-items: center; gap: 8px;
+}
+.blink-badge {
+  background: var(--gh-red); color: white; font-size: .65rem;
+  font-weight: 600; letter-spacing: .08em; padding: 2px 8px;
+  border-radius: 20px;
+  animation: badge-blink .9s step-end infinite;
+}
+@keyframes badge-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.game-body {
+  flex: 1; padding: 20px 24px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* Alert banner */
+.gh-alert {
+  background: var(--gh-red-bg);
+  border: 1px solid var(--gh-red);
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .85rem; color: var(--gh-fg2);
+}
+.gh-alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.gh-alert strong { color: var(--gh-fg); }
+
+.repo-header { border-bottom: 1px solid var(--gh-border); padding-bottom: 14px; }
+.repo-breadcrumb {
+  font-size: .9rem; color: var(--gh-muted); margin-bottom: 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.repo-breadcrumb .repo-name { color: var(--gh-accent); font-weight: 600; }
+.repo-sub { color: var(--gh-muted); font-size: .8rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.repo-badge {
+  font-size: .7rem; border: 1px solid var(--gh-border); border-radius: 20px;
+  padding: 1px 8px; color: var(--gh-muted);
+}
+.repo-badge.err { border-color: var(--gh-red); color: var(--gh-red); background: var(--gh-red-bg); }
+
+.gh-console {
+  background: var(--gh-surface); border: 1px solid var(--gh-border); border-radius: 6px;
+  font-family: var(--font-mono); font-size: .78rem;
+  padding: 12px 14px; color: var(--gh-muted); height: 100px; overflow-y: auto;
+}
+.gh-console div { margin-bottom: 3px; }
+.gh-console div::before { content: '> '; color: var(--gh-red); }
+
+.gh-file-browser { border: 1px solid var(--gh-border); border-radius: 6px; overflow: hidden; }
+.gh-file-browser-header {
+  background: var(--gh-surface); padding: 10px 14px;
+  border-bottom: 1px solid var(--gh-border);
+  font-size: .8rem; color: var(--gh-muted);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.gh-file-list { list-style: none; }
+.gh-file-item {
+  display: flex; align-items: center; padding: 8px 14px;
+  border-bottom: 1px solid var(--gh-border2); font-size: .85rem; cursor: pointer;
+  transition: background .1s; background: var(--gh-bg);
+}
+.gh-file-item:hover { background: var(--gh-surface); }
+.gh-file-item:last-child { border-bottom: none; }
+.gh-file-icon { margin-right: 10px; font-size: 1rem; }
+.gh-file-name { color: var(--gh-accent); flex: 1; font-weight: 500; }
+.gh-file-meta { color: var(--gh-muted); font-size: .75rem; }
+.gh-file-meta.err { color: var(--gh-red); }
+
+/* =============================================
+   SCREEN 5 — VICTORY
+============================================= */
+#screen-victory {
+  background: var(--gh-bg);
+  align-items: center; justify-content: center; text-align: center;
+  flex-direction: column; gap: 16px;
+}
+.victory-icon { font-size: 3rem; }
+.victory-title {
+  font-size: 1.8rem; font-weight: 600;
+  color: var(--gh-green);
+}
+.victory-sub { font-size: .875rem; color: var(--gh-muted); max-width: 360px; line-height: 1.7; }
+.btn-restart {
+  margin-top: 8px;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  border-radius: 6px;
+  color: var(--gh-fg);
+  font-family: var(--font); font-size: .875rem;
+  padding: 8px 20px; cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.btn-restart:hover { background: var(--gh-border); border-color: var(--gh-accent); }
