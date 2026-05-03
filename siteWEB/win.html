@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>GITHYRULE · Accès restauré</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>.screen{display:none}.screen.active{display:block}</style>
+  <style>
+    @keyframes fadein { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes creditsRoll { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    body { background:#0d1117; }
+  </style>
+</head>
+<body>
+
+<!-- ===== VICTOIRE ===== -->
+<div id="screen-victory" style="display:block;">
+  <div style="max-width:680px;margin:0 auto;padding:3rem 2rem;text-align:center;animation:fadein .8s both;">
+
+    <div style="font-size:3.5rem;margin-bottom:1.2rem;">✅</div>
+    <div style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gh-accent);margin-bottom:.5rem;">
+      Accès restauré · Intégrité confirmée
+    </div>
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:.2em;color:var(--gh-fg);margin-bottom:.4rem;">PIXEL</h1>
+    <div style="color:var(--gh-muted);font-size:.85rem;margin-bottom:2.5rem;">Le mot caché derrière chaque indice</div>
+
+    <div style="background:var(--gh-surface);border:1px solid var(--gh-border);border-radius:8px;padding:1.5rem;text-align:left;margin-bottom:1.5rem;">
+      <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;color:var(--gh-muted);margin-bottom:1rem;">// DOSSIER DE DÉCHIFFREMENT COMPLET</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div style="font-size:.65rem;color:var(--gh-accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;">🍎 La Pomme</div>
+          <div style="font-size:.8rem;color:var(--gh-muted);line-height:1.9;">
+            <span style="color:var(--gh-fg);">Newton</span> — la pomme qui tombe<br>
+            <span style="color:var(--gh-fg);">Turing</span> — la pomme empoisonnée<br>
+            <span style="color:var(--gh-fg);">Blanche-Neige</span> — la pomme du conte<br>
+            <span style="color:var(--gh-fg);">Adam &amp; Ève</span> — la pomme originelle<br>
+            <span style="color:var(--gh-fg);">Apple ↗</span> — <code style="font-size:.7rem;color:var(--gh-accent);">PixelApple.svg</code>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;color:var(--gh-accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;">🖼 Le Pixel</div>
+          <div style="font-size:.8rem;color:var(--gh-muted);line-height:1.9;">
+            <span style="color:var(--gh-fg);">Pixel War</span> — Reddit 2022<br>
+            <span style="color:var(--gh-fg);">Pixel (film)</span> — 2015<br>
+            <span style="color:var(--gh-fg);">Sherlock</span> — PIXEL (Polybe)<br>
+            <span style="color:var(--gh-fg);">YouTube</span> — 23061912<br>
+            <span style="color:var(--gh-fg);">Wikipedia</span> — Newton ↗
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--gh-surface);border:1px solid var(--gh-border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;font-family:var(--font-mono);font-size:.75rem;color:var(--gh-muted);text-align:left;line-height:1.8;">
+      <span style="color:var(--gh-accent);">$</span> python3 crypt.py<br>
+      <span style="color:var(--gh-muted);">Entrez le lien : </span>https://upload.wikimedia.org/wikipedia/commons/8/84/PixelApple.svg<br>
+      <span style="color:#3fb950;">[SUCCÈS]</span> Empreinte validée. Mot de passe → <span style="color:var(--gh-fg);">••••••••••••••••••••••••••••••</span>
+    </div>
+
+    <div style="color:var(--gh-muted);font-size:.82rem;margin-bottom:2.5rem;line-height:1.7;">
+      Félicitations — vous avez reconstitué l'identité numérique cachée dans chaque énigme.<br>
+      La sécurité informatique repose sur ce que vous <em>savez</em>, ce que vous <em>avez</em>, et ce que vous <em>êtes</em>.
+    </div>
+
+    <button onclick="showVideo()"
+      style="background:var(--gh-accent);color:white;border:none;padding:.8rem 2.8rem;font-family:var(--font-mono);font-size:.85rem;letter-spacing:.12em;cursor:pointer;border-radius:6px;transition:background .2s;"
+      onmouseover="this.style.background='#388bfd'" onmouseout="this.style.background='var(--gh-accent)'">
+      ▶ Voir la vidéo de fin
+    </button>
+  </div>
+</div>
+
+<!-- ===== VIDÉO + GÉNÉRIQUE ===== -->
+<div id="screen-outro" style="display:none;min-height:100vh;background:#000;flex-direction:column;align-items:center;justify-content:center;">
+
+  <video id="outro-video" style="width:100%;max-width:900px;max-height:70vh;display:block;" controls>
+    <source src="media/victoire.mp4" type="video/mp4">
+    Votre navigateur ne supporte pas la lecture vidéo.
+  </video>
+  <div id="video-hint" style="display:none;font-family:'Courier New',monospace;font-size:.8rem;color:#8b949e;margin-top:.8rem;letter-spacing:.1em;">
+    ▶ Appuyez sur Play pour lancer la vidéo avec le son
+  </div>
+
+  <!-- Générique — apparaît après la vidéo -->
+  <div id="credits" style="display:none;text-align:center;padding:4rem 2rem;animation:creditsRoll 1.2s ease both;">
+    <div style="font-family:'Courier New',monospace;font-size:.6rem;letter-spacing:.4em;color:#444d56;text-transform:uppercase;margin-bottom:2.5rem;">
+      — FIN —
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:.7rem;letter-spacing:.25em;color:#8b949e;text-transform:uppercase;margin-bottom:1.2rem;">
+      Un jeu créé par
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:clamp(2rem,6vw,3.5rem);font-weight:700;letter-spacing:.2em;color:#f0f6fc;margin-bottom:.4rem;">
+      Aymeric
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:1rem;color:#444d56;margin-bottom:.4rem;">&amp;</div>
+    <div style="font-family:'Courier New',monospace;font-size:clamp(2rem,6vw,3.5rem);font-weight:700;letter-spacing:.2em;color:#f0f6fc;margin-bottom:3rem;">
+      Kanisvaran
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:.65rem;letter-spacing:.2em;color:#30363d;text-transform:uppercase;margin-bottom:.4rem;">
+      GITHYRULE · RootEscape-esieeIT
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:.6rem;color:#21262d;margin-bottom:3.5rem;">
+      © 2026 · MIT License
+    </div>
+    <button onclick="window.location.href='index.html'"
+      style="background:transparent;color:#8b949e;border:1px solid #30363d;padding:.65rem 2.2rem;font-family:'Courier New',monospace;font-size:.75rem;letter-spacing:.12em;cursor:pointer;border-radius:4px;transition:all .2s;"
+      onmouseover="this.style.color='#58a6ff';this.style.borderColor='#58a6ff'"
+      onmouseout="this.style.color='#8b949e';this.style.borderColor='#30363d'">
+      ↩ Rejouer
+    </button>
+  </div>
+</div>
+
+<!-- Musique victoire : Sneaky Snitch – Kevin MacLeod | CC BY 3.0 | incompetech.com -->
+<audio id="bg-music" loop style="display:none;">
+  <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3" type="audio/mpeg">
+</audio>
+<div id="music-ctrl" style="position:fixed;bottom:18px;right:18px;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:8px;font-family:'Courier New',monospace;font-size:.7rem;color:#8b949e;">
+  <span id="music-icon" style="cursor:pointer;font-size:.9rem;" onclick="toggleMusic()">🔊</span>
+  <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35" style="width:70px;accent-color:#58a6ff;cursor:pointer;" oninput="document.getElementById('bg-music').volume=this.value">
+  <span style="font-size:.6rem;color:#444d56;letter-spacing:.05em;">BGM</span>
+</div>
+
+<script>
+(function(){
+  var music = document.getElementById('bg-music');
+  var muted = false;
+  music.volume = 0.35;
+  function start() {
+    music.play().catch(function(){});
+    document.removeEventListener('click', start);
+  }
+  document.addEventListener('click', start);
+  window.toggleMusic = function() {
+    muted = !muted;
+    music.muted = muted;
+    document.getElementById('music-icon').textContent = muted ? '🔇' : '🔊';
+  };
+})();
+
+function showVideo() {
+  document.getElementById('screen-victory').style.display = 'none';
+  var outro = document.getElementById('screen-outro');
+  outro.style.display = 'flex';
+
+  var music = document.getElementById('bg-music');
+  music.pause();
+  music.volume = 0;
+  document.getElementById('music-ctrl').style.display = 'none';
+
+  var video = document.getElementById('outro-video');
+  video.muted = false;
+  video.play();
+
+  video.onended = function() {
+    video.style.display = 'none';
+    document.getElementById('video-hint').style.display = 'none';
+    document.getElementById('credits').style.display = 'block';
+  };
+}
+</script>
+
+</body>
+</html>

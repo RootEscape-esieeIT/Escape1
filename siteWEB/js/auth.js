@@ -4,64 +4,28 @@ function doLogin() {
   const pass = document.getElementById('input-pass').value;
   if (user === '') { alert('Veuillez entrer votre identifiant.'); return; }
 
-  document.getElementById('screen-login').classList.remove('active');
-  document.getElementById('screen-preview').classList.add('active');
-  document.title = 'GITHYRULE · Dashboard';
-
-  // Stocker le mot de passe pour le timer
+  // Stocker le mot de passe pour le timer (caché du joueur)
   window._playerPassword = pass;
 
+  // Masquer le login, afficher le preview du dépôt
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-preview').classList.add('active');
+  document.title = 'GITHYRULE · ' + user;
+
+  // Après 3s sur le preview → glitch
   setTimeout(triggerGlitch, 3000);
 }
 
+/* ── Glitch overlay → narration ── */
 function triggerGlitch() {
+  document.getElementById('screen-preview').classList.remove('active');
   const overlay = document.getElementById('glitch-overlay');
   overlay.classList.add('show');
-  setTimeout(() => {
+  setTimeout(function () {
     overlay.classList.remove('show');
-    document.getElementById('screen-preview').classList.remove('active');
     document.getElementById('screen-narration').classList.add('active');
     document.title = 'GITHYRULE · Alerte sécurité';
-    startNarration();
+    startNarration();           // défini dans game.js
+    window.playMusic();         // musique démarre ICI, pas avant
   }, 1500);
-}
-
-/* ===================== NARRATION ===================== */
-let currentSlide = 1;
-const TOTAL_SLIDES = 4;
-let narrationTimer = null;
-
-function startNarration() { showSlide(1); scheduleNext(); }
-
-function scheduleNext() {
-  if (currentSlide < TOTAL_SLIDES) {
-    narrationTimer = setTimeout(() => {
-      currentSlide++;
-      showSlide(currentSlide);
-      if (currentSlide < TOTAL_SLIDES) scheduleNext();
-    }, 4000);
-  }
-}
-
-function showSlide(n) {
-  for (let i = 1; i <= TOTAL_SLIDES; i++) {
-    const slide = document.getElementById('slide-' + i);
-    const dot   = document.getElementById('dot-'   + i);
-    if (slide) slide.classList.toggle('active', i === n);
-    if (dot) {
-      dot.classList.toggle('active', i === n);
-      dot.classList.toggle('done',   i < n);
-    }
-  }
-  currentSlide = n;
-}
-
-function skipToSlide(n) { clearTimeout(narrationTimer); showSlide(n); }
-
-function startGame() {
-  clearTimeout(narrationTimer);
-  document.getElementById('screen-narration').classList.remove('active');
-  document.getElementById('screen-game').classList.add('active');
-  document.title = 'GITHYRULE · Incident de sécurité';
-  initGame(window._playerPassword || '');
 }

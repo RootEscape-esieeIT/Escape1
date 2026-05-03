@@ -33,7 +33,7 @@ html, body {
 }
 
 /* SCREENS */
-.screen { display: none; position: fixed; inset: 0; flex-direction: column; overflow: hidden; }
+.screen { display: none; position: fixed; inset: 0; flex-direction: column; overflow: hidden; width: 100%; height: 100%; }
 .screen.active { display: flex; }
 
 /* =============================================
@@ -287,6 +287,12 @@ html, body {
 #screen-narration {
   background: var(--gh-bg);
   align-items: center; justify-content: center;
+  display: none;
+}
+#screen-narration.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .narration-container {

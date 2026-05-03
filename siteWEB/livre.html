@@ -100,9 +100,41 @@ body{background:var(--bg);color:var(--ink);font-family:var(--fb);min-height:100v
 .victory-close{margin-top:1.2rem;padding:.7rem 2rem;background:var(--accent);color:#faf7f2;border:none;cursor:pointer;font-family:var(--fb);font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}
 .victory-close:hover{background:var(--accent2)}
 .fs-sm{--reading-size:.95rem}.fs-md{--reading-size:1.08rem}.fs-lg{--reading-size:1.22rem}.fs-xl{--reading-size:1.38rem}
+
+/* ── GITHYRULE header & back button overlay ── */
+#gh-topbar{
+  position:fixed;top:0;left:0;right:0;height:44px;
+  background:#161b22;border-bottom:1px solid #30363d;
+  display:flex;align-items:center;padding:0 20px;gap:14px;
+  z-index:500;font-family:'Courier New',monospace;
+}
+.gh-bar-logo{font-size:1rem;font-weight:700;color:#f0f6fc;letter-spacing:.1em;}
+.gh-bar-path{font-size:.7rem;color:#8b949e;}
+.gh-bar-path span{color:#58a6ff;}
+.gh-bar-glitch{color:#ff4444;animation:gh-glitch 2s infinite;font-size:.65rem;}
+@keyframes gh-glitch{0%,100%{opacity:1}50%{opacity:.4}}
+.gh-bar-back{
+  margin-left:auto;
+  color:#8b949e;font-size:.72rem;text-decoration:none;
+  font-family:'Courier New',monospace;letter-spacing:.05em;
+  border:1px solid #30363d;padding:4px 10px;border-radius:3px;
+  transition:color .15s,border-color .15s;
+}
+.gh-bar-back:hover{color:#58a6ff;border-color:#58a6ff;}
+/* décaler le contenu existant pour laisser place au header fixe */
+#cover{padding-top:calc(44px + 3rem);}
+#progress-bar{top:96px !important;}/* 44px gh + 52px topbar */
+#topbar{top:44px !important;}
 </style>
 </head>
 <body>
+
+<!-- ══ GITHYRULE NAV BAR ══ -->
+<div id="gh-topbar">
+  <div class="gh-bar-logo">GITHYRULE</div>
+  <div class="gh-bar-path">/ <span>livre.html</span> <span class="gh-bar-glitch">[FRAGMENT]</span></div>
+  <span class="gh-bar-back" onclick="window.close()" style="cursor:pointer;">← Fermer et retourner à GITHYRULE</span>
+</div>
 
 <div id="cover">
   <div class="cover-frame">
@@ -189,6 +221,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--fb);min-height:100v
       <em>&#8212; Sherlock Holmes, 221B Baker Street</em>
     </div>
     <button class="victory-close" onclick="closeVictory()">Refermer le dossier</button>
+    <br>
+    <span onclick="window.close()" style="display:inline-block;margin-top:.8rem;font-family:'Courier New',monospace;font-size:.73rem;color:#8b949e;text-decoration:none;letter-spacing:.05em;border:1px solid #d4c4a0;padding:5px 14px;border-radius:3px;cursor:pointer;transition:color .15s,border-color .15s;" onmouseover="this.style.color='#8b2c0a';this.style.borderColor='#8b2c0a'" onmouseout="this.style.color='#8b949e';this.style.borderColor='#d4c4a0'">← Fermer et retourner à GITHYRULE</span>
   </div>
 </div>
 
@@ -347,6 +381,9 @@ function closeDecoder(){
   document.getElementById("decode-result").className = "decode-result";
 }
 function showVictory(){
+  // ── Marquer l'énigme comme résolue dans localStorage ──
+  try { localStorage.setItem('enigme_livre', 'done'); } catch(e) {}
+
   document.getElementById("victory-modal").classList.add("open");
   var el = document.getElementById("victory-word");
   el.textContent = "";

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>GITHYRULE · Game Over</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>.screen{display:none}.screen.active{display:block}</style>
+  <style>
+    @keyframes fadein { from { opacity:0; } to { opacity:1; } }
+    @keyframes creditsRoll { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes glitchBig {
+      0%,100% { text-shadow:none; opacity:1; }
+      92%      { text-shadow:none; opacity:1; }
+      93%      { text-shadow:4px 0 #ff4444,-4px 0 #58a6ff; opacity:.8; transform:skewX(-2deg); }
+      94%      { text-shadow:-4px 0 #ff4444,4px 0 #58a6ff; opacity:1; transform:skewX(1deg); }
+      95%      { text-shadow:none; opacity:1; transform:skewX(0); }
+    }
+    body { background:#0d1117; margin:0; }
+  </style>
+</head>
+<body>
+
+<!-- ===== GAME OVER ===== -->
+<div id="screen-gameover" style="display:flex;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;text-align:center;background:#0d1117;position:relative;">
+
+  <!-- Scanlines -->
+  <div style="position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.18) 2px,rgba(0,0,0,.18) 4px);z-index:0;"></div>
+
+  <div style="position:relative;z-index:1;">
+    <div style="font-family:'Courier New',monospace;font-size:.7rem;letter-spacing:.4em;color:#da3633;text-transform:uppercase;margin-bottom:1.5rem;animation:fadein .5s;">
+      ── INCIDENT #4782 · SESSION EXPIRÉE ──
+    </div>
+
+    <div style="font-family:'Courier New',monospace;font-size:clamp(3rem,12vw,7rem);font-weight:900;letter-spacing:.15em;color:#da3633;line-height:1;margin-bottom:.5rem;animation:glitchBig 3s infinite;">
+      GAME<br>OVER
+    </div>
+
+    <div style="font-family:'Courier New',monospace;font-size:.85rem;color:#ff7b72;letter-spacing:.15em;margin-bottom:3rem;animation:fadein 1s .3s both;">
+      [ TEMPS ÉCOULÉ ]
+    </div>
+
+    <div style="background:#160b0b;border:1px solid #da3633;border-radius:8px;padding:1.5rem 2rem;max-width:480px;margin:0 auto 2.5rem;text-align:left;">
+      <div style="font-family:'Courier New',monospace;font-size:.6rem;color:#da3633;letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;">// RAPPORT D'INCIDENT</div>
+      <div style="font-family:'Courier New',monospace;font-size:.8rem;color:#8b949e;line-height:2.2;">
+        <span style="color:#ff7b72;">STATUS</span> &nbsp;&nbsp;&nbsp;: ÉCHEC — délai dépassé<br>
+        <span style="color:#ff7b72;">DONNÉES</span> &nbsp;: <span style="color:#da3633;">INTROUVABLES</span><br>
+        <span style="color:#ff7b72;">DÉPÔTS</span> &nbsp;&nbsp;: <span style="color:#da3633;">DÉFINITIVEMENT CHIFFRÉS</span><br>
+        <span style="color:#ff7b72;">ACCÈS</span> &nbsp;&nbsp;&nbsp;: <span style="color:#da3633;">RÉVOQUÉ</span>
+      </div>
+    </div>
+
+    <div style="color:#8b949e;font-size:.82rem;line-height:1.8;margin-bottom:2.5rem;max-width:420px;">
+      Vos fichiers ont été <strong style="color:#ff7b72;">définitivement exfiltrés</strong>.<br>
+      L'attaquant a effacé toute trace. Il ne reste rien.
+    </div>
+
+    <button onclick="showVideo()"
+      style="background:#da3633;color:white;border:none;padding:.8rem 2.8rem;font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.12em;cursor:pointer;border-radius:6px;transition:background .2s;"
+      onmouseover="this.style.background='#ff4444'" onmouseout="this.style.background='#da3633'">
+      ▶ Voir la vidéo de fin
+    </button>
+  </div>
+</div>
+
+<!-- ===== VIDÉO + GÉNÉRIQUE ===== -->
+<div id="screen-outro" style="display:none;min-height:100vh;background:#000;flex-direction:column;align-items:center;justify-content:center;">
+
+  <video id="outro-video" style="width:100%;max-width:900px;max-height:70vh;display:block;" controls>
+    <source src="media/defaite.mp4" type="video/mp4">
+    Votre navigateur ne supporte pas la lecture vidéo.
+  </video>
+  <div id="video-hint" style="display:none;font-family:'Courier New',monospace;font-size:.8rem;color:#8b949e;margin-top:.8rem;letter-spacing:.1em;">
+    ▶ Appuyez sur Play pour lancer la vidéo avec le son
+  </div>
+
+  <!-- Générique — apparaît après la vidéo -->
+  <div id="credits" style="display:none;text-align:center;padding:4rem 2rem;animation:creditsRoll 1.2s ease both;">
+    <div style="font-family:'Courier New',monospace;font-size:.6rem;letter-spacing:.4em;color:#444d56;text-transform:uppercase;margin-bottom:2.5rem;">
+      — FIN —
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:.7rem;letter-spacing:.25em;color:#8b949e;text-transform:uppercase;margin-bottom:1.2rem;">
+      Un jeu créé par
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:clamp(2rem,6vw,3.5rem);font-weight:700;letter-spacing:.2em;color:#f0f6fc;margin-bottom:.4rem;">
+      Aymeric
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:1rem;color:#444d56;margin-bottom:.4rem;">&amp;</div>
+    <div style="font-family:'Courier New',monospace;font-size:clamp(2rem,6vw,3.5rem);font-weight:700;letter-spacing:.2em;color:#f0f6fc;margin-bottom:3rem;">
+      Kanisvaran
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:.65rem;letter-spacing:.2em;color:#30363d;text-transform:uppercase;margin-bottom:.4rem;">
+      GITHYRULE · RootEscape-esieeIT
+    </div>
+    <div style="font-family:'Courier New',monospace;font-size:.6rem;color:#21262d;margin-bottom:3.5rem;">
+      © 2026 · MIT License
+    </div>
+    <button onclick="window.location.href='index.html'"
+      style="background:transparent;color:#8b949e;border:1px solid #30363d;padding:.65rem 2.2rem;font-family:'Courier New',monospace;font-size:.75rem;letter-spacing:.12em;cursor:pointer;border-radius:4px;transition:all .2s;"
+      onmouseover="this.style.color='#58a6ff';this.style.borderColor='#58a6ff'"
+      onmouseout="this.style.color='#8b949e';this.style.borderColor='#30363d'">
+      ↩ Rejouer
+    </button>
+  </div>
+</div>
+
+<!-- Musique game over : Unseen Horrors – Kevin MacLeod | CC BY 3.0 | incompetech.com -->
+<audio id="bg-music" loop style="display:none;">
+  <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Unseen%20Horrors.mp3" type="audio/mpeg">
+</audio>
+<div id="music-ctrl" style="position:fixed;bottom:18px;right:18px;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:8px;font-family:'Courier New',monospace;font-size:.7rem;color:#8b949e;">
+  <span id="music-icon" style="cursor:pointer;font-size:.9rem;" onclick="toggleMusic()">🔊</span>
+  <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35" style="width:70px;accent-color:#58a6ff;cursor:pointer;" oninput="document.getElementById('bg-music').volume=this.value">
+  <span style="font-size:.6rem;color:#444d56;letter-spacing:.05em;">BGM</span>
+</div>
+
+<script>
+(function(){
+  var music = document.getElementById('bg-music');
+  var muted = false;
+  music.volume = 0.35;
+  // Démarre dès l'arrivée sur la page
+  music.play().catch(function(){
+    // Si bloqué par le navigateur, on attend un clic
+    document.addEventListener('click', function start() {
+      music.play().catch(function(){});
+      document.removeEventListener('click', start);
+    });
+  });
+  window.toggleMusic = function() {
+    muted = !muted;
+    music.muted = muted;
+    document.getElementById('music-icon').textContent = muted ? '🔇' : '🔊';
+  };
+})();
+
+function showVideo() {
+  document.getElementById('screen-gameover').style.display = 'none';
+  var outro = document.getElementById('screen-outro');
+  outro.style.display = 'flex';
+
+  var music = document.getElementById('bg-music');
+  music.pause();
+  music.volume = 0;
+  document.getElementById('music-ctrl').style.display = 'none';
+
+  var video = document.getElementById('outro-video');
+  video.muted = false;
+  video.play();
+
+  video.onended = function() {
+    video.style.display = 'none';
+    document.getElementById('video-hint').style.display = 'none';
+    document.getElementById('credits').style.display = 'block';
+  };
+}
+</script>
+
+</body>
+</html>

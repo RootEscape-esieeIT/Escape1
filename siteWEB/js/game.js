@@ -1,11 +1,51 @@
+/* ===================== NARRATION ===================== */
+let currentSlide = 1;
+const TOTAL_SLIDES = 4;
+let narrationTimer = null;
+
+function startNarration() { showSlide(1); scheduleNext(); }
+
+function scheduleNext() {
+  if (currentSlide < TOTAL_SLIDES) {
+    narrationTimer = setTimeout(function () {
+      currentSlide++;
+      showSlide(currentSlide);
+      if (currentSlide < TOTAL_SLIDES) scheduleNext();
+    }, 4000);
+  }
+}
+
+function showSlide(n) {
+  for (let i = 1; i <= TOTAL_SLIDES; i++) {
+    const slide = document.getElementById('slide-' + i);
+    const dot   = document.getElementById('dot-' + i);
+    if (slide) slide.classList.toggle('active', i === n);
+    if (dot) {
+      dot.classList.toggle('active', i === n);
+      dot.classList.toggle('done',   i < n);
+    }
+  }
+  currentSlide = n;
+}
+
+function skipToSlide(n) { clearTimeout(narrationTimer); showSlide(n); }
+
+function startGame() {
+  clearTimeout(narrationTimer);
+  document.getElementById('screen-narration').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  document.title = 'GITHYRULE · Incident de sécurité';
+  initGame(window._playerPassword || '');
+}
+
 /* ===================== GAME ===================== */
 let timeLeft = 300;
 let countdownInterval = null;
 
 const ENIGMAS = {
-  livre: false,
-  film: false,
-  youtube: false,
+  livre:     false,
+  film:      false,
+  youtube:   false,
   wikipedia: false,
 };
 
@@ -22,7 +62,7 @@ function calculateSurvivalTime(password) {
 function initGame(password) {
   timeLeft = calculateSurvivalTime(password);
 
-  // Masquer le timer — le joueur ne doit pas savoir combien de temps il lui reste
+  // Timer invisible — le joueur ne sait pas combien de temps il lui reste
   const timerEl = document.getElementById('gh-timer');
   if (timerEl) timerEl.style.display = 'none';
 
@@ -35,9 +75,12 @@ function initGame(password) {
   addLog('ÉTAPE 3 : Exécutez crypt.py sur cette image pour le mot de passe final.');
   addLog('───────────────────────────────────────────────');
 
-  countdownInterval = setInterval(() => {
+  countdownInterval = setInterval(function () {
     timeLeft--;
-    if (timeLeft <= 0) { clearInterval(countdownInterval); systemLockdown(); }
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      systemLockdown();
+    }
   }, 1000);
 }
 
@@ -46,7 +89,11 @@ function markEnigmaDone(enigmaKey) {
   ENIGMAS[enigmaKey] = true;
 
   const badge = document.getElementById('badge-' + enigmaKey);
-  if (badge) { badge.textContent = '✅ Résolu'; badge.classList.remove('err'); badge.style.color = '#3fb950'; }
+  if (badge) {
+    badge.textContent = '✅ Résolu';
+    badge.classList.remove('err');
+    badge.style.color = '#3fb950';
+  }
 
   const msgs = {
     livre:     ['✅ livre.html résolu — mot secret : PIXEL.', '💡 PIXEL = PixelApple.svg sur Wikimedia Commons.'],
@@ -54,19 +101,22 @@ function markEnigmaDone(enigmaKey) {
     youtube:   ['✅ youtube.html résolu — code : 23-06-1912.', '📅 23 juin 1912 = naissance d\'Alan Turing. La pomme empoisonnée.'],
     wikipedia: ['✅ wikipedia.html résolu — chaîne : Newton.', '🍎 Isaac Newton + la pomme. Tout converge.'],
   };
-  (msgs[enigmaKey] || [`✅ Énigme "${enigmaKey}" résolue.`]).forEach(m => addLog(m));
+  (msgs[enigmaKey] || ['✅ Énigme "' + enigmaKey + '" résolue.']).forEach(m => addLog(m));
   checkAllEnigmasDone();
 }
 
 function checkAllEnigmasDone() {
-  const allDone = Object.values(ENIGMAS).every(v => v === true);
-  if (allDone) {
-    addLog('───────────────────────────────────────────────');
-    addLog('🔓 Toutes les énigmes résolues. La clé : PixelApple.svg');
-    addLog('▶ Lancez crypt.py avec : https://upload.wikimedia.org/wikipedia/commons/8/84/PixelApple.svg');
-    addLog('▶ Entrez le mot de passe (30 chars) ci-dessous pour terminer.');
-    document.getElementById('solution-zone').style.display = 'block';
-    document.getElementById('solution-zone').scrollIntoView({ behavior: 'smooth' });
+  if (!Object.values(ENIGMAS).every(v => v === true)) return;
+
+  addLog('───────────────────────────────────────────────');
+  addLog('🔓 Toutes les énigmes résolues. La clé : PixelApple.svg');
+  addLog('▶ Lancez crypt.py avec : https://upload.wikimedia.org/wikipedia/commons/8/84/PixelApple.svg');
+  addLog('▶ Entrez le mot de passe (30 chars) ci-dessous pour terminer.');
+
+  const sz = document.getElementById('solution-zone');
+  if (sz) {
+    sz.style.display = 'block';
+    sz.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
@@ -91,11 +141,10 @@ async function checkFinalCode() {
     COMPUTED_FINAL_PASSWORD = clean.slice(0, 30);
   } catch (e) {
     addLog('⚠ Impossible de contacter le serveur. Vérification locale impossible.');
-    addLog('Assurez-vous d\'avoir le bon mot de passe de crypt.py.');
     if (input.length === 30 && /^[A-Za-z0-9XY]+$/.test(input)) {
       triggerWin();
     } else {
-      addLog('Format de mot de passe invalide (30 caractères alphanumériques attendus).');
+      addLog('Format invalide (30 caractères alphanumériques attendus).');
     }
     return;
   }
@@ -113,9 +162,10 @@ async function checkFinalCode() {
 
 function addLog(text) {
   const logBox = document.getElementById('logs');
-  const entry  = document.createElement('div');
-  const ts     = new Date().toISOString().substring(11, 19);
-  entry.textContent = `[${ts}] ${text}`;
+  if (!logBox) return;
+  const entry = document.createElement('div');
+  const ts = new Date().toISOString().substring(11, 19);
+  entry.textContent = '[' + ts + '] ' + text;
   logBox.appendChild(entry);
   logBox.scrollTop = logBox.scrollHeight;
 }
@@ -128,16 +178,16 @@ function openModule(fileName) {
     wikipedia: 'wikipedia.html',
   };
   if (pages[fileName]) {
-    addLog(`Ouverture de ${fileName}.html dans un environnement sandbox...`);
+    addLog('Ouverture de ' + fileName + '.html dans un environnement sandbox...');
     window.open(pages[fileName], '_blank');
   } else {
     addLog('Accès refusé : fichier verrouillé par le processus système.');
   }
 }
 
-// Polling localStorage — détection résolution des épreuves
-const _poll = setInterval(() => {
-  ['livre', 'film', 'youtube', 'wikipedia'].forEach(key => {
+/* ── Polling localStorage pour détecter les énigmes résolues ── */
+setInterval(function () {
+  ['livre', 'film', 'youtube', 'wikipedia'].forEach(function (key) {
     const val = localStorage.getItem('enigme_' + key);
     if (val === 'done' && !ENIGMAS[key]) {
       localStorage.removeItem('enigme_' + key);
@@ -146,15 +196,14 @@ const _poll = setInterval(() => {
   });
 }, 1000);
 
+/* ── Game over : écran de lockdown sans alert() ── */
 function systemLockdown() {
-  addLog('FATAL: Suppression des données initiée. Délai expiré.');
-  alert('Délai expiré. Accès révoqué. Tous vos dépôts ont été supprimés.');
-  location.reload();
+  clearInterval(countdownInterval);
+  window.location.href = 'gameover.html';
 }
 
+/* ── Victoire ── */
 function triggerWin() {
   clearInterval(countdownInterval);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-victory').classList.add('active');
-  document.title = 'GITHYRULE · Accès restauré';
+  window.location.href = 'win.html';
 }
