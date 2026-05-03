@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>GITHYRULE · Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
   <style>/* Tout le CSS est dans style.css */</style>
 </head>
 <body>
@@ -24,13 +24,13 @@
 
   <!-- SVG watermark discret qui clignote en fond -->
   <div class="login-svg-watermark">
-    <img src="logov1.svg" alt="">
+    <img src="logo/logov1.svg" alt="">
   </div>
 
   <div class="login-main">
     <!-- Big logo -->
     <div class="login-logo-wrap">
-      <img src="logo.png" class="login-logo-img" alt="Githyrule">
+      <img src="logo/logo.png" class="login-logo-img" alt="Githyrule">
       <div class="login-brand">GITHYRULE</div>
     </div>
 
@@ -46,7 +46,7 @@
           Password
           <a href="#" style="font-weight:400;color:var(--gh-accent);font-size:.8rem;">Forgot password?</a>
         </label>
-        <input type="password" class="field-input" placeholder="Password">
+        <input type="password" id="input-pass" class="field-input" placeholder="Password">
       </div>
       <button class="btn-signin" onclick="doLogin()">Sign in</button>
       <div class="login-card-footer">
@@ -69,9 +69,22 @@
     <a href="#">Docs</a>
     <a href="#">Contact</a>
     <a href="#">Manage cookies</a>
+    <a href="#" style="font-size:.65rem;color:var(--gh-muted);" onclick="document.getElementById('license-modal').style.display='flex';return false;">License</a>
     <br>
     © 2026 RootEscape  · All rights reserved
   </footer>
+</div>
+
+<!-- LICENSE MODAL -->
+<div id="license-modal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.75);" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#161b22;border:1px solid #30363d;border-radius:8px;max-width:560px;width:90%;padding:2rem;position:relative;font-family:'Courier New',monospace;font-size:.72rem;color:#8b949e;line-height:1.7;">
+    <button onclick="document.getElementById('license-modal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#8b949e;font-size:1.1rem;cursor:pointer;">✕</button>
+    <div style="font-size:.65rem;letter-spacing:.2em;color:#58a6ff;text-transform:uppercase;margin-bottom:1rem;">MIT License</div>
+    <div>Copyright (c) 2026 RootEscape-esieeIT</div><br>
+    <div>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</div><br>
+    <div>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</div><br>
+    <div style="color:#444d56;">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</div>
+  </div>
 </div>
 
 <!-- ===== SCREEN 2: GITHUB PREVIEW (3s flash) ===== -->
@@ -157,12 +170,13 @@
 
     <!-- SLIDE 4 — CTA -->
     <div class="narration-slide" id="slide-4">
-      <div class="narration-icon">⏱️</div>
-      <div class="narration-chapter">Récupération · Temps limité</div>
-      <div class="narration-title">Agissez vite — <span class="red">5 minutes</span></div>
+      <div class="narration-icon">⚡</div>
+      <div class="narration-chapter">Récupération · Protocole d'urgence</div>
+      <div class="narration-title">Vous êtes <span class="red">seul</span></div>
       <div class="narration-text">
-        Après <span class="danger">5 minutes</span>, le système initiera une <strong>suppression définitive</strong> de tous vos dépôts et données.<br><br>
-        Trouvez le code. Restaurez l'accès. <strong>C'est votre seule chance.</strong>
+        Aucune aide. Aucun indice. Aucun filet de sécurité.<br><br>
+        Le système se <span class="danger">dégradera</span> — vous ne saurez pas quand. Trouvez le code avant qu'il ne soit trop tard.<br><br>
+        <strong>Tout repose sur ce que vous découvrirez par vous-même.</strong>
       </div>
       <button class="narration-cta" onclick="startGame()"><span>Lancer la récupération</span></button>
     </div>
@@ -229,22 +243,22 @@
         <li class="gh-file-item" onclick="openModule('livre')">
           <span class="gh-file-icon">📄</span>
           <span class="gh-file-name">livre.html</span>
-          <span class="gh-file-meta err">Integrity Error · Cliquez pour inspecter</span>
+          <span class="gh-file-meta err" id="badge-livre">Non résolu · Cliquez pour inspecter</span>
         </li>
-        <li class="gh-file-item" onclick="openModule('locked')">
-          <span class="gh-file-icon">📝</span>
-          <span class="gh-file-name">README.md</span>
-          <span class="gh-file-meta">Initial commit</span>
+        <li class="gh-file-item" onclick="openModule('film')">
+          <span class="gh-file-icon">🎬</span>
+          <span class="gh-file-name">film.html</span>
+          <span class="gh-file-meta err" id="badge-film">Non résolu · Données corrompues</span>
         </li>
-        <li class="gh-file-item" onclick="openModule('locked')">
-          <span class="gh-file-icon">🔒</span>
-          <span class="gh-file-name">security.cfg</span>
-          <span class="gh-file-meta err">Verrouillé · Processus système</span>
+        <li class="gh-file-item" onclick="openModule('youtube')">
+          <span class="gh-file-icon">▶</span>
+          <span class="gh-file-name">youtube.html</span>
+          <span class="gh-file-meta err" id="badge-youtube">Non résolu · Signal intercepté</span>
         </li>
-        <li class="gh-file-item" onclick="openModule('locked')">
-          <span class="gh-file-icon">🔒</span>
-          <span class="gh-file-name">nav_module.bin</span>
-          <span class="gh-file-meta err">Verrouillé · Corrompu</span>
+        <li class="gh-file-item" onclick="openModule('wikipedia')">
+          <span class="gh-file-icon">🔗</span>
+          <span class="gh-file-name">wikipedia.html</span>
+          <span class="gh-file-meta err" id="badge-wikipedia">Non résolu · Trace numérique</span>
         </li>
       </ul>
     </div>
@@ -253,10 +267,13 @@
   <!-- Zone de saisie du code final — visible uniquement après avoir complété toutes les énigmes -->
   <div id="solution-zone" style="display:none; padding:14px 24px 24px; border-top:1px solid var(--gh-border); background:var(--gh-surface); flex-shrink:0;">
     <div style="font-family:var(--font-mono);font-size:.6rem;color:var(--gh-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">
-      ✅ Toutes les énigmes résolues — Entrez le code de récupération
+      ✅ Toutes les énigmes résolues — Entrez le mot de passe cryptographique (30 chars)
+    </div>
+    <div style="font-size:.7rem;color:var(--gh-muted);margin-bottom:8px;font-family:var(--font-mono);">
+      💡 Lancez <code style="color:var(--gh-accent);">crypt.py</code> avec le SVG PixelApple de Wikimedia pour obtenir le mot de passe.
     </div>
     <div style="display:flex;gap:8px;">
-      <input id="solution-input" type="text" placeholder="CODE DE RÉCUPÉRATION"
+      <input id="solution-input" type="text" placeholder="MOT DE PASSE (30 CARACTÈRES)"
         style="flex:1;background:var(--gh-bg);border:1px solid var(--gh-border);border-bottom:2px solid var(--gh-red);color:var(--gh-fg);font-family:var(--font-mono);font-size:.85rem;letter-spacing:.15em;padding:10px 14px;outline:none;border-radius:4px;transition:border-bottom-color .2s;"
         onfocus="this.style.borderBottomColor='var(--gh-accent)'" onblur="this.style.borderBottomColor='var(--gh-red)'"
       >
@@ -269,170 +286,57 @@
   </div>
 </div><!-- end screen-game -->
 <div id="screen-victory" class="screen">
-  <div class="victory-icon">✅</div>
-  <div class="victory-title">Accès restauré</div>
-  <div class="victory-sub">Intégrité du système vérifiée. Tous vos dépôts sont de nouveau accessibles. Bien joué !</div>
-  <button class="btn-restart" onclick="location.reload()">Retour au Dashboard</button>
+  <div style="max-width:680px;margin:0 auto;padding:3rem 2rem;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:1.5rem;animation:fadein 1s;">✅</div>
+    <div style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gh-accent);margin-bottom:.5rem;">Accès restauré · Intégrité confirmée</div>
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:.2em;color:var(--gh-fg);margin-bottom:.5rem;" id="victory-word-main">PIXEL</h1>
+    <div style="color:var(--gh-muted);font-size:.85rem;margin-bottom:2.5rem;">Le mot caché derrière chaque indice</div>
+    
+    <div style="background:var(--gh-surface);border:1px solid var(--gh-border);border-radius:8px;padding:1.5rem;text-align:left;margin-bottom:2rem;">
+      <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;color:var(--gh-muted);margin-bottom:1rem;">// DOSSIER DE DÉCHIFFREMENT COMPLET</div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div style="font-size:.65rem;color:var(--gh-accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;">🍎 La Pomme</div>
+          <div style="font-size:.8rem;color:var(--gh-muted);line-height:1.8;">
+            <span style="color:var(--gh-fg);">Newton</span> — la pomme qui tombe<br>
+            <span style="color:var(--gh-fg);">Turing</span> — la pomme empoisonnée<br>
+            <span style="color:var(--gh-fg);">Blanche-Neige</span> — la pomme du conte<br>
+            <span style="color:var(--gh-fg);">Adam & Ève</span> — la pomme originelle<br>
+            <span style="color:var(--gh-fg);">Apple ↗</span> — <code style="font-size:.7rem;color:var(--gh-accent);">PixelApple.svg</code>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;color:var(--gh-accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;">🖼 Le Pixel</div>
+          <div style="font-size:.8rem;color:var(--gh-muted);line-height:1.8;">
+            <span style="color:var(--gh-fg);">Pixel War</span> — Reddit 2022<br>
+            <span style="color:var(--gh-fg);">Pixel (film)</span> — 2015<br>
+            <span style="color:var(--gh-fg);">Sherlock</span> — PIXEL (Polybe)<br>
+            <span style="color:var(--gh-fg);">YouTube</span> — 23061912<br>
+            <span style="color:var(--gh-fg);">Wikipedia</span> — Newton ↗
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--gh-surface);border:1px solid var(--gh-border);border-radius:8px;padding:1rem;margin-bottom:2rem;font-family:var(--font-mono);font-size:.75rem;color:var(--gh-muted);text-align:left;">
+      <span style="color:var(--gh-accent);">$</span> python3 crypt.py<br>
+      <span style="color:var(--gh-fg-dim);">Entrez le lien : </span>https://upload.wikimedia.org/wikipedia/commons/8/84/PixelApple.svg<br>
+      <span style="color:#3fb950;">[SUCCÈS]</span> Empreinte validée. Mot de passe → <span style="color:var(--gh-fg);">••••••••••••••••••••••••••••••</span>
+    </div>
+
+    <div style="color:var(--gh-muted);font-size:.8rem;margin-bottom:2rem;">
+      Félicitations — vous avez reconstitué l'identité numérique cachée dans chaque énigme.<br>
+      La sécurité informatique repose sur ce que vous <em>savez</em>, ce que vous <em>avez</em>, et ce que vous <em>êtes</em>.
+    </div>
+
+    <button class="btn-restart" onclick="location.reload()" style="background:var(--gh-accent);color:white;border:none;padding:.75rem 2rem;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;cursor:pointer;border-radius:6px;">
+      ↩ Retour au Dashboard
+    </button>
+  </div>
 </div>
 
-<script>
-  /* ===================== AUTH ===================== */
-  function doLogin() {
-    const user = document.getElementById('input-user').value.trim();
-    if (user === '') { alert('Veuillez entrer votre identifiant.'); return; }
-
-    document.getElementById('screen-login').classList.remove('active');
-    document.getElementById('screen-preview').classList.add('active');
-    document.title = 'GITHYRULE · Dashboard';
-
-    setTimeout(triggerGlitch, 3000);
-  }
-
-  function triggerGlitch() {
-    const overlay = document.getElementById('glitch-overlay');
-    overlay.classList.add('show');
-    setTimeout(() => {
-      overlay.classList.remove('show');
-      document.getElementById('screen-preview').classList.remove('active');
-      document.getElementById('screen-narration').classList.add('active');
-      document.title = 'GITHYRULE · Alerte sécurité';
-      startNarration();
-    }, 1500);
-  }
-
-  /* ===================== NARRATION ===================== */
-  let currentSlide = 1;
-  const TOTAL_SLIDES = 4;
-  let narrationTimer = null;
-
-  function startNarration() { showSlide(1); scheduleNext(); }
-
-  function scheduleNext() {
-    if (currentSlide < TOTAL_SLIDES) {
-      narrationTimer = setTimeout(() => {
-        currentSlide++;
-        showSlide(currentSlide);
-        if (currentSlide < TOTAL_SLIDES) scheduleNext();
-      }, 4000);
-    }
-  }
-
-  function showSlide(n) {
-    for (let i = 1; i <= TOTAL_SLIDES; i++) {
-      const slide = document.getElementById('slide-' + i);
-      const dot   = document.getElementById('dot-'   + i);
-      if (slide) slide.classList.toggle('active', i === n);
-      if (dot) {
-        dot.classList.toggle('active', i === n);
-        dot.classList.toggle('done',   i < n);
-      }
-    }
-    currentSlide = n;
-  }
-
-  function skipToSlide(n) { clearTimeout(narrationTimer); showSlide(n); }
-
-  function startGame() {
-    clearTimeout(narrationTimer);
-    document.getElementById('screen-narration').classList.remove('active');
-    document.getElementById('screen-game').classList.add('active');
-    document.title = 'GITHYRULE · Incident de sécurité';
-    initGame();
-  }
-
-  /* ===================== GAME ===================== */
-  let timeLeft = 300;
-  let countdownInterval = null;
-
-  // Suivi des énigmes complétées — à ajuster selon tes énigmes réelles
-  const ENIGMAS = {
-    livre: false,
-    // Ajoute ici les autres énigmes : ex: enigme2: false, enigme3: false
-  };
-  const FINAL_CODE = "GITHYRULE 2026"; // Le code que les joueurs doivent trouver après toutes les énigmes
-
-  function initGame() {
-    addLog('Integrity check failed on core system.');
-    addLog('Navigation module data corrupted — read access only.');
-    addLog('Résolvez les énigmes pour reconstituer le code de récupération.');
-
-    // Timer silencieux — le joueur ne voit pas le compte à rebours
-    countdownInterval = setInterval(() => {
-      timeLeft--;
-      // Alerte subtile quand il reste peu de temps (sans montrer le chiffre)
-      if (timeLeft === 60) addLog('⚠ Système instable. Agissez rapidement.');
-      if (timeLeft === 30) addLog('⚠⚠ Corruption critique. Dernière chance.');
-      if (timeLeft <= 0) { clearInterval(countdownInterval); systemLockdown(); }
-    }, 1000);
-  }
-
-  /**
-   * Marque une énigme comme résolue et vérifie si toutes sont complètes
-   */
-  function markEnigmaDone(enigmaKey) {
-    if (ENIGMAS.hasOwnProperty(enigmaKey)) {
-      ENIGMAS[enigmaKey] = true;
-      addLog(`Énigme "${enigmaKey}" résolue. Fragment de code extrait.`);
-    }
-    checkAllEnigmasDone();
-  }
-
-  function checkAllEnigmasDone() {
-    const allDone = Object.values(ENIGMAS).every(v => v === true);
-    if (allDone) {
-      addLog('✅ Toutes les énigmes résolues. Code de récupération disponible.');
-      document.getElementById('solution-zone').style.display = 'block';
-    }
-  }
-
-  function checkFinalCode() {
-    const input = document.getElementById('solution-input').value.trim().toUpperCase();
-    if (input === FINAL_CODE) {
-      triggerWin();
-    } else {
-      addLog('Code incorrect. Vérifiez vos réponses.');
-      const inp = document.getElementById('solution-input');
-      inp.style.animation = 'none';
-      inp.offsetHeight; // reflow
-      inp.style.animation = 'input-shake .35s ease';
-    }
-  }
-
-  function addLog(text) {
-    const logBox = document.getElementById('logs');
-    const entry  = document.createElement('div');
-    const now    = new Date();
-    const ts     = now.toISOString().substring(11, 19);
-    entry.textContent = `[${ts}] ${text}`;
-    logBox.appendChild(entry);
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  function openModule(fileName) {
-    if (fileName === 'livre') {
-      addLog("Ouverture de livre.html dans un environnement sandbox...");
-      window.open('livre.html', '_blank');
-      // Simule la complétion de l'énigme livre après ouverture
-      // En prod : appeler markEnigmaDone('livre') depuis livre.html via window.opener ou localStorage
-      // Pour l'instant on marque après ouverture (à adapter selon ta logique)
-      setTimeout(() => markEnigmaDone('livre'), 2000);
-    } else {
-      addLog(`Accès refusé : fichier verrouillé par le processus système.`);
-    }
-  }
-
-  function systemLockdown() {
-    addLog('FATAL: Suppression des données initiée. Délai expiré.');
-    alert('Délai expiré. Accès révoqué. Tous vos dépôts ont été supprimés.');
-    location.reload();
-  }
-
-  function triggerWin() {
-    clearInterval(countdownInterval);
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-victory').classList.add('active');
-    document.title = 'GITHYRULE · Accès restauré';
-  }
-</script>
+<script src="js/auth.js"></script>
+<script src="js/game.js"></script>
 </body>
 </html>

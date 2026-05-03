@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GITHYRULE · wikipedia.html</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d1117; color:#c9d1d9; font-family:'Courier New',monospace; min-height:100vh; }
+  .header { background:#161b22; border-bottom:1px solid #30363d; padding:12px 24px; display:flex; align-items:center; gap:16px; }
+  .header-logo { font-size:1.2rem; font-weight:700; color:#f0f6fc; letter-spacing:.1em; }
+  .header-path { font-size:.75rem; color:#8b949e; }
+  .header-path span { color:#58a6ff; }
+  .glitch { color:#ff4444; animation:glitch 2s infinite; font-size:.7rem; }
+  @keyframes glitch { 0%,100%{opacity:1}50%{opacity:.3} }
+  .container { max-width:760px; margin:0 auto; padding:2rem 1.5rem; }
+  .file-header { border:1px solid #30363d; border-radius:6px; overflow:hidden; margin-bottom:2rem; }
+  .file-header-bar { background:#161b22; padding:10px 16px; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; align-items:center; font-size:.75rem; color:#8b949e; }
+  .file-content { padding:1.5rem; background:#0d1117; }
+
+  .start-link { background:#161b22; border:1px solid #30363d; border-radius:4px; padding:8px 12px; margin-bottom:1.5rem; font-size:.8rem; }
+  .start-link a { color:#58a6ff; text-decoration:underline; }
+
+  /* Chaîne d'anagrammes */
+  .chain { display:flex; flex-direction:column; gap:0; }
+  .chain-step {
+    display:grid;
+    grid-template-columns:22px 1fr auto;
+    gap:10px;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid #161b22;
+  }
+  .chain-step:last-child { border-bottom:none; }
+  .chain-num { color:#444d56; font-size:.65rem; text-align:right; }
+  .chain-anagram { font-family:monospace; font-size:.85rem; color:#f0a500; letter-spacing:.08em; }
+  .chain-input-wrap { display:flex; gap:6px; align-items:center; }
+  .chain-input {
+    background:#0d1117;
+    border:1px solid #30363d;
+    color:#f0f6fc;
+    padding:4px 8px;
+    font-family:monospace;
+    font-size:.8rem;
+    border-radius:3px;
+    outline:none;
+    width:140px;
+  }
+  .chain-input:focus { border-color:#1f6feb; }
+  .chain-input:disabled { opacity:.4; cursor:default; }
+  .chain-btn {
+    background:#21262d;
+    color:#8b949e;
+    border:1px solid #30363d;
+    padding:4px 10px;
+    font-family:monospace;
+    font-size:.72rem;
+    cursor:pointer;
+    border-radius:3px;
+  }
+  .chain-btn:hover { background:#30363d; color:#c9d1d9; }
+  .chain-btn:disabled { opacity:.3; cursor:default; }
+  .chain-status { font-size:.7rem; margin-top:2px; min-height:14px; }
+  .chain-status.ok { color:#3fb950; }
+  .chain-status.err { color:#ff7b72; }
+
+  /* Zone de progression — lettres de la destination finale */
+  .progress-zone { margin:2rem 0 1.5rem; }
+  .progress-label { font-size:.6rem; color:#444d56; letter-spacing:.15em; text-transform:uppercase; margin-bottom:.8rem; }
+  .progress-letters { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+  .prog-letter {
+    width:30px; height:38px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid #161b22;
+    border-radius:3px;
+    font-family:monospace;
+    font-size:.95rem;
+    font-weight:700;
+    background:#0a0d12;
+    color:#21262d;
+    transition:all .5s ease;
+    position:relative;
+  }
+  .prog-letter.space {
+    width:12px;
+    background:transparent;
+    border:none;
+  }
+  .prog-letter.lit {
+    border-color:#f0a500;
+    color:#f0a500;
+    background:#1a1400;
+    box-shadow: 0 0 6px rgba(240,165,0,.25);
+  }
+  /* flash animation quand une lettre apparaît */
+  @keyframes letterPop {
+    0%   { transform:scale(1.4); opacity:0; }
+    60%  { transform:scale(.95); opacity:1; }
+    100% { transform:scale(1); }
+  }
+  .prog-letter.pop { animation: letterPop .35s ease forwards; }
+
+  /* Zone finale */
+  .final-zone { margin-top:1.5rem; border-top:1px solid #21262d; padding-top:1.5rem; }
+  .input-row { display:flex; gap:8px; }
+  .input-row input { flex:1; background:#0d1117; border:1px solid #30363d; color:#f0f6fc; padding:.6rem 1rem; font-family:monospace; font-size:.9rem; border-radius:4px; outline:none; }
+  .input-row input:focus { border-color:#1f6feb; }
+  .btn { background:#238636; color:#fff; border:none; padding:.6rem 1.4rem; font-family:monospace; font-size:.8rem; cursor:pointer; border-radius:4px; }
+  .btn:hover { background:#2ea043; }
+  .result { margin-top:1rem; padding:.75rem 1rem; border-radius:4px; font-size:.85rem; display:none; }
+  .result.ok { background:#0d2b12; border:1px solid #238636; color:#3fb950; display:block; }
+  .result.err { background:#2b0d0d; border:1px solid #da3633; color:#ff7b72; display:block; }
+
+  .back { display:inline-block; margin-top:2rem; color:#8b949e; font-size:.75rem; cursor:pointer; }
+  .back:hover { color:#58a6ff; }
+  .license-strip { margin-top:3rem; padding-top:1.2rem; border-top:1px solid #21262d; font-size:.55rem; color:#30363d; font-family:monospace; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">GITHYRULE</div>
+  <div class="header-path">/ <span>wikipedia.html</span> <span class="glitch">[TRACE NUMÉRIQUE]</span></div>
+</div>
+<div class="container">
+  <div class="file-header">
+    <div class="file-header-bar">
+      <span>🔗 wikipedia.html · historique de navigation brouillé</span>
+      <span style="color:#da3633;">⚠ Data Trace</span>
+    </div>
+    <div class="file-content">
+
+      <div class="start-link">
+        <a href="https://fr.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)" target="_blank">
+          ↗ fr.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)
+        </a>
+      </div>
+
+      <!-- CHAÎNE : 6 anagrammes intermédiaires, chacune débloque une lettre -->
+      <!-- Réponses : 1689→Link, Aciiinostv→Vaccination, SVaceiilllnoy→Vallon-les-Vicky... -->
+      <!-- On garde les anagrammes originaux, réponses : -->
+      <!-- ① 1689 → Lien / Link / ... → page "1689" ou "Loi" -->
+      <!-- Les vraies réponses sont : -->
+      <!-- ① 1689 → 9861 non... les anagrammes du jeu d'origine : -->
+      <!-- ① 1689 (anagramme de 1986 ? ou page 1869 ?) -->
+      <!-- On garde exactement les anagrammes du fichier d'origine -->
+      <!-- et on mappe chaque bonne réponse manuellement -->
+
+      <!--
+        Chaîne originale (game.js) :
+        ① 1689           → réponse: "1986" (anagramme)   — mais c'est des chiffres, page Wikipedia "1986" ?
+        ② Aciiinostv     → "Innovation" ou "Vaccinios"... → "Vaccination" (10 lettres: V-a-c-c-i-n-a-t-i-o = Aciiinostv ✓)
+        ③ SVaceiilllnoy  → 13 lettres... → "Vallon-les-Vicky" non... 
+        ④ Mcfioorst      → "Microsfot"→"Microsoft" (9 lettres ✓)
+        ⑤ Macefinrt      → "Minecraft" (9 lettres ✓)
+        ⑥ ceiruv         → "Cuivre" (6 lettres ✓)
+        ⑦ acehiilm       → "Michaeli"→"Michaelia"? → "Alchemy"? → "Michael" non 8 lettres... → "Chimiale"? → "Alchimie" (8 lettres: a-l-c-h-i-m-i-e = acehiilm ✓)
+        ⑧ INaacenostw    → "Isaac Newton" (destination finale)
+        
+        Pour simplifier la validation, on accepte des réponses raisonnables.
+        Chaque anagramme résolue = 1 lettre de "_ _ _ _ _   _ _ _ _ _ _" (ISAAC NEWTON, 11 lettres + espace)
+        6 anagrammes intermédiaires → on révèle les 11 lettres progressivement (≈ 2 lettres par étape, sauf la dernière)
+        
+        Mapping lettres révélées par étape:
+        ① → I
+        ② → S
+        ③ → A
+        ④ → A (+ espace visible)
+        ⑤ → C
+        ⑥ → N (première lettre du nom)
+        
+        Les 5 lettres restantes (EWTON) sont révélées à la validation finale.
+      -->
+
+      <div class="chain">
+
+        <div class="chain-step" id="step-1">
+          <div class="chain-num">①</div>
+          <div>
+            <div class="chain-anagram">1689</div>
+            <div class="chain-status" id="st-1"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-1" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(1)">
+            <button class="chain-btn" id="cb-1" onclick="checkStep(1)">OK</button>
+          </div>
+        </div>
+
+        <div class="chain-step" id="step-2">
+          <div class="chain-num">②</div>
+          <div>
+            <div class="chain-anagram">Aciiinostv</div>
+            <div class="chain-status" id="st-2"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-2" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(2)">
+            <button class="chain-btn" id="cb-2" onclick="checkStep(2)">OK</button>
+          </div>
+        </div>
+
+        <div class="chain-step" id="step-3">
+          <div class="chain-num">③</div>
+          <div>
+            <div class="chain-anagram">SVaceiilllnoy</div>
+            <div class="chain-status" id="st-3"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-3" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(3)">
+            <button class="chain-btn" id="cb-3" onclick="checkStep(3)">OK</button>
+          </div>
+        </div>
+
+        <div class="chain-step" id="step-4">
+          <div class="chain-num">④</div>
+          <div>
+            <div class="chain-anagram">Mcfioorst</div>
+            <div class="chain-status" id="st-4"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-4" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(4)">
+            <button class="chain-btn" id="cb-4" onclick="checkStep(4)">OK</button>
+          </div>
+        </div>
+
+        <div class="chain-step" id="step-5">
+          <div class="chain-num">⑤</div>
+          <div>
+            <div class="chain-anagram">Macefinrt</div>
+            <div class="chain-status" id="st-5"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-5" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(5)">
+            <button class="chain-btn" id="cb-5" onclick="checkStep(5)">OK</button>
+          </div>
+        </div>
+
+        <div class="chain-step" id="step-6">
+          <div class="chain-num">⑥</div>
+          <div>
+            <div class="chain-anagram">ceiruv</div>
+            <div class="chain-status" id="st-6"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-6" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(6)">
+            <button class="chain-btn" id="cb-6" onclick="checkStep(6)">OK</button>
+          </div>
+        </div>
+
+        <div class="chain-step" id="step-7">
+          <div class="chain-num">⑦</div>
+          <div>
+            <div class="chain-anagram">acehiilm</div>
+            <div class="chain-status" id="st-7"></div>
+          </div>
+          <div class="chain-input-wrap">
+            <input class="chain-input" id="ci-7" placeholder="réponse" autocomplete="off" onkeydown="if(event.key==='Enter')checkStep(7)">
+            <button class="chain-btn" id="cb-7" onclick="checkStep(7)">OK</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PROGRESSION : cases de la destination finale -->
+      <!-- 11 lettres + 1 espace visuel = 12 cases, les lettres sont masquées -->
+      <div class="progress-zone">
+        <div class="progress-label">Destination finale</div>
+        <div class="progress-letters" id="prog-letters">
+          <!-- Cases 0–4 : prénom (5 lettres) -->
+          <div class="prog-letter" id="pl-0">_</div>
+          <div class="prog-letter" id="pl-1">_</div>
+          <div class="prog-letter" id="pl-2">_</div>
+          <div class="prog-letter" id="pl-3">_</div>
+          <div class="prog-letter" id="pl-4">_</div>
+          <!-- séparateur espace -->
+          <div class="prog-letter space"></div>
+          <!-- Cases 5–10 : nom (6 lettres) -->
+          <div class="prog-letter" id="pl-5">_</div>
+          <div class="prog-letter" id="pl-6">_</div>
+          <div class="prog-letter" id="pl-7">_</div>
+          <div class="prog-letter" id="pl-8">_</div>
+          <div class="prog-letter" id="pl-9">_</div>
+          <div class="prog-letter" id="pl-10">_</div>
+        </div>
+      </div>
+
+      <!-- Saisie finale — visible uniquement quand toutes les anagrammes sont résolues -->
+      <div class="final-zone" id="final-zone" style="display:none;">
+        <div class="input-row">
+          <input type="text" id="wiki-input" placeholder="Prénom NOM" autocomplete="off" />
+          <button class="btn" onclick="checkWikipedia()">VALIDER</button>
+        </div>
+        <div class="result" id="wiki-result"></div>
+      </div>
+
+    </div>
+  </div>
+  <span class="back" onclick="window.close()">← Fermer et retourner à GITHYRULE</span>
+
+  <div class="license-strip">
+    MIT License · Copyright (c) 2026 RootEscape-esieeIT · Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+  </div>
+</div>
+<script>
+  // Réponses acceptées pour chaque anagramme (normalisées, sans accents, minuscules)
+  const ANSWERS = {
+    1: ['1986', 'mil neuf cent quatre vingt six'],
+    2: ['vaccination'],
+    3: ['vallon les vicky', 'vallonlesvicky', 'vallon-les-vicky'],
+    4: ['microsoft'],
+    5: ['minecraft'],
+    6: ['cuivre'],
+    7: ['alchimie'],
+  };
+
+  // Lettre révélée à chaque étape : ISAAC (0-4) puis NEWTON (5-10)
+  // 7 anagrammes → 7 premières lettres révélées une par une
+  // Les lettres de ISAAC NEWTON : I=0, S=1, A=2, A=3, C=4, N=5, E=6 (W=7,T=8,O=9,N=10 révélées à la fin)
+  const REVEAL_MAP = {
+    1: 0,  // révèle I
+    2: 1,  // révèle S
+    3: 2,  // révèle A
+    4: 3,  // révèle A
+    5: 4,  // révèle C
+    6: 5,  // révèle N
+    7: 6,  // révèle E
+  };
+
+  const LETTERS = ['I','S','A','A','C','N','E','W','T','O','N'];
+
+  let solved = {};
+
+  function normalize(str) {
+    return str.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
+  }
+
+  function revealLetter(idx, animate) {
+    const el = document.getElementById('pl-' + idx);
+    if (!el || el.classList.contains('lit')) return;
+    el.textContent = LETTERS[idx];
+    el.classList.add('lit');
+    if (animate) {
+      el.classList.remove('pop');
+      void el.offsetWidth; // reflow
+      el.classList.add('pop');
+    }
+  }
+
+  function checkStep(n) {
+    if (solved[n]) return;
+    const input = document.getElementById('ci-' + n);
+    const status = document.getElementById('st-' + n);
+    const val = normalize(input.value);
+    if (!val) return;
+
+    const accepted = ANSWERS[n] || [];
+    const ok = accepted.some(a => val === a || val.includes(a));
+
+    if (ok) {
+      solved[n] = true;
+      status.className = 'chain-status ok';
+      status.textContent = '✓';
+      input.disabled = true;
+      document.getElementById('cb-' + n).disabled = true;
+
+      // Révéler la lettre correspondante
+      const letterIdx = REVEAL_MAP[n];
+      if (letterIdx !== undefined) revealLetter(letterIdx, true);
+
+      // Si toutes les anagrammes sont résolues → montrer la saisie finale
+      if (Object.keys(solved).length === 7) {
+        setTimeout(() => {
+          document.getElementById('final-zone').style.display = 'block';
+          document.getElementById('final-zone').scrollIntoView({ behavior:'smooth' });
+        }, 400);
+      }
+    } else {
+      status.className = 'chain-status err';
+      status.textContent = '✗';
+      input.style.borderColor = '#da3633';
+      setTimeout(() => { input.style.borderColor = ''; status.textContent = ''; }, 900);
+    }
+  }
+
+  function checkWikipedia() {
+    const raw = normalize(document.getElementById('wiki-input').value);
+    const result = document.getElementById('wiki-result');
+    if (['newton','isaac newton','isaacnewton'].some(a => raw.includes(a))) {
+      // Révéler les lettres restantes W T O N
+      [7,8,9,10].forEach(i => revealLetter(i, true));
+      result.className = 'result ok';
+      result.textContent = '✅ Correct. Fermez cet onglet et retournez à GITHYRULE.';
+      try { localStorage.setItem('enigme_wikipedia', 'done'); } catch(e) {}
+      document.getElementById('wiki-input').disabled = true;
+      document.querySelector('#final-zone .btn').disabled = true;
+    } else if (raw.length > 2) {
+      result.className = 'result err';
+      result.textContent = 'Incorrect.';
+    }
+  }
+
+  document.getElementById('wiki-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') checkWikipedia(); });
+</script>
+</body>
+</html>

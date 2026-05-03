@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GITHYRULE · film.html</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d1117; color:#c9d1d9; font-family:'Courier New',monospace; min-height:100vh; }
+  .header { background:#161b22; border-bottom:1px solid #30363d; padding:12px 24px; display:flex; align-items:center; gap:16px; }
+  .header-logo { font-size:1.2rem; font-weight:700; color:#f0f6fc; letter-spacing:.1em; }
+  .header-path { font-size:.75rem; color:#8b949e; }
+  .header-path span { color:#58a6ff; }
+  .glitch { color:#ff4444; animation:glitch 2s infinite; font-size:.7rem; }
+  @keyframes glitch { 0%,100%{opacity:1}50%{opacity:.4} }
+  .container { max-width:720px; margin:0 auto; padding:2rem 1.5rem; }
+  .file-header { border:1px solid #30363d; border-radius:6px; margin-bottom:2rem; overflow:hidden; }
+  .file-header-bar { background:#161b22; padding:10px 16px; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; align-items:center; font-size:.75rem; color:#8b949e; }
+  .file-content { padding:1.5rem; background:#0d1117; }
+  .imdb-box { background:#161b22; border:1px solid #30363d; border-radius:6px; padding:1.5rem; margin:1.5rem 0; }
+  .imdb-title { color:#f0a500; font-weight:700; font-size:1rem; margin-bottom:1rem; }
+  .imdb-link { color:#58a6ff; font-size:.8rem; text-decoration:underline; }
+  .years-grid { display:flex; gap:10px; flex-wrap:wrap; margin:1rem 0; }
+  .year-badge { background:#21262d; border:1px solid #30363d; border-radius:4px; padding:6px 16px; font-size:.85rem; color:#c9d1d9; font-family:monospace; }
+  .format-zone { margin:1.5rem 0; }
+  .format-label { font-size:.7rem; color:#8b949e; letter-spacing:.1em; text-transform:uppercase; margin-bottom:.8rem; }
+  .format-display { font-size:1.3rem; font-family:monospace; letter-spacing:.2em; color:#f0a500; }
+  .input-zone { margin-top:2rem; }
+  .input-zone label { display:block; font-size:.75rem; color:#8b949e; letter-spacing:.1em; text-transform:uppercase; margin-bottom:.5rem; }
+  .input-row { display:flex; gap:8px; }
+  .input-row input { flex:1; background:#0d1117; border:1px solid #30363d; color:#f0f6fc; padding:.6rem 1rem; font-family:monospace; font-size:.9rem; border-radius:4px; outline:none; text-transform:uppercase; }
+  .input-row input:focus { border-color:#1f6feb; }
+  .btn { background:#238636; color:#fff; border:none; padding:.6rem 1.4rem; font-family:monospace; font-size:.8rem; cursor:pointer; border-radius:4px; }
+  .btn:hover { background:#2ea043; }
+  .result { margin-top:1rem; padding:.75rem 1rem; border-radius:4px; font-size:.85rem; display:none; }
+  .result.ok { background:#0d2b12; border:1px solid #238636; color:#3fb950; display:block; }
+  .result.err { background:#2b0d0d; border:1px solid #da3633; color:#ff7b72; display:block; }
+  .back { display:inline-block; margin-top:2rem; color:#8b949e; font-size:.75rem; cursor:pointer; }
+  .back:hover { color:#58a6ff; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">GITHYRULE</div>
+  <div class="header-path">/ <span>film.html</span> <span class="glitch">[CORROMPU]</span></div>
+</div>
+<div class="container">
+  <div class="file-header">
+    <div class="file-header-bar">
+      <span>🎬 film.html · données partiellement récupérées</span>
+      <span style="color:#da3633;">⚠ Integrity Error</span>
+    </div>
+    <div class="file-content">
+      <p style="color:#8b949e;font-size:.8rem;margin-bottom:1.5rem;line-height:1.6;">
+        Fragment intercepté. Une série de films partage un point commun.<br>
+        Retrouvez le titre dont il est question.
+      </p>
+      <div class="imdb-box">
+        <div class="imdb-title">🎬 Source : IMDB</div>
+        <a class="imdb-link" href="https://www.imdb.com/fr/" target="_blank">↗ https://www.imdb.com/fr/</a>
+        <div style="margin-top:1.2rem;">
+          <div style="font-size:.7rem;color:#8b949e;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;">Années concernées :</div>
+          <div class="years-grid">
+            <div class="year-badge">1937</div>
+            <div class="year-badge">2001</div>
+            <div class="year-badge">2012</div>
+            <div class="year-badge">2012</div>
+            <div class="year-badge">2025</div>
+          </div>
+        </div>
+        <div class="format-zone">
+          <div class="format-label">Format du titre :</div>
+          <div class="format-display">_ _ _ _ _ _ _  –  _ _ _ _ _</div>
+        </div>
+      </div>
+      <div class="input-zone">
+        <label>Entrez le titre (avec le tiret) :</label>
+        <div class="input-row">
+          <input type="text" id="film-input" placeholder="TITRE-COURT" autocomplete="off" />
+          <button class="btn" onclick="checkFilm()">VALIDER</button>
+        </div>
+        <div class="result" id="film-result"></div>
+      </div>
+    </div>
+  </div>
+  <span class="back" onclick="window.close()">← Fermer et retourner à GITHYRULE</span>
+  <div style="margin-top:3rem;padding-top:1.2rem;border-top:1px solid #21262d;font-size:.55rem;color:#30363d;font-family:monospace;line-height:1.6;">
+    MIT License · Copyright (c) 2026 RootEscape-esieeIT · Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+  </div>
+</div>
+<script>
+  function checkFilm() {
+    const raw = document.getElementById('film-input').value.trim().toUpperCase();
+    const normalized = raw.replace(/\s+/g,'').replace(/[-–—]/g,'-');
+    const result = document.getElementById('film-result');
+    if (['BLANCHE-NEIGE','BLANCHENEIGE','SNOWWHITE','SNOW-WHITE'].includes(normalized)) {
+      result.className = 'result ok';
+      result.textContent = '✅ Correct. Fermez cet onglet et retournez à GITHYRULE.';
+      try { localStorage.setItem('enigme_film', 'done'); } catch(e) {}
+      document.getElementById('film-input').disabled = true;
+      document.querySelector('.btn').disabled = true;
+    } else if (raw.length > 2) {
+      result.className = 'result err';
+      result.textContent = 'Incorrect. Cherchez sur IMDB le personnage commun à ces cinq années.';
+    }
+  }
+  document.getElementById('film-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkFilm(); });
+</script>
+</body>
+</html>
