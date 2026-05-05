@@ -22,7 +22,7 @@
     <div style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gh-accent);margin-bottom:.5rem;">
       Accès restauré · Intégrité confirmée
     </div>
-    <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:.2em;color:var(--gh-fg);margin-bottom:.4rem;">PIXEL</h1>
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:.2em;color:var(--gh-fg);margin-bottom:.4rem;">Félicitations</h1>
     <div style="color:var(--gh-muted);font-size:.85rem;margin-bottom:2.5rem;">Le mot caché derrière chaque indice</div>
 
     <div style="background:var(--gh-surface);border:1px solid var(--gh-border);border-radius:8px;padding:1.5rem;text-align:left;margin-bottom:1.5rem;">
@@ -73,7 +73,7 @@
 <!-- ===== VIDÉO + GÉNÉRIQUE ===== -->
 <div id="screen-outro" style="display:none;min-height:100vh;background:#000;flex-direction:column;align-items:center;justify-content:center;">
 
-  <video id="outro-video" style="width:100%;max-width:900px;max-height:70vh;display:block;" controls>
+  <video id="outro-video" preload="auto" style="width:100%;max-width:900px;max-height:70vh;display:block;" controls>
     <source src="media/victoire.mp4" type="video/mp4">
     Votre navigateur ne supporte pas la lecture vidéo.
   </video>
@@ -139,7 +139,8 @@
 })();
 
 function showVideo() {
-  document.getElementById('screen-victory').style.display = 'none';
+  document.getElementById('screen-gameover') && (document.getElementById('screen-gameover').style.display = 'none');
+  document.getElementById('screen-victory') && (document.getElementById('screen-victory').style.display = 'none');
   var outro = document.getElementById('screen-outro');
   outro.style.display = 'flex';
 
@@ -149,8 +150,17 @@ function showVideo() {
   document.getElementById('music-ctrl').style.display = 'none';
 
   var video = document.getElementById('outro-video');
+  video.removeAttribute('muted');
   video.muted = false;
-  video.play();
+
+  // Déclenché par clic utilisateur → autoplay policy respectée
+  var playPromise = video.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(function() {
+      // Fallback : afficher hint "Appuyez sur Play"
+      document.getElementById('video-hint').style.display = 'block';
+    });
+  }
 
   video.onended = function() {
     video.style.display = 'none';

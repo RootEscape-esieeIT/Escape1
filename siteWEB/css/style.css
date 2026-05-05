@@ -503,4 +503,4 @@ html, body {
   padding: 8px 20px; cursor: pointer;
   transition: background .15s, border-color .15s;
 }
-.btn-restart:hover { background: var(--gh-border); border-color: var(--gh-accent); }
+.btn-restart:hover { background: var(--gh-border); border-color: var(--gh-accent); }  

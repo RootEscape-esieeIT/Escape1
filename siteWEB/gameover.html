@@ -66,7 +66,7 @@
 <!-- ===== VIDÉO + GÉNÉRIQUE ===== -->
 <div id="screen-outro" style="display:none;min-height:100vh;background:#000;flex-direction:column;align-items:center;justify-content:center;">
 
-  <video id="outro-video" style="width:100%;max-width:900px;max-height:70vh;display:block;" controls>
+  <video id="outro-video" preload="auto" style="width:100%;max-width:900px;max-height:70vh;display:block;" controls>
     <source src="media/defaite.mp4" type="video/mp4">
     Votre navigateur ne supporte pas la lecture vidéo.
   </video>
@@ -135,7 +135,8 @@
 })();
 
 function showVideo() {
-  document.getElementById('screen-gameover').style.display = 'none';
+  document.getElementById('screen-gameover') && (document.getElementById('screen-gameover').style.display = 'none');
+  document.getElementById('screen-victory') && (document.getElementById('screen-victory').style.display = 'none');
   var outro = document.getElementById('screen-outro');
   outro.style.display = 'flex';
 
@@ -145,8 +146,17 @@ function showVideo() {
   document.getElementById('music-ctrl').style.display = 'none';
 
   var video = document.getElementById('outro-video');
+  video.removeAttribute('muted');
   video.muted = false;
-  video.play();
+
+  // Déclenché par clic utilisateur → autoplay policy respectée
+  var playPromise = video.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(function() {
+      // Fallback : afficher hint "Appuyez sur Play"
+      document.getElementById('video-hint').style.display = 'block';
+    });
+  }
 
   video.onended = function() {
     video.style.display = 'none';
