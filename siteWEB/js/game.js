@@ -105,6 +105,7 @@ function checkAllEnigmasDone() {
   if (allDone) {
     addLog('───────────────────────────────────────────────');
     addLog('🔓 Toutes les énigmes résolues.');
+    addLog('🔓 Toutes les énigmes résolues.');
     addLog('▶ Entrez le mot de passe (30 chars) ci-dessous pour terminer.');
     document.getElementById('solution-zone').style.display = 'block';
     document.getElementById('solution-zone').scrollIntoView({ behavior: 'smooth' });
@@ -185,53 +186,53 @@ function startHackerAnimation() {
   const barEl = document.getElementById('hacker-bar');
   const gridEl = document.getElementById('hacker-grid');
   const statusEl = document.getElementById('hacker-status');
-  
+
   const phase1Duration = Math.min(8, totalTime * 0.15) * 1000; // max 8 sec ou 15% du temps
   const startTime = Date.now();
   let fakeProgress = 0;
-  
+
   // Génération de l'ordre de déverrouillage aléatoire
   const actualLen = playerPassword.length;
-  let lockOrder = Array.from({length: actualLen}, (_, i) => i);
+  let lockOrder = Array.from({ length: actualLen }, (_, i) => i);
   for (let i = lockOrder.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [lockOrder[i], lockOrder[j]] = [lockOrder[j], lockOrder[i]];
   }
-  
+
   hackerInterval = setInterval(() => {
     if (timeLeft <= 0) {
       clearInterval(hackerInterval);
       return;
     }
-    
+
     const elapsed = Date.now() - startTime;
     const realProgress = Math.min(1, elapsed / (totalTime * 1000));
-    
+
     // Bruit sur la jauge
-    fakeProgress += (Math.random() * 0.015 - 0.005); 
+    fakeProgress += (Math.random() * 0.015 - 0.005);
     if (fakeProgress < realProgress) fakeProgress += 0.01;
     if (fakeProgress > realProgress + 0.03) fakeProgress -= 0.02;
     fakeProgress = Math.max(0, Math.min(1, fakeProgress));
-    
+
     pctEl.textContent = Math.floor(fakeProgress * 100) + '%';
     barEl.style.width = (fakeProgress * 100) + '%';
-    
+
     if (elapsed < phase1Duration) {
       statusEl.textContent = 'ANALYSING ENTROPY... PROBING LENGTH.';
       const randomLen = Math.floor(Math.random() * 8) + 4;
       let gridHtml = '';
-      for(let i = 0; i < randomLen; i++) {
-        if(Math.random() < 0.4) gridHtml += '_';
+      for (let i = 0; i < randomLen; i++) {
+        if (Math.random() < 0.4) gridHtml += '_';
         else gridHtml += charPool[Math.floor(Math.random() * charPool.length)];
       }
       gridEl.innerHTML = gridHtml;
     } else {
       statusEl.textContent = 'LENGTH ACQUIRED. BRUTE-FORCING...';
       const crackProgress = Math.min(1, (elapsed - phase1Duration) / (totalTime * 1000 - phase1Duration));
-      
+
       const lockedCount = Math.floor(crackProgress * actualLen);
       const currentlyLocked = new Set(lockOrder.slice(0, lockedCount));
-      
+
       let gridHtml = '';
       for (let i = 0; i < actualLen; i++) {
         if (currentlyLocked.has(i)) {
@@ -241,7 +242,7 @@ function startHackerAnimation() {
         }
       }
       gridEl.innerHTML = gridHtml;
-      
+
       if (crackProgress >= 1) {
         statusEl.textContent = 'PASSWORD CRACKED. SYSTEM COMPROMISED.';
         gridEl.innerHTML = playerPassword.split('').map(c => `<span class="hacker-locked-char">${c}</span>`).join('');
