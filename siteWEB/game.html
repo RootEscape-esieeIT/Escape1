@@ -1,330 +1,487 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <title>GITHYRULE · Sign in</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .screen { display: none; }
-    .screen.active { display: block; }
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
     @keyframes glitchBig {
-      0%,100% { text-shadow:none; opacity:1; }
-      92%      { text-shadow:none; opacity:1; }
-      93%      { text-shadow:4px 0 #ff4444,-4px 0 #58a6ff; opacity:.8; transform:skewX(-2deg); }
-      94%      { text-shadow:-4px 0 #ff4444,4px 0 #58a6ff; opacity:1; transform:skewX(1deg); }
-      95%      { text-shadow:none; opacity:1; transform:skewX(0); }
+
+      0%,
+      100% {
+        text-shadow: none;
+        opacity: 1;
+      }
+
+      92% {
+        text-shadow: none;
+        opacity: 1;
+      }
+
+      93% {
+        text-shadow: 4px 0 #ff4444, -4px 0 #58a6ff;
+        opacity: .8;
+        transform: skewX(-2deg);
+      }
+
+      94% {
+        text-shadow: -4px 0 #ff4444, 4px 0 #58a6ff;
+        opacity: 1;
+        transform: skewX(1deg);
+      }
+
+      95% {
+        text-shadow: none;
+        opacity: 1;
+        transform: skewX(0);
+      }
+    }
+
+    #hacker-overlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 66vw;
+      height: 66vh;
+      background: rgba(25, 5, 10, 0.3);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 40, 80, 0.4);
+      box-shadow: 0 0 80px rgba(255, 40, 80, 0.2), inset 0 0 30px rgba(255, 40, 80, 0.1);
+      border-radius: 16px;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      font-family: system-ui, -apple-system, sans-serif;
+      animation: hackerIntrusive 6s infinite alternate;
+    }
+
+    @keyframes hackerIntrusive {
+      0% { opacity: 0.2; }
+      25% { opacity: 0.35; transform: translate(-50%, -50%) scale(1.02); }
+      50% { opacity: 0.5; }
+      75% { opacity: 0.25; transform: translate(-50%, -50%) scale(0.98); }
+      100% { opacity: 0.45; }
+    }
+
+    .hacker-title {
+      color: #ff2850;
+      font-size: 1.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      font-weight: 900;
+      text-shadow: 0 0 15px rgba(255, 40, 80, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hacker-bar-container {
+      width: 80%;
+      height: 4px;
+      background: rgba(255, 40, 80, 0.1);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(255, 40, 80, 0.3);
+    }
+    .hacker-bar-fill {
+      height: 100%;
+      background: #ff2850;
+      width: 0%;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 15px #ff2850;
+    }
+
+    .hacker-status {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2rem;
+      letter-spacing: 0.1em;
+      font-weight: 300;
+      text-transform: uppercase;
+    }
+
+    .hacker-crack-grid {
+      color: rgba(255, 40, 80, 0.6);
+      font-size: 4rem;
+      letter-spacing: 0.3em;
+      font-weight: 800;
+      word-break: break-all;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .hacker-locked-char {
+      color: #ffffff;
+      text-shadow: 0 0 20px #ff2850, 0 0 40px #ff2850;
     }
   </style>
 </head>
+
 <body>
 
-<!-- GLITCH OVERLAY -->
-<div id="glitch-overlay">
-  <div class="glitch-lines">
-    <div class="glitch-line"></div>
-    <div class="glitch-line"></div>
-    <div class="glitch-line"></div>
-  </div>
-  <div class="glitch-msg">ERR_SYSTEM_FAILURE — unauthorized access detected</div>
-</div>
-
-<!-- ===== SCREEN LOGIN ===== -->
-<div id="screen-login" class="screen active">
-
-  <div class="login-svg-watermark">
-    <img src="logo/logov1.svg" alt="">
+  <!-- GLITCH OVERLAY -->
+  <div id="glitch-overlay">
+    <div class="glitch-lines">
+      <div class="glitch-line"></div>
+      <div class="glitch-line"></div>
+      <div class="glitch-line"></div>
+    </div>
+    <div class="glitch-msg">ERR_SYSTEM_FAILURE — unauthorized access detected</div>
   </div>
 
-  <div class="login-main">
-    <div class="login-logo-wrap">
-      <img src="logo/logo.png" class="login-logo-img" alt="Githyrule">
-      <div class="login-brand">GITHYRULE</div>
+  <!-- ===== SCREEN LOGIN ===== -->
+  <div id="screen-login" class="screen active">
+
+    <div class="login-svg-watermark">
+      <img src="logo/logov1.svg" alt="">
     </div>
 
-    <div class="login-card">
-      <h2>Sign in</h2>
-      <div class="field">
-        <label class="field-label">Username or email address</label>
-        <input type="text" id="input-user" class="field-input" placeholder="username" autocomplete="off">
+    <div class="login-main">
+      <div class="login-logo-wrap">
+        <img src="logo/logo.png" class="login-logo-img" alt="Githyrule">
+        <div class="login-brand">GITHYRULE</div>
       </div>
-      <div class="field">
-        <label class="field-label" style="display:flex;justify-content:space-between;">
-          Password
-          <a href="#" style="font-weight:400;color:var(--gh-accent);font-size:.8rem;">Forgot password?</a>
-        </label>
-        <input type="password" id="input-pass" class="field-input" placeholder="Password">
+
+      <div class="login-card">
+        <h2>Sign in</h2>
+        <div class="field">
+          <label class="field-label">Username or email address</label>
+          <input type="text" id="input-user" class="field-input" placeholder="username" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" style="display:flex;justify-content:space-between;">
+            Password
+            <a href="#" style="font-weight:400;color:var(--gh-accent);font-size:.8rem;">Forgot password?</a>
+          </label>
+          <input type="password" id="input-pass" class="field-input" placeholder="Password">
+        </div>
+        <button class="btn-signin" onclick="doLogin()">Sign in</button>
+        <div class="login-card-footer">
+          By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </div>
       </div>
-      <button class="btn-signin" onclick="doLogin()">Sign in</button>
-      <div class="login-card-footer">
-        By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+
+      <div class="login-signup-box">
+        New to GITHYRULE? <a href="#">Create an account</a>
       </div>
     </div>
 
-    <div class="login-signup-box">
-      New to GITHYRULE? <a href="#">Create an account</a>
+    <footer class="login-footer">
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Security</a>
+      <a href="#">Status</a>
+      <a href="#">Docs</a>
+      <a href="#">Contact</a>
+      <a href="#">Manage cookies</a>
+      <a href="#" style="font-size:.65rem;color:var(--gh-muted);"
+        onclick="document.getElementById('license-modal').style.display='flex';return false;">License</a>
+      <br>
+      © 2026 RootEscape · All rights reserved
+    </footer>
+  </div>
+
+  <!-- LICENSE MODAL -->
+  <div id="license-modal"
+    style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.75);"
+    onclick="if(event.target===this)this.style.display='none'">
+    <div
+      style="background:#161b22;border:1px solid #30363d;border-radius:8px;max-width:560px;width:90%;padding:2rem;position:relative;font-family:'Courier New',monospace;font-size:.72rem;color:#8b949e;line-height:1.7;">
+      <button onclick="document.getElementById('license-modal').style.display='none'"
+        style="position:absolute;top:12px;right:16px;background:none;border:none;color:#8b949e;font-size:1.1rem;cursor:pointer;">✕</button>
+      <div style="font-size:.65rem;letter-spacing:.2em;color:#58a6ff;text-transform:uppercase;margin-bottom:1rem;">MIT
+        License</div>
+      <div>Copyright (c) 2026 RootEscape-esieeIT</div><br>
+      <div>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+        documentation files (the "Software"), to deal in the Software without restriction.</div><br>
+      <div style="color:#444d56;">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+      </div>
     </div>
   </div>
 
-  <footer class="login-footer">
-    <a href="#">Terms</a>
-    <a href="#">Privacy</a>
-    <a href="#">Security</a>
-    <a href="#">Status</a>
-    <a href="#">Docs</a>
-    <a href="#">Contact</a>
-    <a href="#">Manage cookies</a>
-    <a href="#" style="font-size:.65rem;color:var(--gh-muted);" onclick="document.getElementById('license-modal').style.display='flex';return false;">License</a>
-    <br>
-    © 2026 RootEscape · All rights reserved
-  </footer>
-</div>
-
-<!-- LICENSE MODAL -->
-<div id="license-modal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.75);" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#161b22;border:1px solid #30363d;border-radius:8px;max-width:560px;width:90%;padding:2rem;position:relative;font-family:'Courier New',monospace;font-size:.72rem;color:#8b949e;line-height:1.7;">
-    <button onclick="document.getElementById('license-modal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#8b949e;font-size:1.1rem;cursor:pointer;">✕</button>
-    <div style="font-size:.65rem;letter-spacing:.2em;color:#58a6ff;text-transform:uppercase;margin-bottom:1rem;">MIT License</div>
-    <div>Copyright (c) 2026 RootEscape-esieeIT</div><br>
-    <div>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction.</div><br>
-    <div style="color:#444d56;">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.</div>
-  </div>
-</div>
-
-<!-- ===== SCREEN PREVIEW (flash 3s après login) ===== -->
-<div id="screen-preview" class="screen">
-  <div class="gh-header">
-    <a href="#" class="gh-logo">
-      <img src="logo/logo.png" alt="Githyrule" style="height:20px;width:20px;object-fit:contain;">
-      GITHYRULE
-    </a>
-    <div class="gh-search">🔍 &nbsp;Type / to search</div>
-    <div class="gh-nav-right">
-      <span>Pull requests</span><span>Issues</span><span>Marketplace</span>
+  <!-- ===== SCREEN PREVIEW (flash 3s après login) ===== -->
+  <div id="screen-preview" class="screen">
+    <div class="gh-header">
+      <a href="#" class="gh-logo">
+        <img src="logo/logo.png" alt="Githyrule" style="height:20px;width:20px;object-fit:contain;">
+        GITHYRULE
+      </a>
+      <div class="gh-search">🔍 &nbsp;Type / to search</div>
+      <div class="gh-nav-right">
+        <span>Pull requests</span><span>Issues</span><span>Marketplace</span>
+      </div>
+    </div>
+    <div class="dashboard-body">
+      <div class="gh-col-left">
+        <div class="gh-box">
+          <div class="gh-box-title">Top Repositories</div>
+          <ul class="gh-repo-list">
+            <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/core_system</li>
+            <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/user_database</li>
+            <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/security_audit</li>
+            <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/nav_module_v2</li>
+          </ul>
+        </div>
+      </div>
+      <div class="gh-col-main">
+        <div class="gh-box">
+          <div class="gh-box-title">Home</div>
+          <div style="color:var(--gh-muted);font-size:.85rem;">Welcome back. Loading your repositories…</div>
+        </div>
+        <h2 style="font-size:.85rem;font-weight:400;color:var(--gh-muted);margin:16px 0 8px;">Recent activity</h2>
+        <div class="gh-news-item">
+          <div class="gh-news-meta">githyrule_bot pushed to main · 2 minutes ago</div>
+          <div>Merge pull request #104 from security/patch-critical</div>
+        </div>
+        <div class="gh-news-item">
+          <div class="gh-news-meta">admin opened issue #312 · 1 hour ago</div>
+          <div>Navigation module integrity check failed on sector 7</div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="dashboard-body">
-    <div class="gh-col-left">
-      <div class="gh-box">
-        <div class="gh-box-title">Top Repositories</div>
-        <ul class="gh-repo-list">
-          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/core_system</li>
-          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/user_database</li>
-          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/security_audit</li>
-          <li class="gh-repo-item"><span class="gh-repo-dot"></span> githyrule/nav_module_v2</li>
+
+  <!-- ===== SCREEN NARRATION ===== -->
+  <div id="screen-narration" class="screen">
+    <div class="narration-container">
+
+      <div class="narration-slide active" id="slide-1">
+        <div class="narration-icon">⚠️</div>
+        <div class="narration-chapter">Alerte sécurité · Incident #4782</div>
+        <div class="narration-title">Votre compte <span class="red">a été compromis</span></div>
+        <div class="narration-text">
+          Un <strong>accès non autorisé</strong> a été détecté sur votre session GITHYRULE.<br><br>
+          Vos dépôts, fichiers et données sont en cours <span class="danger">d'exfiltration</span>. L'attaquant a
+          chiffré votre espace de travail avec un mot de passe cryptographique.
+        </div>
+      </div>
+
+      <div class="narration-slide" id="slide-2">
+        <div class="narration-icon">🔒</div>
+        <div class="narration-chapter">Alerte sécurité · Accès verrouillé</div>
+        <div class="narration-title">Vos projets sont <span class="red">verrouillés</span></div>
+        <div class="narration-text">
+          Pour générer la clé de déchiffrement, le système a besoin d'une <strong>empreinte numérique</strong> — un
+          fichier SVG précis, introuvable sans investigation.<br><br>
+          Quatre fichiers corrompus subsistent dans le dépôt. Chacun cache un <span class="danger">indice</span>.
+        </div>
+      </div>
+
+      <div class="narration-slide" id="slide-3">
+        <div class="narration-icon">🔑</div>
+        <div class="narration-chapter">Procédure de récupération</div>
+        <div class="narration-title">Suivez le <strong>fil caché</strong></div>
+        <div class="narration-text">
+          Les quatre énigmes pointent toutes vers un <strong>concept commun</strong>.<br><br>
+          Identifiez ce fil conducteur, trouvez le fichier SVG qui lui correspond sur Wikimedia, puis lancez <code
+            style="background:var(--gh-bg);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);color:var(--gh-accent);">crypt.py</code>
+          avec son URL pour <strong>générer le mot de passe de récupération</strong>.
+        </div>
+      </div>
+
+      <div class="narration-slide" id="slide-4">
+        <div class="narration-icon">⚡</div>
+        <div class="narration-chapter">Récupération · Protocole d'urgence</div>
+        <div class="narration-title">Vous êtes <span class="red">seul</span></div>
+        <div class="narration-text">
+          Aucune aide. Aucun indice direct. Aucun filet de sécurité.<br><br>
+          Les quatre fichiers ne se lisent pas — ils se <span class="danger">déchiffrent</span>. Le lien entre eux ne
+          saute pas aux yeux.<br><br>
+          <strong>Tout repose sur ce que vous découvrirez par vous-même.</strong>
+        </div>
+        <button class="narration-cta" onclick="startGame()"><span>Lancer la récupération</span></button>
+      </div>
+
+      <div class="narration-progress">
+        <div class="narration-dot active" id="dot-1"></div>
+        <div class="narration-dot" id="dot-2"></div>
+        <div class="narration-dot" id="dot-3"></div>
+        <div class="narration-dot" id="dot-4"></div>
+      </div>
+
+      <button class="narration-skip" onclick="skipToSlide(4)">Passer l'intro ›</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN GAME ===== -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <div class="game-logo">
+        <img src="logo/logo.png" alt="Githyrule" style="height:20px;width:20px;object-fit:contain;">
+        GITHYRULE
+      </div>
+      <div id="gh-timer">⚠ 05:00</div>
+      <div class="game-status">
+        <span class="blink-badge">COMPROMIS</span>
+        Accès restreint
+      </div>
+    </div>
+
+    <div class="game-body">
+      <div class="gh-alert">
+        <div class="gh-alert-icon">🚨</div>
+        <div>
+          <strong>Incident de sécurité actif</strong> — Un accès non autorisé a été détecté sur ce compte.
+          Vos dépôts sont verrouillés. Résolvez les cinq énigmes, identifiez le fil conducteur, puis générez le mot de
+          passe via <a href="crypt.py" download
+            style="color:var(--gh-accent);text-decoration:none;cursor:pointer;"><code
+              style="font-family:monospace;font-size:.8rem;background:rgba(255,255,255,0.1);padding:2px 4px;border-radius:3px;">crypt.py</code></a>
+          pour restaurer l'accès.
+        </div>
+      </div>
+
+      <div class="repo-header">
+        <div class="repo-breadcrumb">
+          <span>githyrule</span> <span>/</span>
+          <span class="repo-name">system_integrity_check</span>
+        </div>
+        <div class="repo-sub">
+          <span class="repo-badge">Public</span>
+          <span class="repo-badge">Read-only</span>
+          <span class="repo-badge err">⚠ Integrity Error</span>
+        </div>
+      </div>
+
+      <div id="logs" class="gh-console"></div>
+
+      <div class="gh-file-browser">
+        <div class="gh-file-browser-header">
+          <span>githyrule-bot committed · <span style="color:var(--gh-red);">system compromised — access
+              restricted</span></span>
+          <span style="font-family:var(--font-mono);font-size:.75rem;">198db0f</span>
+        </div>
+        <ul class="gh-file-list">
+          <li class="gh-file-item" onclick="openModule('livre')">
+            <span class="gh-file-icon">📄</span>
+            <span class="gh-file-name">livre.html</span>
+            <span class="gh-file-meta err" id="badge-livre">Non résolu · Cliquez pour inspecter</span>
+          </li>
+          <li class="gh-file-item" onclick="openModule('cardan')">
+            <span class="gh-file-icon">🖼</span>
+            <span class="gh-file-name">cardan.html</span>
+            <span class="gh-file-meta err" id="badge-cardan">Non résolu · Artefact non identifié</span>
+          </li>
+          <li class="gh-file-item" onclick="openModule('film')">
+            <span class="gh-file-icon">🎬</span>
+            <span class="gh-file-name">film.html</span>
+            <span class="gh-file-meta err" id="badge-film">Non résolu · Données corrompues</span>
+          </li>
+          <li class="gh-file-item" onclick="openModule('youtube')">
+            <span class="gh-file-icon">▶</span>
+            <span class="gh-file-name">youtube.html</span>
+            <span class="gh-file-meta err" id="badge-youtube">Non résolu · Signal intercepté</span>
+          </li>
+          <li class="gh-file-item" onclick="openModule('wikipedia')">
+            <span class="gh-file-icon">🔗</span>
+            <span class="gh-file-name">wikipedia.html</span>
+            <span class="gh-file-meta err" id="badge-wikipedia">Non résolu · Trace numérique</span>
+          </li>
         </ul>
       </div>
     </div>
-    <div class="gh-col-main">
-      <div class="gh-box">
-        <div class="gh-box-title">Home</div>
-        <div style="color:var(--gh-muted);font-size:.85rem;">Welcome back. Loading your repositories…</div>
+
+    <div id="solution-zone"
+      style="display:none;padding:14px 24px 24px;border-top:1px solid var(--gh-border);background:var(--gh-surface);flex-shrink:0;">
+      <div
+        style="font-family:var(--font-mono);font-size:.6rem;color:var(--gh-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">
+        ✅ Toutes les énigmes résolues — Entrez le mot de passe cryptographique (30 chars)
       </div>
-      <h2 style="font-size:.85rem;font-weight:400;color:var(--gh-muted);margin:16px 0 8px;">Recent activity</h2>
-      <div class="gh-news-item">
-        <div class="gh-news-meta">githyrule_bot pushed to main · 2 minutes ago</div>
-        <div>Merge pull request #104 from security/patch-critical</div>
-      </div>
-      <div class="gh-news-item">
-        <div class="gh-news-meta">admin opened issue #312 · 1 hour ago</div>
-        <div>Navigation module integrity check failed on sector 7</div>
+      <div style="display:flex;gap:8px;">
+        <input id="solution-input" type="text" placeholder="MOT DE PASSE (30 CARACTÈRES)"
+          style="flex:1;background:var(--gh-bg);border:1px solid var(--gh-border);border-bottom:2px solid var(--gh-red);color:var(--gh-fg);font-family:var(--font-mono);font-size:.85rem;letter-spacing:.15em;padding:10px 14px;outline:none;border-radius:4px;transition:border-bottom-color .2s;"
+          onfocus="this.style.borderBottomColor='var(--gh-accent)'"
+          onblur="this.style.borderBottomColor='var(--gh-red)'">
+        <button onclick="checkFinalCode()"
+          style="background:var(--gh-red);color:white;border:none;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;padding:0 18px;cursor:pointer;border-radius:4px;"
+          onmouseover="this.style.background='#ff4466'" onmouseout="this.style.background='var(--gh-red)'">
+          VALIDER
+        </button>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ===== SCREEN NARRATION ===== -->
-<div id="screen-narration" class="screen">
-  <div class="narration-container">
-
-    <div class="narration-slide active" id="slide-1">
-      <div class="narration-icon">⚠️</div>
-      <div class="narration-chapter">Alerte sécurité · Incident #4782</div>
-      <div class="narration-title">Votre compte <span class="red">a été compromis</span></div>
-      <div class="narration-text">
-        Un <strong>accès non autorisé</strong> a été détecté sur votre session GITHYRULE.<br><br>
-        Vos dépôts, fichiers et données sont en cours <span class="danger">d'exfiltration</span>. L'attaquant a chiffré votre espace de travail avec un mot de passe cryptographique.
-      </div>
+  <!-- HACKER OVERLAY -->
+  <div id="hacker-overlay">
+    <div class="hacker-title">
+      <span>BRUTE_FORCE_INITIATED</span>
+      <span id="hacker-pct">0%</span>
     </div>
-
-    <div class="narration-slide" id="slide-2">
-      <div class="narration-icon">🔒</div>
-      <div class="narration-chapter">Alerte sécurité · Accès verrouillé</div>
-      <div class="narration-title">Vos projets sont <span class="red">verrouillés</span></div>
-      <div class="narration-text">
-        Pour générer la clé de déchiffrement, le système a besoin d'une <strong>empreinte numérique</strong> — un fichier SVG précis, introuvable sans investigation.<br><br>
-        Quatre fichiers corrompus subsistent dans le dépôt. Chacun cache un <span class="danger">indice</span>.
-      </div>
+    <div class="hacker-bar-container">
+      <div class="hacker-bar-fill" id="hacker-bar"></div>
     </div>
-
-    <div class="narration-slide" id="slide-3">
-      <div class="narration-icon">🔑</div>
-      <div class="narration-chapter">Procédure de récupération</div>
-      <div class="narration-title">Suivez le <strong>fil caché</strong></div>
-      <div class="narration-text">
-        Les quatre énigmes pointent toutes vers un <strong>concept commun</strong>.<br><br>
-        Identifiez ce fil conducteur, trouvez le fichier SVG qui lui correspond sur Wikimedia, puis lancez <code style="background:var(--gh-bg);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);color:var(--gh-accent);">crypt.py</code> avec son URL pour <strong>générer le mot de passe de récupération</strong>.
-      </div>
-    </div>
-
-    <div class="narration-slide" id="slide-4">
-      <div class="narration-icon">⚡</div>
-      <div class="narration-chapter">Récupération · Protocole d'urgence</div>
-      <div class="narration-title">Vous êtes <span class="red">seul</span></div>
-      <div class="narration-text">
-        Aucune aide. Aucun indice direct. Aucun filet de sécurité.<br><br>
-        Les quatre fichiers ne se lisent pas — ils se <span class="danger">déchiffrent</span>. Le lien entre eux ne saute pas aux yeux.<br><br>
-        <strong>Tout repose sur ce que vous découvrirez par vous-même.</strong>
-      </div>
-      <button class="narration-cta" onclick="startGame()"><span>Lancer la récupération</span></button>
-    </div>
-
-    <div class="narration-progress">
-      <div class="narration-dot active" id="dot-1"></div>
-      <div class="narration-dot" id="dot-2"></div>
-      <div class="narration-dot" id="dot-3"></div>
-      <div class="narration-dot" id="dot-4"></div>
-    </div>
-
-    <button class="narration-skip" onclick="skipToSlide(4)">Passer l'intro ›</button>
-  </div>
-</div>
-
-<!-- ===== SCREEN GAME ===== -->
-<div id="screen-game" class="screen">
-  <div class="game-header">
-    <div class="game-logo">
-      <img src="logo/logo.png" alt="Githyrule" style="height:20px;width:20px;object-fit:contain;">
-      GITHYRULE
-    </div>
-    <div id="gh-timer">⚠ 05:00</div>
-    <div class="game-status">
-      <span class="blink-badge">COMPROMIS</span>
-      Accès restreint
-    </div>
+    <div class="hacker-status" id="hacker-status">Scanning memory footprint...</div>
+    <div class="hacker-crack-grid" id="hacker-grid"></div>
   </div>
 
-  <div class="game-body">
-    <div class="gh-alert">
-      <div class="gh-alert-icon">🚨</div>
-      <div>
-        <strong>Incident de sécurité actif</strong> — Un accès non autorisé a été détecté sur ce compte.
-        Vos dépôts sont verrouillés. Résolvez les quatre énigmes, identifiez le fil conducteur, puis générez le mot de passe via <code style="font-family:monospace;font-size:.8rem;">crypt.py</code> pour restaurer l'accès.
-      </div>
-    </div>
-
-    <div class="repo-header">
-      <div class="repo-breadcrumb">
-        <span>githyrule</span> <span>/</span>
-        <span class="repo-name">system_integrity_check</span>
-      </div>
-      <div class="repo-sub">
-        <span class="repo-badge">Public</span>
-        <span class="repo-badge">Read-only</span>
-        <span class="repo-badge err">⚠ Integrity Error</span>
-      </div>
-    </div>
-
-    <div id="logs" class="gh-console"></div>
-
-    <div class="gh-file-browser">
-      <div class="gh-file-browser-header">
-        <span>githyrule-bot committed · <span style="color:var(--gh-red);">system compromised — access restricted</span></span>
-        <span style="font-family:var(--font-mono);font-size:.75rem;">198db0f</span>
-      </div>
-      <ul class="gh-file-list">
-        <li class="gh-file-item" onclick="openModule('livre')">
-          <span class="gh-file-icon">📄</span>
-          <span class="gh-file-name">livre.html</span>
-          <span class="gh-file-meta err" id="badge-livre">Non résolu · Cliquez pour inspecter</span>
-        </li>
-        <li class="gh-file-item" onclick="openModule('film')">
-          <span class="gh-file-icon">🎬</span>
-          <span class="gh-file-name">film.html</span>
-          <span class="gh-file-meta err" id="badge-film">Non résolu · Données corrompues</span>
-        </li>
-        <li class="gh-file-item" onclick="openModule('youtube')">
-          <span class="gh-file-icon">▶</span>
-          <span class="gh-file-name">youtube.html</span>
-          <span class="gh-file-meta err" id="badge-youtube">Non résolu · Signal intercepté</span>
-        </li>
-        <li class="gh-file-item" onclick="openModule('wikipedia')">
-          <span class="gh-file-icon">🔗</span>
-          <span class="gh-file-name">wikipedia.html</span>
-          <span class="gh-file-meta err" id="badge-wikipedia">Non résolu · Trace numérique</span>
-        </li>
-      </ul>
-    </div>
+  <!-- ===== MUSIQUE ===== -->
+  <!-- Sneaky Snitch (login) → Magic Escape Room (narration) → Cipher (jeu) -->
+  <!-- Kevin MacLeod | CC BY 3.0 / 4.0 | incompetech.com -->
+  <audio id="bg-music" loop style="display:none;">
+    <source id="bg-music-src" src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3"
+      type="audio/mpeg">
+  </audio>
+  <div id="music-ctrl"
+    style="position:fixed;bottom:18px;right:18px;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:8px;font-family:'Courier New',monospace;font-size:.7rem;color:#8b949e;">
+    <span id="music-icon" style="cursor:pointer;font-size:.9rem;" onclick="toggleMusic()">🔊</span>
+    <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35"
+      style="width:70px;accent-color:#58a6ff;cursor:pointer;"
+      oninput="document.getElementById('bg-music').volume=this.value">
+    <span style="font-size:.6rem;color:#444d56;letter-spacing:.05em;">BGM</span>
   </div>
 
-  <div id="solution-zone" style="display:none;padding:14px 24px 24px;border-top:1px solid var(--gh-border);background:var(--gh-surface);flex-shrink:0;">
-    <div style="font-family:var(--font-mono);font-size:.6rem;color:var(--gh-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">
-      ✅ Toutes les énigmes résolues — Entrez le mot de passe cryptographique (30 chars)
-    </div>
-    <div style="font-size:.7rem;color:var(--gh-muted);margin-bottom:8px;font-family:var(--font-mono);">
-      💡 Lancez <code style="color:var(--gh-accent);">crypt.py</code> avec le SVG PixelApple de Wikimedia pour obtenir le mot de passe.
-    </div>
-    <div style="display:flex;gap:8px;">
-      <input id="solution-input" type="text" placeholder="MOT DE PASSE (30 CARACTÈRES)"
-        style="flex:1;background:var(--gh-bg);border:1px solid var(--gh-border);border-bottom:2px solid var(--gh-red);color:var(--gh-fg);font-family:var(--font-mono);font-size:.85rem;letter-spacing:.15em;padding:10px 14px;outline:none;border-radius:4px;transition:border-bottom-color .2s;"
-        onfocus="this.style.borderBottomColor='var(--gh-accent)'" onblur="this.style.borderBottomColor='var(--gh-red)'">
-      <button onclick="checkFinalCode()"
-        style="background:var(--gh-red);color:white;border:none;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;padding:0 18px;cursor:pointer;border-radius:4px;"
-        onmouseover="this.style.background='#ff4466'" onmouseout="this.style.background='var(--gh-red)'">
-        VALIDER
-      </button>
-    </div>
-  </div>
-</div>
+  <script>
+    (function () {
+      var music = document.getElementById('bg-music');
+      var muted = false;
+      music.volume = 0.35;
 
-<!-- ===== MUSIQUE ===== -->
-<!-- Sneaky Snitch (login) → Magic Escape Room (narration) → Cipher (jeu) -->
-<!-- Kevin MacLeod | CC BY 3.0 / 4.0 | incompetech.com -->
-<audio id="bg-music" loop style="display:none;">
-  <source id="bg-music-src" src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3" type="audio/mpeg">
-</audio>
-<div id="music-ctrl" style="position:fixed;bottom:18px;right:18px;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:8px;font-family:'Courier New',monospace;font-size:.7rem;color:#8b949e;">
-  <span id="music-icon" style="cursor:pointer;font-size:.9rem;" onclick="toggleMusic()">🔊</span>
-  <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35" style="width:70px;accent-color:#58a6ff;cursor:pointer;" oninput="document.getElementById('bg-music').volume=this.value">
-  <span style="font-size:.6rem;color:#444d56;letter-spacing:.05em;">BGM</span>
-</div>
+      // La musique NE démarre PAS au chargement ni au premier clic.
+      // Elle est déclenchée uniquement par window.playMusic() depuis auth.js.
 
-<script>
-(function(){
-  var music = document.getElementById('bg-music');
-  var muted = false;
-  music.volume = 0.35;
+      window.playMusic = function () {
+        var src = document.getElementById('bg-music-src');
+        src.src = 'media/ambiance.mp3';
+        music.load();
+        music.volume = 0.35;
+        music.play().catch(function () { });
+      };
 
-  // La musique NE démarre PAS au chargement ni au premier clic.
-  // Elle est déclenchée uniquement par window.playMusic() depuis auth.js.
+      window.toggleMusic = function () {
+        muted = !muted;
+        music.muted = muted;
+        document.getElementById('music-icon').textContent = muted ? '🔇' : '🔊';
+      };
 
-  window.playMusic = function() {
-    var src = document.getElementById('bg-music-src');
-    src.src = 'media/ambiance.mp3';
-    music.load();
-    music.volume = 0.35;
-    music.play().catch(function(){});
-  };
+      window.switchTrack = function (url) {
+        var src = document.getElementById('bg-music-src');
+        if (src.src.endsWith(url.split('/').pop())) return;
+        var vol = music.volume;
+        src.src = url;
+        music.load();
+        music.volume = vol;
+        music.play().catch(function () { });
+      };
+    })();
+  </script>
 
-  window.toggleMusic = function() {
-    muted = !muted;
-    music.muted = muted;
-    document.getElementById('music-icon').textContent = muted ? '🔇' : '🔊';
-  };
-
-  window.switchTrack = function(url) {
-    var src = document.getElementById('bg-music-src');
-    if (src.src.endsWith(url.split('/').pop())) return;
-    var vol = music.volume;
-    src.src = url;
-    music.load();
-    music.volume = vol;
-    music.play().catch(function(){});
-  };
-})();
-</script>
-
-<script src="js/auth.js"></script>
-<script src="js/game.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/game.js"></script>
 </body>
+
 </html>
