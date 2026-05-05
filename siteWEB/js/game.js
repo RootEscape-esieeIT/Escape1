@@ -24,13 +24,7 @@ function initGame(password) {
 
   addLog('Integrity check failed on core system.');
   addLog('Navigation module data corrupted — read access only.');
-  addLog('───────────────────────────────────────────────');
-  addLog('MISSION : Trouvez le mot de passe cryptographique.');
-  addLog('ÉTAPE 1 : Résolvez les 4 épreuves dans les fichiers ci-dessous.');
-  addLog('ÉTAPE 2 : Les indices révèlent une image SVG sur Wikimedia.');
-  addLog('ÉTAPE 3 : Exécutez crypt.py sur cette image pour le mot de passe final.');
-  addLog('───────────────────────────────────────────────');
-  addLog('Indice : Newton, Turing, Blanche-Neige... la pomme est partout.');
+  addLog('Inspect corrupted files below to begin recovery.');
 
   countdownInterval = setInterval(() => {
     timeLeft--;
@@ -48,7 +42,7 @@ function markEnigmaDone(enigmaKey) {
   if (badge) { badge.textContent = '✅ Résolu'; badge.classList.remove('err'); badge.style.color = '#3fb950'; }
 
   const msgs = {
-    livre:     ['✅ livre.html résolu — mot secret : PIXEL.', '💡 PIXEL = PixelApple.svg sur Wikimedia Commons.'],
+    livre:     ['✅ livre.html résolu.'],
     film:      ['✅ film.html résolu — BLANCHE-NEIGE confirmée.', '🍎 La pomme empoisonnée. Même symbole qu\'Apple.'],
     youtube:   ['✅ youtube.html résolu — code : 23-06-1912.', '📅 23 juin 1912 = naissance d\'Alan Turing. La pomme empoisonnée.'],
     wikipedia: ['✅ wikipedia.html résolu — chaîne : Newton.', '🍎 Isaac Newton + la pomme. Tout converge.'],
@@ -61,8 +55,7 @@ function checkAllEnigmasDone() {
   const allDone = Object.values(ENIGMAS).every(v => v === true);
   if (allDone) {
     addLog('───────────────────────────────────────────────');
-    addLog('🔓 Toutes les énigmes résolues. La clé : PixelApple.svg');
-    addLog('▶ Lancez crypt.py avec : https://upload.wikimedia.org/wikipedia/commons/8/84/PixelApple.svg');
+    addLog('🔓 Toutes les énigmes résolues.');
     addLog('▶ Entrez le mot de passe (30 chars) ci-dessous pour terminer.');
     document.getElementById('solution-zone').style.display = 'block';
     document.getElementById('solution-zone').scrollIntoView({ behavior: 'smooth' });
@@ -154,3 +147,6 @@ function triggerWin() {
   clearInterval(countdownInterval);
   window.location.href = 'win.html';
 }
+
+
+// fallback key derivation moved to ../crypt.py (v-1)
